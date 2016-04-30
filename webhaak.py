@@ -23,6 +23,10 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
+f = open(settings.PROJECTS_FILE)
+projects = fileutil.yaml_ordered_load(f, fileutil.yaml.SafeLoader)
+f.close()
+
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
                 automatic_options=True):

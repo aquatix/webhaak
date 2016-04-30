@@ -1,5 +1,7 @@
 PORT=8086
 
+PROJECTS_FILE = 'projects.yaml'
+
 MAX_CACHE_AGE = 600 # seconds
 
 DEBUG = False
