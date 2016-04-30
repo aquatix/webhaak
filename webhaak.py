@@ -2,7 +2,6 @@ from datetime import timedelta
 from functools import update_wrapper
 from flask import make_response, request, current_app
 from flask import Flask
-from flask import request
 from flask import Response
 from flask import jsonify
 from werkzeug.exceptions import abort
@@ -103,8 +102,8 @@ def indexpage():
 
 
 @app.route('/app/<appkey>', methods=['GET', 'OPTIONS'])
-@crossdomain(appkey, origin='*', max_age=settings.MAX_CACHE_AGE)
-def approot():
+@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
+def approot(appkey):
     """
     List some generic info about the app
     """
@@ -112,8 +111,8 @@ def approot():
 
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS'])
-@crossdomain(appkey, triggerkey, origin='*', max_age=settings.MAX_CACHE_AGE)
-def apptrigger():
+@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
+def apptrigger(appkey, triggerkey):
     """
     Fire the trigger described by the configuration under `triggerkey`
     """
