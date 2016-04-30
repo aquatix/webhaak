@@ -131,6 +131,21 @@ def monitor():
 
 
 
+# New in Flask 1.0, not released yet
+#@app.cli.command()
+#def getappkey():
+#    """Generate new appkey"""
+#    import os
+#    os.urandom(24)
+
+
+@app.route('/getappkey')
+def getappkey():
+    """Generate new appkey"""
+    import os
+    return json.dumps({'key': os.urandom(24).encode('hex')})
+
+
 if __name__ == '__main__':
     if settings.DEBUG == False:
         app.run(host='0.0.0.0', port=settings.PORT)
