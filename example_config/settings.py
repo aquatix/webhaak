@@ -1,0 +1,8 @@
+PORT=8086
+
+MAX_CACHE_AGE = 600 # seconds
+
+DEBUG = False
+
+LOG_LOCATION = 'webhaak.log'
+LOG_BACKUP_COUNT = 10
