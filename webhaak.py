@@ -112,6 +112,11 @@ def approot(appkey):
     """
     List some generic info about the app
     """
+    for app in projects:
+        print app
+        if projects[app]['appkey'] == appkey:
+            print 'found'
+            return app
     return appkey
 
 
