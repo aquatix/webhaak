@@ -1,0 +1,6 @@
+# Running the webapp
+Flask
+# Downloading content from the web
+requests
+# Toolkit for interacting with files, formatting and more
+utilkit>=0.3
