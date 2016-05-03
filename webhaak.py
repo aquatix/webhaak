@@ -29,13 +29,35 @@ projects = fileutil.yaml_ordered_load(f, fileutil.yaml.SafeLoader)
 f.close()
 
 
-def gettriggerconfig(appkey, triggerkey):
+def gettriggersettings(appkey, triggerkey):
+    """
+    Look up the trigger and return the repo and command to be updated and fired
+    """
     for app in projects:
         print app
         if projects[app]['appkey'] == appkey:
             print 'found'
-            return app
-    return appkey
+            for trigger in projects[app]['triggers']:
+                if projects[app]['triggers'][trigger]['triggerkey'] == triggerkey:
+                    return trigger
+            #return app
+    #return appkey
+    return None
+
+
+def update_repo(config):
+    """
+    Update (pull) the Git repo
+    """
+    pass
+
+
+def run_command(config):
+    """
+    Run the command(s) defined for this trigger
+    """
+    pass
+
 
 
 # == API request support functions/mixins ======
@@ -88,7 +110,7 @@ def crossdomain(origin=None, methods=None, headers=None,
     return decorator
 
 
-class InvalidAPIUsage(Exception):
+class APIException(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None, payload=None):
@@ -103,6 +125,16 @@ class InvalidAPIUsage(Exception):
         rv['message'] = self.message
         rv['status_code'] = self.status_code
         return rv
+
+
+class InvalidAPIUsage(APIException):
+    status_code = 400
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return jsonify(error=404, text=str(e)), 404
+
 
 @app.errorhandler(InvalidAPIUsage)
 def handle_invalid_usage(error):
@@ -140,8 +172,15 @@ def apptrigger(appkey, triggerkey):
     """
     Fire the trigger described by the configuration under `triggerkey`
     """
-    config = gettriggerconfig(appkey, triggerkey)
+    config = gettriggersettings(appkey, triggerkey)
     print config
+    if config is None:
+        #raise InvalidAPIUsage('Incorrect/incomplete parameter(s) provided', status_code=404)
+        #raise NotFound('Incorrect app/trigger requested')
+        abort(404)
+    else:
+        repo_result = update_repo(config)
+        command_result = run_command(config)
     return appkey
 
 
