@@ -28,6 +28,18 @@ f = open(settings.PROJECTS_FILE)
 projects = fileutil.yaml_ordered_load(f, fileutil.yaml.SafeLoader)
 f.close()
 
+
+def gettriggerconfig(appkey, triggerkey):
+    for app in projects:
+        print app
+        if projects[app]['appkey'] == appkey:
+            print 'found'
+            return app
+    return appkey
+
+
+# == API request support functions/mixins ======
+
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
                 automatic_options=True):
@@ -100,6 +112,8 @@ def handle_invalid_usage(error):
     return response
 
 
+# == Web app endpoints ======
+
 @app.route('/')
 def indexpage():
     logger.debug('Root page requested')
@@ -126,6 +140,8 @@ def apptrigger(appkey, triggerkey):
     """
     Fire the trigger described by the configuration under `triggerkey`
     """
+    config = gettriggerconfig(appkey, triggerkey)
+    print config
     return appkey
 
 
