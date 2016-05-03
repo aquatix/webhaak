@@ -1,3 +1,6 @@
+import json
+import logging
+from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
 from flask import make_response, request, current_app
@@ -5,9 +8,6 @@ from flask import Flask
 from flask import Response
 from flask import jsonify
 from werkzeug.exceptions import abort
-import json
-import logging
-from logging.handlers import TimedRotatingFileHandler
 from utilkit import fileutil
 import settings
 
@@ -24,24 +24,19 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
-f = open(settings.PROJECTS_FILE)
-projects = fileutil.yaml_ordered_load(f, fileutil.yaml.SafeLoader)
-f.close()
+with open(settings.PROJECTS_FILE) as pf:
+    projects = fileutil.yaml_ordered_load(pf, fileutil.yaml.SafeLoader)
 
 
 def gettriggersettings(appkey, triggerkey):
     """
     Look up the trigger and return the repo and command to be updated and fired
     """
-    for app in projects:
-        print app
-        if projects[app]['appkey'] == appkey:
-            print 'found'
-            for trigger in projects[app]['triggers']:
-                if projects[app]['triggers'][trigger]['triggerkey'] == triggerkey:
+    for project in projects:
+        if projects[project]['appkey'] == appkey:
+            for trigger in projects[project]['triggers']:
+                if projects[project]['triggers'][trigger]['triggerkey'] == triggerkey:
                     return trigger
-            #return app
-    #return appkey
     return None
 
 
@@ -49,14 +44,14 @@ def update_repo(config):
     """
     Update (pull) the Git repo
     """
-    pass
+    return 'repo'
 
 
 def run_command(config):
     """
     Run the command(s) defined for this trigger
     """
-    pass
+    return 'command'
 
 
 
@@ -152,18 +147,18 @@ def indexpage():
     return 'Welcome to Webhaak, see the documentation to how to setup and use webhooks.'
 
 
-@app.route('/app/<appkey>', methods=['GET', 'OPTIONS'])
-@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
-def approot(appkey):
-    """
-    List some generic info about the app
-    """
-    for app in projects:
-        print app
-        if projects[app]['appkey'] == appkey:
-            print 'found'
-            return app
-    return appkey
+#@app.route('/app/<appkey>', methods=['GET', 'OPTIONS'])
+#@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
+#def approot(appkey):
+#    """
+#    List some generic info about the app
+#    """
+#    for app in projects:
+#        print app
+#        if projects[app]['appkey'] == appkey:
+#            print 'found'
+#            return app
+#    return appkey
 
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS'])
@@ -179,9 +174,10 @@ def apptrigger(appkey, triggerkey):
         #raise NotFound('Incorrect app/trigger requested')
         abort(404)
     else:
-        repo_result = update_repo(config)
-        command_result = run_command(config)
-    return appkey
+        result = {}
+        result['repo_result'] = update_repo(config)
+        result['command_result'] = run_command(config)
+        return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
 
 
 @app.route('/monitor')
