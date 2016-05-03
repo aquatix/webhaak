@@ -1,5 +1,8 @@
 import json
 import logging
+import git
+import os
+from git import repo
 from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
@@ -24,7 +27,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
-with open(settings.PROJECTS_FILE) as pf:
+with open(settings.PROJECTS_FILE, 'r') as pf:
     projects = fileutil.yaml_ordered_load(pf, fileutil.yaml.SafeLoader)
 
 
@@ -36,7 +39,7 @@ def gettriggersettings(appkey, triggerkey):
         if projects[project]['appkey'] == appkey:
             for trigger in projects[project]['triggers']:
                 if projects[project]['triggers'][trigger]['triggerkey'] == triggerkey:
-                    return trigger
+                    return (project, projects[project]['triggers'][trigger])
     return None
 
 
@@ -44,6 +47,23 @@ def update_repo(config):
     """
     Update (pull) the Git repo
     """
+    print config
+    projectname = config[0]
+    triggerconfig = config[1]
+    repo_url = triggerconfig['repo']
+    print repo_url
+    rw_dir = '/tmp/webhaak/'
+    empty_repo = git.Repo.init(os.path.join(rw_dir, projectname))
+    #origin = empty_repo.create_remote('origin', repo.remotes.origin.url)
+    origin = empty_repo.create_remote('origin', repo_url)
+    assert origin.exists()
+    assert origin == empty_repo.remotes.origin == empty_repo.remotes['origin']
+    origin.fetch()                  # assure we actually have data. fetch() returns useful information
+    # Setup a local tracking branch of a remote branch
+    empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
+    origin.rename('new_origin')   # rename remotes
+    # push and pull behaves similarly to `git push|pull`
+    origin.pull()
     return 'repo'
 
 
@@ -175,7 +195,10 @@ def apptrigger(appkey, triggerkey):
         abort(404)
     else:
         result = {}
-        result['repo_result'] = update_repo(config)
+        try:
+            result['repo_result'] = update_repo(config)
+        except git.GitCommandError as e:
+            return Response(json.dumps({'type': 'giterror', 'message': str(e)}), status=500, mimetype='application/json')
         result['command_result'] = run_command(config)
         return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
 
