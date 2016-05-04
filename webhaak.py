@@ -3,6 +3,7 @@ import logging
 import git
 import os
 from git import repo
+from subprocess import call
 from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
@@ -47,31 +48,52 @@ def update_repo(config):
     """
     Update (pull) the Git repo
     """
-    print config
     projectname = config[0]
     triggerconfig = config[1]
     repo_url = triggerconfig['repo']
-    print repo_url
-    rw_dir = '/tmp/webhaak/'
-    empty_repo = git.Repo.init(os.path.join(rw_dir, projectname))
-    #origin = empty_repo.create_remote('origin', repo.remotes.origin.url)
-    origin = empty_repo.create_remote('origin', repo_url)
-    assert origin.exists()
-    assert origin == empty_repo.remotes.origin == empty_repo.remotes['origin']
-    origin.fetch()                  # assure we actually have data. fetch() returns useful information
-    # Setup a local tracking branch of a remote branch
-    empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
-    origin.rename('new_origin')   # rename remotes
-    # push and pull behaves similarly to `git push|pull`
-    origin.pull()
-    return 'repo'
+    logger.info('[' + projectname + '] Updating ' + repo_url)
+
+    # Ensure cache dir for webhaak exists and is writable
+    rw_dir = settings.REPOS_CACHE_DIR
+    fileutil.ensure_dir_exists(rw_dir) # throws OSError if rw_dir is not writable
+
+    repo_dir = os.path.join(rw_dir, projectname)
+    if os.path.isdir(repo_dir):
+        # Repo already exists locally, do a pull
+        logger.info('[' + projectname + '] Repo exists, pull')
+
+        apprepo = git.Repo(repo_dir)
+        origin = apprepo.remote('origin')
+        result = origin.fetch()                  # assure we actually have data. fetch() returns useful information
+        origin.pull()
+        result = str(result[0])
+    else:
+        # Repo needs to be cloned
+        logger.info('[' + projectname + '] Repo does not exist yet, clone')
+        empty_repo = git.Repo.init(repo_dir)
+        #origin = empty_repo.create_remote('origin', repo.remotes.origin.url)
+        origin = empty_repo.create_remote('origin', repo_url)
+        assert origin.exists()
+        assert origin == empty_repo.remotes.origin == empty_repo.remotes['origin']
+        origin.fetch()                  # assure we actually have data. fetch() returns useful information
+        # Setup a local tracking branch of a remote branch
+        empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
+        # push and pull behaves similarly to `git push|pull`
+        result = origin.pull()
+        result = result.note
+    return result
 
 
 def run_command(config):
     """
     Run the command(s) defined for this trigger
     """
-    return 'command'
+    projectname = config[0]
+    triggerconfig = config[1]
+    command = triggerconfig['command']
+    logger.info('[' + projectname + '] Executing ' + command)
+    result = call(command, shell=True)
+    return result
 
 
 
@@ -188,7 +210,6 @@ def apptrigger(appkey, triggerkey):
     Fire the trigger described by the configuration under `triggerkey`
     """
     config = gettriggersettings(appkey, triggerkey)
-    print config
     if config is None:
         #raise InvalidAPIUsage('Incorrect/incomplete parameter(s) provided', status_code=404)
         #raise NotFound('Incorrect app/trigger requested')
@@ -199,8 +220,16 @@ def apptrigger(appkey, triggerkey):
             result['repo_result'] = update_repo(config)
         except git.GitCommandError as e:
             return Response(json.dumps({'type': 'giterror', 'message': str(e)}), status=500, mimetype='application/json')
-        result['command_result'] = run_command(config)
-        return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
+        except OSError as e:
+            return Response(json.dumps({'type': 'oserror', 'message': str(e)}), status=500, mimetype='application/json')
+
+        return Response(json.dumps(result), status=200, mimetype='application/json')
+
+        try:
+            result['command_result'] = run_command(config)
+            return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
+        except OSError as e:
+            return Response(json.dumps({'type': 'giterror', 'message': str(e)}), status=500, mimetype='application/json')
 
 
 @app.route('/monitor')

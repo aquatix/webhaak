@@ -35,7 +35,7 @@ setup(
 
     # as a practice no need to hard code version unless you know program wont
     # work unless the specific versions are used
-    install_requires=['Flask'],
+    install_requires=['Flask', 'GitPython'],
 
     py_modules=['webhaak'],
 
