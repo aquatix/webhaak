@@ -71,16 +71,13 @@ def update_repo(config):
         # Repo needs to be cloned
         logger.info('[' + projectname + '] Repo does not exist yet, clone')
         empty_repo = git.Repo.init(repo_dir)
-        #origin = empty_repo.create_remote('origin', repo.remotes.origin.url)
         origin = empty_repo.create_remote('origin', repo_url)
-        assert origin.exists()
-        assert origin == empty_repo.remotes.origin == empty_repo.remotes['origin']
         origin.fetch()                  # assure we actually have data. fetch() returns useful information
         # Setup a local tracking branch of a remote branch
         empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
         # push and pull behaves similarly to `git push|pull`
         result = origin.pull()
-        result = result.note
+        result = str(result)
     return result
 
 
@@ -223,13 +220,13 @@ def apptrigger(appkey, triggerkey):
         except OSError as e:
             return Response(json.dumps({'type': 'oserror', 'message': str(e)}), status=500, mimetype='application/json')
 
-        return Response(json.dumps(result), status=200, mimetype='application/json')
-
         try:
             result['command_result'] = run_command(config)
             return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
         except OSError as e:
             return Response(json.dumps({'type': 'giterror', 'message': str(e)}), status=500, mimetype='application/json')
+
+        return Response(json.dumps(result), status=200, mimetype='application/json')
 
 
 @app.route('/monitor')
