@@ -88,6 +88,10 @@ def run_command(config):
     triggerconfig = config[1]
     command = triggerconfig['command']
     logger.info('[' + projectname + '] Executing ' + command)
+    # Replace some placeholders to be used in executing scripts from one of the repos
+    command.replace('REPODIR', os.path.join(settings.REPOS_CACHE_DIR, projectname))
+    command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
+
     command_parts = command.split(' ')
     result = check_output(command_parts)
     return result
