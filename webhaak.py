@@ -2,7 +2,6 @@ import json
 import logging
 import git
 import os
-from git import repo
 from subprocess import check_output
 from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
@@ -245,14 +244,12 @@ def monitor():
 #@app.cli.command()
 #def getappkey():
 #    """Generate new appkey"""
-#    import os
 #    os.urandom(24)
 
 
 @app.route('/getappkey')
 def getappkey():
     """Generate new appkey"""
-    import os
     return json.dumps({'key': os.urandom(24).encode('hex')})
 
 
