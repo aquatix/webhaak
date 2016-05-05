@@ -3,7 +3,7 @@ import logging
 import git
 import os
 from git import repo
-from subprocess import call
+from subprocess import check_output
 from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
@@ -77,7 +77,7 @@ def update_repo(config):
         empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
         # push and pull behaves similarly to `git push|pull`
         result = origin.pull()
-        result = str(result)
+        result = str(result[0])
     return result
 
 
@@ -89,9 +89,9 @@ def run_command(config):
     triggerconfig = config[1]
     command = triggerconfig['command']
     logger.info('[' + projectname + '] Executing ' + command)
-    result = call(command, shell=True)
+    command_parts = command.split(' ')
+    result = check_output(command_parts)
     return result
-
 
 
 # == API request support functions/mixins ======
