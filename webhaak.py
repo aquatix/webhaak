@@ -186,7 +186,7 @@ def handle_invalid_usage(error):
 @app.route('/')
 def indexpage():
     logger.debug('Root page requested')
-    return 'Welcome to Webhaak, see the documentation to how to setup and use webhooks.'
+    return 'Welcome to Webhaak[1], see the documentation to how to setup and use webhooks.\n\n[1] https://github.com/aquatix/webhaak'
 
 
 #@app.route('/app/<appkey>', methods=['GET', 'OPTIONS'])
