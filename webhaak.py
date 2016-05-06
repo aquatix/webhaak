@@ -227,7 +227,7 @@ def apptrigger(appkey, triggerkey):
             result['command_result'] = run_command(config)
             return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
         except OSError as e:
-            return Response(json.dumps({'type': 'giterror', 'message': str(e)}), status=500, mimetype='application/json')
+            return Response(json.dumps({'type': 'commanderror', 'message': str(e)}), status=500, mimetype='application/json')
 
         return Response(json.dumps(result), status=200, mimetype='application/json')
 
