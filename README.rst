@@ -37,6 +37,12 @@ Usage
 -----
 
 
+Example configuration
+---------------------
+
+`vhost for Apache2.4`_
+
+
 
 What's new?
 -----------
@@ -55,4 +61,5 @@ See the `Changelog`_.
 .. |Code health| image:: https://landscape.io/github/aquatix/webhaak/master/landscape.svg?style=flat
    :target: https://landscape.io/github/aquatix/webhaak/master
    :alt: Code Health
+.. _vhost for Apache2.4: https://github.com/aquatix/webhaak/blob/master/example_config/apache_vhost.conf
 .. _Changelog: https://github.com/aquatix/webhaak/blob/master/CHANGELOG.md
