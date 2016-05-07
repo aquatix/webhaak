@@ -219,17 +219,21 @@ def apptrigger(appkey, triggerkey):
         try:
             result['repo_result'] = update_repo(config)
         except git.GitCommandError as e:
-            return Response(json.dumps({'type': 'giterror', 'message': str(e)}), status=500, mimetype='application/json')
+            result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
+            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
         except OSError as e:
-            return Response(json.dumps({'type': 'oserror', 'message': str(e)}), status=500, mimetype='application/json')
+            result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
+            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
 
         try:
             result['command_result'] = run_command(config)
-            return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
         except OSError as e:
-            return Response(json.dumps({'type': 'commanderror', 'message': str(e)}), status=500, mimetype='application/json')
+            result['status'] = 'error'
+            return Response(json.dumps({'type': 'commanderror', 'message': str(e)}), status=412, mimetype='application/json')
+            return Response(json.dumps(result), status=500, mimetype='application/json')
 
-        return Response(json.dumps(result), status=200, mimetype='application/json')
+        result['status'] = 'OK'
+        return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
 
 
 @app.route('/monitor')
