@@ -86,6 +86,9 @@ def run_command(config):
     """
     projectname = config[0]
     triggerconfig = config[1]
+    if 'command' not in triggerconfig:
+        # No command to execute, return
+        return None
     command = triggerconfig['command']
     logger.info('[' + projectname + '] Executing ' + command)
     # Replace some placeholders to be used in executing scripts from one of the repos
