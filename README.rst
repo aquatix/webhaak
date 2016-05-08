@@ -44,7 +44,7 @@ Example configuration
 
 
 Server configuration
-^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~
 
 * `vhost for Apache2.4`_
 * `uwsgi.ini`_
