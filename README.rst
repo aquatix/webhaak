@@ -40,8 +40,14 @@ Usage
 Example configuration
 ---------------------
 
-`vhost for Apache2.4`_
+`Hook settings`_
 
+
+Server configuration
+^^^^^^^^^^^^^^^^^^^^
+
+* `vhost for Apache2.4`_
+* `uwsgi.ini`_
 
 
 What's new?
@@ -61,5 +67,7 @@ See the `Changelog`_.
 .. |Code health| image:: https://landscape.io/github/aquatix/webhaak/master/landscape.svg?style=flat
    :target: https://landscape.io/github/aquatix/webhaak/master
    :alt: Code Health
+.. _hook settings: https://github.com/aquatix/webhaak/blob/master/example_config/examples.yaml
 .. _vhost for Apache2.4: https://github.com/aquatix/webhaak/blob/master/example_config/apache_vhost.conf
+.. _uwsgi.ini: https://github.com/aquatix/webhaak/blob/master/example_config/uwsgi.ini
 .. _Changelog: https://github.com/aquatix/webhaak/blob/master/CHANGELOG.md
