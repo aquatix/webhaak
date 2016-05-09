@@ -96,7 +96,7 @@ def run_command(config):
     command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
 
     command_parts = command.split(' ')
-    result = check_output(command_parts)
+    result = check_output(command_parts, stderr=subprocess.STDOUT, shell=True)
     return result
 
 
@@ -213,9 +213,11 @@ def apptrigger(appkey, triggerkey):
     Fire the trigger described by the configuration under `triggerkey`
     """
     config = gettriggersettings(appkey, triggerkey)
+    logger.info('appkey: ' + appkey + ' triggerkey: ' + triggerkey)
     if config is None:
         #raise InvalidAPIUsage('Incorrect/incomplete parameter(s) provided', status_code=404)
         #raise NotFound('Incorrect app/trigger requested')
+        logger.error('appkey/triggerkey combo not found')
         abort(404)
     else:
         result = {}
