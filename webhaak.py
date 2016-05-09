@@ -223,19 +223,25 @@ def apptrigger(appkey, triggerkey):
             result['repo_result'] = update_repo(config)
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
+            logger.error('giterror: ' + str(e))
             return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
         except OSError as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
+            logger.error('oserror: ' + str(e))
             return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
 
         try:
             result['command_result'] = run_command(config)
         except OSError as e:
             result['status'] = 'error'
-            return Response(json.dumps({'type': 'commanderror', 'message': str(e)}), status=412, mimetype='application/json')
-            return Response(json.dumps(result), status=500, mimetype='application/json')
+            result['type'] = 'commanderror'
+            result['message'] = str(e)
+            logger.error('commanderror: ' + str(e))
+            return Response(json.dumps(result), status=412, mimetype='application/json')
 
         result['status'] = 'OK'
+        logger.info('repo: ' + result['repo_result'])
+        logger.info('command: ' + result['command_result'])
         return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
 
 
