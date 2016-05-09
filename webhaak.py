@@ -206,14 +206,25 @@ def indexpage():
 #    return appkey
 
 
-@app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS'])
+@app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
 @crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
 def apptrigger(appkey, triggerkey):
     """
     Fire the trigger described by the configuration under `triggerkey`
     """
+    logger.info(request.method + ' on appkey: ' + appkey + ' triggerkey: ' + triggerkey)
+    if request.method == 'POST':
+        # Likely some ping was sent, check if so
+        if request.headers.get('X-GitHub-Event') == "ping":
+            logger.info('received GitHub ping')
+            return json.dumps({'msg': 'Hi!'})
+        if request.headers.get('X-GitHub-Event') != "push":
+            logger.info('received wrong event type from GitHub')
+            return json.dumps({'msg': "wrong event type"})
+        else:
+            logger.info('received push from GitHub, continu processing')
+
     config = gettriggersettings(appkey, triggerkey)
-    logger.info('appkey: ' + appkey + ' triggerkey: ' + triggerkey)
     if config is None:
         #raise InvalidAPIUsage('Incorrect/incomplete parameter(s) provided', status_code=404)
         #raise NotFound('Incorrect app/trigger requested')
@@ -242,8 +253,8 @@ def apptrigger(appkey, triggerkey):
             return Response(json.dumps(result), status=412, mimetype='application/json')
 
         result['status'] = 'OK'
-        logger.info('repo: ' + result['repo_result'])
-        logger.info('command: ' + result['command_result'])
+        logger.info('result repo: ' + str(result['repo_result']))
+        logger.info('result command: ' + str(result['command_result']))
         return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
 
 
