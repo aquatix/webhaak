@@ -65,7 +65,8 @@ def update_repo(config):
         origin = apprepo.remote('origin')
         result = origin.fetch()                  # assure we actually have data. fetch() returns useful information
         origin.pull()
-        result = str(result[0])
+        #logger.debug(apprepo.git.branch())
+        result = apprepo.git.checkout()
     else:
         # Repo needs to be cloned
         logger.info('[' + projectname + '] Repo does not exist yet, clone')
@@ -76,7 +77,8 @@ def update_repo(config):
         empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
         # push and pull behaves similarly to `git push|pull`
         result = origin.pull()
-        result = str(result[0])
+        #logger.debug(apprepo.git.branch())
+        result = apprepo.git.checkout()
     return result
 
 
@@ -235,6 +237,7 @@ def apptrigger(appkey, triggerkey):
         result = {}
         try:
             result['repo_result'] = update_repo(config)
+            logger.info('result repo: ' + str(result['repo_result']))
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
             logger.error('giterror: ' + str(e))
@@ -246,6 +249,7 @@ def apptrigger(appkey, triggerkey):
 
         try:
             result['command_result'] = run_command(config)
+            logger.info('result command: ' + str(result['command_result']))
         except (OSError, CalledProcessError) as e:
             result['status'] = 'error'
             result['type'] = 'commanderror'
@@ -254,8 +258,6 @@ def apptrigger(appkey, triggerkey):
             return Response(json.dumps(result), status=412, mimetype='application/json')
 
         result['status'] = 'OK'
-        logger.info('result repo: ' + str(result['repo_result']))
-        logger.info('result command: ' + str(result['command_result']))
         return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
 
 
