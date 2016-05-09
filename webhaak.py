@@ -2,7 +2,7 @@ import json
 import logging
 import git
 import os
-from subprocess import check_output
+from subprocess import check_output, STDOUT
 from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
@@ -88,15 +88,16 @@ def run_command(config):
     triggerconfig = config[1]
     if 'command' not in triggerconfig:
         # No command to execute, return
+        logger.info('[' + projectname + '] No command to execute')
         return None
     command = triggerconfig['command']
-    logger.info('[' + projectname + '] Executing ' + command)
     # Replace some placeholders to be used in executing scripts from one of the repos
-    command.replace('REPODIR', os.path.join(settings.REPOS_CACHE_DIR, projectname))
-    command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
+    command = command.replace('REPODIR', os.path.join(settings.REPOS_CACHE_DIR, projectname))
+    command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
+    logger.info('[' + projectname + '] Executing ' + command)
 
     command_parts = command.split(' ')
-    result = check_output(command_parts, stderr=subprocess.STDOUT, shell=True)
+    result = check_output(command_parts, stderr=STDOUT, shell=True)
     return result
 
 
