@@ -2,7 +2,7 @@ import json
 import logging
 import git
 import os
-from subprocess import check_output, STDOUT
+from subprocess import check_output, STDOUT, CalledProcessError
 from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
@@ -246,7 +246,7 @@ def apptrigger(appkey, triggerkey):
 
         try:
             result['command_result'] = run_command(config)
-        except OSError as e:
+        except (OSError, CalledProcessError) as e:
             result['status'] = 'error'
             result['type'] = 'commanderror'
             result['message'] = str(e)
