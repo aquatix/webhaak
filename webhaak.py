@@ -274,6 +274,6 @@ def getappkey():
 
 if __name__ == '__main__':
     if settings.DEBUG == False:
-        app.run(host='0.0.0.0', port=settings.PORT)
+        app.run(host='0.0.0.0', port=settings.PORT, debug=settings.DEBUG)
     else:
-        app.run(port=settings.PORT)
+        app.run(port=settings.PORT, debug=settings.DEBUG)
