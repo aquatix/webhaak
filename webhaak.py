@@ -49,12 +49,17 @@ def update_repo(config):
     """
     projectname = config[0]
     triggerconfig = config[1]
+
     repo_url = triggerconfig['repo']
+    repo_parent = settings.REPOS_CACHE_DIR
+    if 'repoparent' in triggerconfig:
+        repo_parent = triggerconfig['repoparent']
+
     logger.info('[' + projectname + '] Updating ' + repo_url)
+    logger.info('[' + projectname + '] Repo parent ' + repo_parent)
 
     # Ensure cache dir for webhaak exists and is writable
-    rw_dir = settings.REPOS_CACHE_DIR
-    fileutil.ensure_dir_exists(rw_dir) # throws OSError if rw_dir is not writable
+    fileutil.ensure_dir_exists(repo_parent) # throws OSError if rw_dir is not writable
 
     repo_dir = os.path.join(rw_dir, projectname)
     if os.path.isdir(repo_dir):
