@@ -52,7 +52,7 @@ def update_repo(config):
 
     repo_url = triggerconfig['repo']
     repo_parent = settings.REPOS_CACHE_DIR
-    if 'repoparent' in triggerconfig:
+    if 'repoparent' in triggerconfig and triggerconfig['repoparent']:
         repo_parent = triggerconfig['repoparent']
 
     logger.info('[' + projectname + '] Updating ' + repo_url)
