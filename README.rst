@@ -36,7 +36,7 @@ necessary packages:
 Usage
 -----
 
-Copy `settings.py` from example_config to the parent directory and
+Copy ``settings.py`` from example_config to the parent directory and
 configure to your needs. Create a yaml file with the projects to serve (see
 next section) and refer to this file from the settings.py.
 
@@ -52,15 +52,15 @@ Example configuration
 See the example `hook settings`_ for syntax of how to configure
 repositories, commands and directories.
 
-Call webhaak on its endpoint `/getappkey` to generate a random new key for
+Call webhaak on its endpoint ``/getappkey`` to generate a random new key for
 usage in the projects yaml file (so, for example https://hook.example.com/getappkey)
 
 By default, webhaak clones projects in a directory under its
-`REPOS_CACHE_DIR` directory, but there is support for a per-repo parent dir
-settings with `repoparent`.
+``REPOS_CACHE_DIR`` directory, but there is support for a per-repo parent dir
+settings with ``repoparent``.
 
 This means that webhaak then doesn't clone this repo into its default cache
-dir, but in a subdirectory of the directory configured in `repoparent`, so
+dir, but in a subdirectory of the directory configured in ``repoparent``, so
 <repoparent>/reponame (e.g., /srv/customparent/myproject).
 
 
