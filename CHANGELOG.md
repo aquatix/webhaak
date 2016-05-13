@@ -12,6 +12,10 @@
 - Support for per-repo parent dir settings with `repoparent`.
   This means that webhaak doesn't clone this repo into its default cache dir, but in a subdirectory of
   the directory configured in `repoparent`, so <repoparent>/reponame (e.g., /srv/customparent/myproject)
+- json response now includes project name
+- Logs information about GitHub hook requests
+- Better repo directory generation
+- Better execution of scripts and other commands (with parameters)
 
 
 ## v0.1.0
