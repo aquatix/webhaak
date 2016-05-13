@@ -61,7 +61,8 @@ def update_repo(config):
     # Ensure cache dir for webhaak exists and is writable
     fileutil.ensure_dir_exists(repo_parent) # throws OSError if repo_parent is not writable
 
-    repo_dir = os.path.join(repo_parent, projectname)
+    # TODO: check whether dir exists with different repository
+    repo_dir = os.path.join(repo_parent, os.path.basename(repo_url))
     if os.path.isdir(repo_dir):
         # Repo already exists locally, do a pull
         logger.info('[' + projectname + '] Repo exists, pull')
@@ -235,7 +236,15 @@ def apptrigger(appkey, triggerkey):
             return json.dumps({'msg': "wrong event type"})
         else:
             payload = request.get_json()
-            logger.info('received push from GitHub, continu processing for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
+            event_info = 'received push from GitHub, continu processing for '
+            if 'repository' in payload:
+                event_info += payload['repository']['full_name']
+            if 'pusher' in payload:
+                event_info += ' by ' + payload['pusher']['name']
+            if 'compare' in payload:
+                event_info += ' compare: ' + payload['compare']
+            logger.info(payload)
+            logger.info(event_info)
 
     config = gettriggersettings(appkey, triggerkey)
     if config is None:
