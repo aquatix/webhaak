@@ -239,7 +239,7 @@ def apptrigger(appkey, triggerkey):
         logger.error('appkey/triggerkey combo not found')
         abort(404)
     else:
-        result = {}
+        result = {'application': config[0]}
         try:
             result['repo_result'] = update_repo(config)
             logger.info('result repo: ' + str(result['repo_result']))
