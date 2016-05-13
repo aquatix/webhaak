@@ -122,10 +122,7 @@ def run_command(config):
     command_parts = command.split(' ')
     logger.info(str(command_parts))
     command_parameters = ' '.join(command_parts[1:])
-    logger.info(command_parameters)
-    #result = check_output(command_parts, stderr=STDOUT, shell=True)
     result = check_output(command_parameters, executable=command_parts[0], stderr=STDOUT, shell=True)
-    #result = check_output(command_parts, stderr=STDOUT, shell=False)
     return result
 
 
