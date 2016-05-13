@@ -120,7 +120,12 @@ def run_command(config):
     logger.info('[' + projectname + '] Executing ' + command)
 
     command_parts = command.split(' ')
-    result = check_output(command_parts, stderr=STDOUT, shell=True)
+    logger.info(str(command_parts))
+    command_parameters = ' '.join(command_parts[1:])
+    logger.info(command_parameters)
+    #result = check_output(command_parts, stderr=STDOUT, shell=True)
+    result = check_output(command_parameters, executable=command_parts[0], stderr=STDOUT, shell=True)
+    #result = check_output(command_parts, stderr=STDOUT, shell=False)
     return result
 
 
