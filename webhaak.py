@@ -70,6 +70,7 @@ def update_repo(config):
         origin = apprepo.remote('origin')
         result = origin.fetch()                  # assure we actually have data. fetch() returns useful information
         origin.pull()
+        logger.info('[' + projectname + '] Done pulling, checkout()')
         #logger.debug(apprepo.git.branch())
         result = apprepo.git.checkout()
     else:
@@ -82,6 +83,7 @@ def update_repo(config):
         empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
         # push and pull behaves similarly to `git push|pull`
         result = origin.pull()
+        logger.info('[' + projectname + '] Done pulling, checkout()')
         #logger.debug(apprepo.git.branch())
         result = apprepo.git.checkout()
     return result
