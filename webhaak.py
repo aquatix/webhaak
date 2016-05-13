@@ -59,9 +59,9 @@ def update_repo(config):
     logger.info('[' + projectname + '] Repo parent ' + repo_parent)
 
     # Ensure cache dir for webhaak exists and is writable
-    fileutil.ensure_dir_exists(repo_parent) # throws OSError if rw_dir is not writable
+    fileutil.ensure_dir_exists(repo_parent) # throws OSError if repo_parent is not writable
 
-    repo_dir = os.path.join(rw_dir, projectname)
+    repo_dir = os.path.join(repo_parent, projectname)
     if os.path.isdir(repo_dir):
         # Repo already exists locally, do a pull
         logger.info('[' + projectname + '] Repo exists, pull')
