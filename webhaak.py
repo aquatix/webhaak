@@ -2,7 +2,7 @@ import json
 import logging
 import git
 import os
-from subprocess import check_output
+from subprocess import check_output, STDOUT, CalledProcessError
 from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
@@ -49,12 +49,17 @@ def update_repo(config):
     """
     projectname = config[0]
     triggerconfig = config[1]
+
     repo_url = triggerconfig['repo']
+    repo_parent = settings.REPOS_CACHE_DIR
+    if 'repoparent' in triggerconfig and triggerconfig['repoparent']:
+        repo_parent = triggerconfig['repoparent']
+
     logger.info('[' + projectname + '] Updating ' + repo_url)
+    logger.info('[' + projectname + '] Repo parent ' + repo_parent)
 
     # Ensure cache dir for webhaak exists and is writable
-    rw_dir = settings.REPOS_CACHE_DIR
-    fileutil.ensure_dir_exists(rw_dir) # throws OSError if rw_dir is not writable
+    fileutil.ensure_dir_exists(repo_parent) # throws OSError if rw_dir is not writable
 
     repo_dir = os.path.join(rw_dir, projectname)
     if os.path.isdir(repo_dir):
@@ -65,7 +70,8 @@ def update_repo(config):
         origin = apprepo.remote('origin')
         result = origin.fetch()                  # assure we actually have data. fetch() returns useful information
         origin.pull()
-        result = str(result[0])
+        #logger.debug(apprepo.git.branch())
+        result = apprepo.git.checkout()
     else:
         # Repo needs to be cloned
         logger.info('[' + projectname + '] Repo does not exist yet, clone')
@@ -76,7 +82,8 @@ def update_repo(config):
         empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
         # push and pull behaves similarly to `git push|pull`
         result = origin.pull()
-        result = str(result[0])
+        #logger.debug(apprepo.git.branch())
+        result = apprepo.git.checkout()
     return result
 
 
@@ -88,15 +95,16 @@ def run_command(config):
     triggerconfig = config[1]
     if 'command' not in triggerconfig:
         # No command to execute, return
+        logger.info('[' + projectname + '] No command to execute')
         return None
     command = triggerconfig['command']
-    logger.info('[' + projectname + '] Executing ' + command)
     # Replace some placeholders to be used in executing scripts from one of the repos
-    command.replace('REPODIR', os.path.join(settings.REPOS_CACHE_DIR, projectname))
-    command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
+    command = command.replace('REPODIR', os.path.join(settings.REPOS_CACHE_DIR, projectname))
+    command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
+    logger.info('[' + projectname + '] Executing ' + command)
 
     command_parts = command.split(' ')
-    result = check_output(command_parts)
+    result = check_output(command_parts, stderr=STDOUT, shell=True)
     return result
 
 
@@ -206,34 +214,53 @@ def indexpage():
 #    return appkey
 
 
-@app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS'])
+@app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
 @crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
 def apptrigger(appkey, triggerkey):
     """
     Fire the trigger described by the configuration under `triggerkey`
     """
+    logger.info(request.method + ' on appkey: ' + appkey + ' triggerkey: ' + triggerkey)
+    if request.method == 'POST':
+        # Likely some ping was sent, check if so
+        if request.headers.get('X-GitHub-Event') == "ping":
+            logger.info('received GitHub ping')
+            return json.dumps({'msg': 'Hi!'})
+        if request.headers.get('X-GitHub-Event') != "push":
+            logger.info('received wrong event type from GitHub')
+            return json.dumps({'msg': "wrong event type"})
+        else:
+            logger.info('received push from GitHub, continu processing')
+
     config = gettriggersettings(appkey, triggerkey)
     if config is None:
         #raise InvalidAPIUsage('Incorrect/incomplete parameter(s) provided', status_code=404)
         #raise NotFound('Incorrect app/trigger requested')
+        logger.error('appkey/triggerkey combo not found')
         abort(404)
     else:
         result = {}
         try:
             result['repo_result'] = update_repo(config)
+            logger.info('result repo: ' + str(result['repo_result']))
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
+            logger.error('giterror: ' + str(e))
             return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
         except OSError as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
+            logger.error('oserror: ' + str(e))
             return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
 
         try:
             result['command_result'] = run_command(config)
-        except OSError as e:
+            logger.info('result command: ' + str(result['command_result']))
+        except (OSError, CalledProcessError) as e:
             result['status'] = 'error'
-            return Response(json.dumps({'type': 'commanderror', 'message': str(e)}), status=412, mimetype='application/json')
-            return Response(json.dumps(result), status=500, mimetype='application/json')
+            result['type'] = 'commanderror'
+            result['message'] = str(e)
+            logger.error('commanderror: ' + str(e))
+            return Response(json.dumps(result), status=412, mimetype='application/json')
 
         result['status'] = 'OK'
         return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
@@ -266,6 +293,6 @@ def getappkey():
 
 if __name__ == '__main__':
     if settings.DEBUG == False:
-        app.run(host='0.0.0.0', port=settings.PORT)
+        app.run(host='0.0.0.0', port=settings.PORT, debug=settings.DEBUG)
     else:
-        app.run(port=settings.PORT)
+        app.run(port=settings.PORT, debug=settings.DEBUG)
