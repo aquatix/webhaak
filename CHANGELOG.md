@@ -1,6 +1,11 @@
-## v0.2.0 (unreleased)
+## v0.3.0 (unreleased)
 
-2016-05-??
+TBD: Ensure unique repo directories
+
+
+## v0.2.0 (Friday the 13th)
+
+2016-05-13
 
 - wsgi file, for Apache mod_wsgi and supervisord and such
 - Better error messags in json responses
