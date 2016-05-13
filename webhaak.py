@@ -226,13 +226,16 @@ def apptrigger(appkey, triggerkey):
     if request.method == 'POST':
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
-            logger.info('received GitHub ping')
+            payload = request.get_json()
+            logger.info('received GitHub ping for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
             return json.dumps({'msg': 'Hi!'})
         if request.headers.get('X-GitHub-Event') != "push":
-            logger.info('received wrong event type from GitHub')
+            payload = request.get_json()
+            logger.info('received wrong event type from GitHub for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
             return json.dumps({'msg': "wrong event type"})
         else:
-            logger.info('received push from GitHub, continu processing')
+            payload = request.get_json()
+            logger.info('received push from GitHub, continu processing for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
 
     config = gettriggersettings(appkey, triggerkey)
     if config is None:
