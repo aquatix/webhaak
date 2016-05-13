@@ -76,11 +76,11 @@ def update_repo(config):
     else:
         # Repo needs to be cloned
         logger.info('[' + projectname + '] Repo does not exist yet, clone')
-        empty_repo = git.Repo.init(repo_dir)
-        origin = empty_repo.create_remote('origin', repo_url)
+        apprepo = git.Repo.init(repo_dir)
+        origin = apprepo.create_remote('origin', repo_url)
         origin.fetch()                  # assure we actually have data. fetch() returns useful information
         # Setup a local tracking branch of a remote branch
-        empty_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
+        apprepo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
         # push and pull behaves similarly to `git push|pull`
         result = origin.pull()
         logger.info('[' + projectname + '] Done pulling, checkout()')
