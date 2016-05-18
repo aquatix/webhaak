@@ -1,14 +1,14 @@
-- example1
-  - appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
-  - triggers:
-    - trigger1
-      - triggerkey: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
-      - repo: git@github.com:aquatix/webhaak.git
-      - command: sudo supervisorctl restart webhaak
-    - trigger2
-      - triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
-      - repo: ...
-      - command: |
+example1:
+  appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
+  triggers:
+    trigger1:
+      triggerkey: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
+      repo: git@github.com:aquatix/webhaak.git
+      command: sudo supervisorctl restart webhaak
+    trigger2:
+      triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
+      repo: ...
+      command: |
           bash /home/myuser/bin/update_all_the_things.sh
 
 aquariusoft.org:
