@@ -86,7 +86,7 @@ def update_repo(config):
         origin.pull()
         logger.info('[' + projectname + '] Done pulling, checkout()')
         #logger.debug(apprepo.git.branch())
-        result = apprepo.git.checkout()
+        result += ' ' + str(apprepo.git.checkout())
     else:
         # Repo needs to be cloned
         logger.info('[' + projectname + '] Repo does not exist yet, clone')
@@ -99,7 +99,7 @@ def update_repo(config):
         result = origin.pull()
         logger.info('[' + projectname + '] Done pulling, checkout()')
         #logger.debug(apprepo.git.branch())
-        result = apprepo.git.checkout()
+        result += ' ' + str(apprepo.git.checkout())
     return result
 
 
