@@ -270,17 +270,22 @@ def apptrigger(appkey, triggerkey):
     else:
         result = {'application': config[0]}
         result['trigger'] = config[1]
-        try:
-            result['repo_result'] = update_repo(config)
-            logger.info('result repo: ' + str(result['repo_result']))
-        except git.GitCommandError as e:
-            result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
-            logger.error('giterror: ' + str(e))
-            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-        except OSError as e:
-            result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-            logger.error('oserror: ' + str(e))
-            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
+        if 'repo' in config:
+            try:
+                result['repo_result'] = update_repo(config)
+                logger.info('result repo: ' + str(result['repo_result']))
+            except git.GitCommandError as e:
+                result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
+                logger.error('giterror: ' + str(e))
+                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
+            except OSError as e:
+                result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
+                logger.error('oserror: ' + str(e))
+                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
+            except KeyError as e:
+                result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
+                logger.error('oserror: ' + str(e))
+                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
 
         try:
             result['command_result'] = run_command(config)
