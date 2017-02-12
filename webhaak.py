@@ -269,6 +269,7 @@ def apptrigger(appkey, triggerkey):
         abort(404)
     else:
         result = {'application': config[0]}
+        result['trigger'] = config[1]
         try:
             result['repo_result'] = update_repo(config)
             logger.info('result repo: ' + str(result['repo_result']))
