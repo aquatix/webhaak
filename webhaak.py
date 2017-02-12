@@ -2,6 +2,7 @@ import json
 import logging
 import git
 import os
+import yaml
 from subprocess import check_output, STDOUT, CalledProcessError
 from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
@@ -28,7 +29,7 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 with open(settings.PROJECTS_FILE, 'r') as pf:
-    projects = fileutil.yaml_ordered_load(pf, fileutil.yaml.SafeLoader)
+    projects = fileutil.yaml_ordered_load(pf, yaml.SafeLoader)
 
 
 def gettriggersettings(appkey, triggerkey):
