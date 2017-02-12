@@ -4,5 +4,6 @@ Flask
 requests
 # Toolkit for interacting with files, formatting and more
 utilkit>=0.3
+pyyaml
 # Git
 gitpython
