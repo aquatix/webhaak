@@ -5,16 +5,17 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 click==6.7                # via flask
-Flask==0.12
+flask==0.12
 future==0.16.0            # via utilkit
 gitdb2==2.0.0             # via gitpython
 gitpython==2.1.3
 itsdangerous==0.24        # via flask
-Jinja2==2.9.5             # via flask
-MarkupSafe==1.0           # via jinja2
+jinja2==2.9.5             # via flask
+markupsafe==1.0           # via jinja2
+pkg-resources==0.0.0
 pytz==2016.10             # via utilkit
 pyyaml==3.12
 requests==2.13.0
 smmap2==2.0.1             # via gitdb2
 utilkit==0.4.0
-Werkzeug==0.12            # via flask
+werkzeug==0.12.1          # via flask
