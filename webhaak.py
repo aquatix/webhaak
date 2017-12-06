@@ -171,7 +171,7 @@ def do_pull_andor_command(config):
         return Response(json.dumps(result), status=412, mimetype='application/json')
 
     result['status'] = 'OK'
-    return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
+    return result
 
 
 # == API request support functions/mixins ======
@@ -315,8 +315,8 @@ def apptrigger(appkey, triggerkey):
         #raise NotFound('Incorrect app/trigger requested')
         logger.error('appkey/triggerkey combo not found')
         abort(404)
-    else:
-        do_pull_andor_command.delay(config)
+    do_pull_andor_command.delay(config)
+    return Response(json.dumps({'status': 'OK'}), status=200, mimetype='application/json')
 
 
 @app.route('/monitor')
