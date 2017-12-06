@@ -19,6 +19,11 @@ import settings
 app = Flask(__name__)
 app.debug = settings.DEBUG
 
+# Celery configuration
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+# TODO: check if config for this exists in settings
+
 logger = logging.getLogger('webhaak')
 logger.setLevel(logging.DEBUG)
 #fh = logging.handlers.RotatingFileHandler('dcp_search.log', maxBytes=100000000, backupCount=10)
@@ -311,7 +316,7 @@ def apptrigger(appkey, triggerkey):
         logger.error('appkey/triggerkey combo not found')
         abort(404)
     else:
-        do_pull_andor_command(config)
+        do_pull_andor_command.delay(config)
 
 
 @app.route('/monitor')

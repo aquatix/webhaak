@@ -9,3 +9,4 @@ pyyaml
 gitpython
 # Celery for doing the tasks asynchronously
 celery
+redis
