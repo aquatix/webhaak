@@ -62,7 +62,6 @@ def get_repo_basename(repo_url):
     return result
 
 
-@celery.task()
 def update_repo(config):
     """
     Update (pull) the Git repo
@@ -132,6 +131,42 @@ def run_command(config):
     command_parameters = ' '.join(command_parts[1:])
     result = check_output(command_parameters, executable=command_parts[0], stderr=STDOUT, shell=True)
     return result
+
+
+@celery.task()
+def do_pull_andor_command(config):
+    """ Asynchronous task, performing the git pulling and the specified scripting """
+    result = {'application': config[0]}
+    result['trigger'] = config[1]
+    if 'repo' in config[1]:
+        try:
+            result['repo_result'] = update_repo(config)
+            logger.info('result repo: ' + str(result['repo_result']))
+        except git.GitCommandError as e:
+            result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
+            logger.error('giterror: ' + str(e))
+            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
+        except OSError as e:
+            result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
+            logger.error('oserror: ' + str(e))
+            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
+        except KeyError as e:
+            result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
+            logger.error('oserror: ' + str(e))
+            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
+
+    try:
+        result['command_result'] = run_command(config)
+        logger.info('result command: ' + str(result['command_result']))
+    except (OSError, CalledProcessError) as e:
+        result['status'] = 'error'
+        result['type'] = 'commanderror'
+        result['message'] = str(e)
+        logger.error('commanderror: ' + str(e))
+        return Response(json.dumps(result), status=412, mimetype='application/json')
+
+    result['status'] = 'OK'
+    return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
 
 
 # == API request support functions/mixins ======
@@ -276,37 +311,7 @@ def apptrigger(appkey, triggerkey):
         logger.error('appkey/triggerkey combo not found')
         abort(404)
     else:
-        result = {'application': config[0]}
-        result['trigger'] = config[1]
-        if 'repo' in config[1]:
-            try:
-                result['repo_result'] = update_repo(config)
-                logger.info('result repo: ' + str(result['repo_result']))
-            except git.GitCommandError as e:
-                result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
-                logger.error('giterror: ' + str(e))
-                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-            except OSError as e:
-                result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-                logger.error('oserror: ' + str(e))
-                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-            except KeyError as e:
-                result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-                logger.error('oserror: ' + str(e))
-                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-
-        try:
-            result['command_result'] = run_command(config)
-            logger.info('result command: ' + str(result['command_result']))
-        except (OSError, CalledProcessError) as e:
-            result['status'] = 'error'
-            result['type'] = 'commanderror'
-            result['message'] = str(e)
-            logger.error('commanderror: ' + str(e))
-            return Response(json.dumps(result), status=412, mimetype='application/json')
-
-        result['status'] = 'OK'
-        return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
+        do_pull_andor_command(config)
 
 
 @app.route('/monitor')
