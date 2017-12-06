@@ -8,11 +8,13 @@ from subprocess import STDOUT, CalledProcessError, check_output
 
 import git
 import yaml
+from celery import Celery
 from flask import Flask, Response, current_app, jsonify, make_response, request
 from utilkit import fileutil
 from werkzeug.exceptions import abort
 
 import settings
+
 
 app = Flask(__name__)
 app.debug = settings.DEBUG
@@ -27,8 +29,13 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
+# Load the configuration of the various projects/hooks
 with open(settings.PROJECTS_FILE, 'r') as pf:
     projects = fileutil.yaml_ordered_load(pf, yaml.SafeLoader)
+
+# Initialize Celery
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 
 def gettriggersettings(appkey, triggerkey):
@@ -55,6 +62,7 @@ def get_repo_basename(repo_url):
     return result
 
 
+@celery.task()
 def update_repo(config):
     """
     Update (pull) the Git repo
