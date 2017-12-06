@@ -1,18 +1,17 @@
 import json
 import logging
-import git
 import os
-import yaml
-from subprocess import check_output, STDOUT, CalledProcessError
-from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
-from flask import make_response, request, current_app
-from flask import Flask
-from flask import Response
-from flask import jsonify
-from werkzeug.exceptions import abort
+from logging.handlers import TimedRotatingFileHandler
+from subprocess import STDOUT, CalledProcessError, check_output
+
+import git
+import yaml
+from flask import Flask, Response, current_app, jsonify, make_response, request
 from utilkit import fileutil
+from werkzeug.exceptions import abort
+
 import settings
 
 app = Flask(__name__)
