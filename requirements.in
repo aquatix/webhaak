@@ -1,6 +1,3 @@
-# virtualenv required package
-pkg-resources==0.0.0
-
 # Running the webapp
 Flask
 # Downloading content from the web
@@ -10,3 +7,5 @@ utilkit>=0.3
 pyyaml
 # Git
 gitpython
+# Celery for doing the tasks asynchronously
+celery
