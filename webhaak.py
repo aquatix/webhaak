@@ -141,6 +141,7 @@ def run_command(config):
 @celery.task()
 def do_pull_andor_command(config):
     """ Asynchronous task, performing the git pulling and the specified scripting """
+    print('do_pull_andor_command')
     result = {'application': config[0]}
     result['trigger'] = config[1]
     if 'repo' in config[1]:
@@ -150,27 +151,22 @@ def do_pull_andor_command(config):
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
             logger.error('giterror: ' + str(e))
-            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-        except OSError as e:
+            return result
+        except (OSError, KeyError) as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
             logger.error('oserror: ' + str(e))
-            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-        except KeyError as e:
-            result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-            logger.error('oserror: ' + str(e))
-            return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
+            return result
 
     try:
         result['command_result'] = run_command(config)
         logger.info('result command: ' + str(result['command_result']))
+        result['status'] = 'OK'
     except (OSError, CalledProcessError) as e:
         result['status'] = 'error'
         result['type'] = 'commanderror'
         result['message'] = str(e)
         logger.error('commanderror: ' + str(e))
-        return Response(json.dumps(result), status=412, mimetype='application/json')
 
-    result['status'] = 'OK'
     return result
 
 
