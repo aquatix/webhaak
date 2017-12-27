@@ -67,6 +67,14 @@ def get_repo_basename(repo_url):
     return result
 
 
+def fetchinfo_to_str(fetchinfo):
+    """
+    git.remote.FetchInfo to human readable representation
+    """
+    result = fetchinfo[0].note
+    return result
+
+
 def update_repo(config):
     """
     Update (pull) the Git repo
@@ -94,7 +102,8 @@ def update_repo(config):
 
         apprepo = git.Repo(repo_dir)
         origin = apprepo.remote('origin')
-        result = origin.fetch()                  # assure we actually have data. fetch() returns useful information
+        result = fetchinfo_to_str(origin.fetch())  # assure we actually have data. fetch() returns useful information
+        logger.info('Fetch result: %s', result)
         origin.pull()
         logger.info('[' + projectname + '] Done pulling, checkout()')
         #logger.debug(apprepo.git.branch())
