@@ -5,25 +5,25 @@
 #    pip-compile --output-file requirements-dev.txt requirements-dev.in
 #
 amqp==2.2.2               # via kombu
-astroid==1.5.3            # via pylint
+astroid==1.6.1            # via pylint
 billiard==3.5.0.3         # via celery
 celery==4.1.0
-certifi==2017.11.5        # via requests
+certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
 click==6.7                # via flask
 flask==0.12.2
 future==0.16.0            # via utilkit
 gitdb2==2.0.3             # via gitpython
-gitpython==2.1.7
+gitpython==2.1.8
 idna==2.6                 # via requests
-isort==4.2.15             # via pylint
+isort==4.3.3              # via pylint
 itsdangerous==0.24        # via flask
 jinja2==2.10              # via flask
 kombu==4.1.0              # via celery
 lazy-object-proxy==1.3.1  # via astroid
 markupsafe==1.0           # via jinja2
 mccabe==0.6.1             # via pylint
-pylint==1.7.4
+pylint==1.8.2
 pytz==2017.3              # via celery, utilkit
 pyyaml==3.12
 redis==2.10.6
@@ -33,5 +33,5 @@ smmap2==2.0.3             # via gitdb2
 urllib3==1.22             # via requests
 utilkit==0.4.0
 vine==1.1.4               # via amqp
-werkzeug==0.12.2          # via flask
+werkzeug==0.14.1          # via flask
 wrapt==1.10.11            # via astroid
