@@ -63,6 +63,8 @@ target/
 
 # Various Python project related
 local_settings.py
+projects.yaml
+settings.py
 
 # vim
 *.swp
