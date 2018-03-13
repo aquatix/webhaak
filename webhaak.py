@@ -19,11 +19,6 @@ import settings
 app = Flask(__name__)
 app.debug = settings.DEBUG
 
-# Celery configuration
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
-# TODO: check if config for this exists in settings
-
 logger = logging.getLogger('webhaak')
 logger.setLevel(logging.DEBUG)
 #fh = logging.handlers.RotatingFileHandler('dcp_search.log', maxBytes=100000000, backupCount=10)
@@ -33,6 +28,16 @@ fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
+
+try:
+    # Celery configuration
+    app.config['CELERY_BROKER_URL'] = settings.CELERY_BROKER_URL
+    app.config['CELERY_RESULT_BACKEND'] = settings.CELERY_RESULT_BACKEND
+except AttributeError:
+    # Celery configuration
+    logger.warning('Falling back to default Celery config')
+    app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+    app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 
 # Load the configuration of the various projects/hooks
 with open(settings.PROJECTS_FILE, 'r') as pf:
