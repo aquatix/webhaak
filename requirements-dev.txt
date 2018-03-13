@@ -31,7 +31,7 @@ requests==2.18.4
 six==1.11.0               # via astroid, pylint
 smmap2==2.0.3             # via gitdb2
 urllib3==1.22             # via requests
-utilkit==0.4.0
+utilkit==0.4.1
 vine==1.1.4               # via amqp
 werkzeug==0.14.1          # via flask
 wrapt==1.10.11            # via astroid
