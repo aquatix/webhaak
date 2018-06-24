@@ -1,5 +1,5 @@
 # Running the webapp
-Flask
+Quart
 # Downloading content from the web
 requests
 # Toolkit for interacting with files, formatting and more
@@ -7,6 +7,3 @@ utilkit>=0.3
 pyyaml
 # Git
 gitpython
-# Celery for doing the tasks asynchronously
-celery
-redis

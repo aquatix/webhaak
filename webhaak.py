@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -8,15 +9,12 @@ from subprocess import STDOUT, CalledProcessError, check_output
 
 import git
 import yaml
-from celery import Celery
-from flask import Flask, Response, current_app, jsonify, make_response, request
+from quart import Quart, Response, current_app, jsonify, make_response, request
 from utilkit import fileutil
-from werkzeug.exceptions import abort
 
 import settings
 
-
-app = Flask(__name__)
+app = Quart(__name__)
 app.debug = settings.DEBUG
 
 logger = logging.getLogger('webhaak')
@@ -29,29 +27,13 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
-try:
-    # Celery configuration
-    app.config['CELERY_BROKER_URL'] = settings.CELERY_BROKER_URL
-    app.config['CELERY_RESULT_BACKEND'] = settings.CELERY_RESULT_BACKEND
-except AttributeError:
-    # Celery configuration
-    logger.warning('Falling back to default Celery config')
-    app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-    app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
-
 # Load the configuration of the various projects/hooks
 with open(settings.PROJECTS_FILE, 'r') as pf:
     projects = fileutil.yaml_ordered_load(pf, yaml.SafeLoader)
 
-# Initialize Celery
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
-
 
 def gettriggersettings(appkey, triggerkey):
-    """
-    Look up the trigger and return the repo and command to be updated and fired
-    """
+    """Look up the trigger and return the repo and command to be updated and fired"""
     for project in projects:
         if projects[project]['appkey'] == appkey:
             for trigger in projects[project]['triggers']:
@@ -61,9 +43,7 @@ def gettriggersettings(appkey, triggerkey):
 
 
 def get_repo_basename(repo_url):
-    """
-    Extract repository basename from its url, as that will be the name of  directory it will be cloned into1
-    """
+    """Extract repository basename from its url, as that will be the name of directory it will be cloned into"""
     result = os.path.basename(repo_url)
     filename, file_extension = os.path.splitext(result)
     if file_extension == '.git':
@@ -73,17 +53,13 @@ def get_repo_basename(repo_url):
 
 
 def fetchinfo_to_str(fetchinfo):
-    """
-    git.remote.FetchInfo to human readable representation
-    """
+    """git.remote.FetchInfo to human readable representation"""
     result = fetchinfo[0].note
     return result
 
 
-def update_repo(config):
-    """
-    Update (pull) the Git repo
-    """
+async def update_repo(config):
+    """Update (pull) the Git repo"""
     projectname = config[0]
     triggerconfig = config[1]
 
@@ -129,15 +105,13 @@ def update_repo(config):
     return result
 
 
-def run_command(config):
-    """
-    Run the command(s) defined for this trigger
-    """
+async def run_command(config):
+    """Run the command(s) defined for this trigger"""
     projectname = config[0]
     triggerconfig = config[1]
     if 'command' not in triggerconfig:
         # No command to execute, return
-        logger.info('[' + projectname + '] No command to execute')
+        logger.info('[%s] No command to execute', projectname)
         return None
     command = triggerconfig['command']
     # Replace some placeholders to be used in executing scripts from one of the repos
@@ -152,34 +126,33 @@ def run_command(config):
     return result
 
 
-@celery.task()
-def do_pull_andor_command(config):
-    """ Asynchronous task, performing the git pulling and the specified scripting """
+async def do_pull_andor_command(config):
+    """Asynchronous task, performing the git pulling and the specified scripting"""
     print('do_pull_andor_command')
     result = {'application': config[0]}
     result['trigger'] = config[1]
     if 'repo' in config[1]:
         try:
-            result['repo_result'] = update_repo(config)
-            logger.info('result repo: ' + str(result['repo_result']))
+            result['repo_result'] = await update_repo(config)
+            logger.info('result repo: %s', str(result['repo_result']))
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
-            logger.error('giterror: ' + str(e))
+            logger.error('giterror: %s', str(e))
             return result
         except (OSError, KeyError) as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-            logger.error('oserror: ' + str(e))
+            logger.error('oserror: %s', str(e))
             return result
 
     try:
-        result['command_result'] = run_command(config)
-        logger.info('result command: ' + str(result['command_result']))
+        result['command_result'] = await run_command(config)
+        logger.info('result command: %s', str(result['command_result']))
         result['status'] = 'OK'
     except (OSError, CalledProcessError) as e:
         result['status'] = 'error'
         result['type'] = 'commanderror'
         result['message'] = str(e)
-        logger.error('commanderror: ' + str(e))
+        logger.error('commanderror: %s', str(e))
 
     return result
 
@@ -189,8 +162,7 @@ def do_pull_andor_command(config):
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
                 automatic_options=True):
-    """
-    Decorator to send the correct cross-domain headers
+    """Decorator to send the correct cross-domain headers
     src: https://blog.skyred.fi/articles/better-crossdomain-snippet-for-flask.html
     """
     if methods is not None:
@@ -291,20 +263,18 @@ def indexpage():
 
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
-@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
-def apptrigger(appkey, triggerkey):
-    """
-    Fire the trigger described by the configuration under `triggerkey`
-    """
-    logger.info(request.method + ' on appkey: ' + appkey + ' triggerkey: ' + triggerkey)
+#@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
+async def apptrigger(appkey, triggerkey):
+    """Fire the trigger described by the configuration under `triggerkey`"""
+    logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
     if request.method == 'POST':
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
-            payload = request.get_json()
-            logger.info('received GitHub ping for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
+            payload = await request.get_json()
+            logger.info('received GitHub ping for %s hook: %s ', payload['repository']['full_name'], payload['hook']['url'])
             return json.dumps({'msg': 'Hi!'})
         if request.headers.get('X-GitHub-Event') != "push":
-            payload = request.get_json()
+            payload = await request.get_json()
             logger.info('received wrong event type from GitHub for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
             return json.dumps({'msg': "wrong event type"})
         else:
@@ -324,18 +294,16 @@ def apptrigger(appkey, triggerkey):
         #raise InvalidAPIUsage('Incorrect/incomplete parameter(s) provided', status_code=404)
         #raise NotFound('Incorrect app/trigger requested')
         logger.error('appkey/triggerkey combo not found')
-        abort(404)
-    do_pull_andor_command.delay(config)
+        return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
+    await do_pull_andor_command.delay(config)
     return Response(json.dumps({'status': 'OK'}), status=200, mimetype='application/json')
 
 
 @app.route('/monitor')
-@app.route('/monitor/')
-@app.route('/monitor/monitor.html')
-def monitor():
-    """
-    Monitoring ping
-    """
+#@app.route('/monitor/')
+#@app.route('/monitor/monitor.html')
+async def monitor():
+    """Monitoring ping"""
     result = 'OK'
     return result
 
@@ -349,13 +317,13 @@ def monitor():
 
 
 @app.route('/getappkey')
-def getappkey():
+async def getappkey():
     """Generate new appkey"""
     return json.dumps({'key': os.urandom(24).encode('hex')})
 
 
 if __name__ == '__main__':
     if settings.DEBUG == False:
-        app.run(host='0.0.0.0', port=settings.PORT, debug=settings.DEBUG)
-    else:
         app.run(port=settings.PORT, debug=settings.DEBUG)
+    else:
+        app.run(host='0.0.0.0', port=settings.PORT, debug=settings.DEBUG)

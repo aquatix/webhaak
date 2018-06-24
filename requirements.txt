@@ -4,27 +4,31 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-amqp==2.2.2               # via kombu
-billiard==3.5.0.3         # via celery
-celery==4.1.0
-certifi==2018.1.18        # via requests
+aiofiles==0.3.2           # via quart
+blinker==1.4              # via quart
+certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
-click==6.7                # via flask
-flask==0.12.2
+click==6.7                # via quart
 future==0.16.0            # via utilkit
 gitdb2==2.0.3             # via gitpython
-gitpython==2.1.8
-idna==2.6                 # via requests
-itsdangerous==0.24        # via flask
-jinja2==2.10              # via flask
-kombu==4.1.0              # via celery
+gitpython==2.1.10
+h11==0.7.0                # via hypercorn, wsproto
+h2==3.0.1                 # via hypercorn
+hpack==3.0.0              # via h2
+hypercorn==0.1.0          # via quart
+hyperframe==5.1.0         # via h2
+idna==2.7                 # via requests
+itsdangerous==0.24        # via quart
+jinja2==2.10              # via quart
 markupsafe==1.0           # via jinja2
-pytz==2018.3              # via celery, utilkit
+multidict==4.3.1          # via quart
+pytz==2018.4              # via utilkit
 pyyaml==3.12
-redis==2.10.6
-requests==2.18.4
+quart==0.6.1
+requests==2.19.1
 smmap2==2.0.3             # via gitdb2
-urllib3==1.22             # via requests
+sortedcontainers==2.0.4   # via quart
+typing-extensions==3.6.5  # via hypercorn
+urllib3==1.23             # via requests
 utilkit==0.4.1
-vine==1.1.4               # via amqp
-werkzeug==0.14.1          # via flask
+wsproto==0.11.0           # via hypercorn
