@@ -69,7 +69,11 @@ settings.py
 
 # vim
 *.swp
+*.swo
 
 # ctags
 tags
 TAGS
+
+# settings
+settings.py
