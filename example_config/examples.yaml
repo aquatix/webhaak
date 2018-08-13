@@ -8,8 +8,7 @@ example1:
     trigger2:
       triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
       repo: ...
-      command: |
-          bash /home/myuser/bin/update_all_the_things.sh
+      command: bash /home/myuser/bin/update_all_the_things.sh
 
 aquariusoft.org:
   appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
