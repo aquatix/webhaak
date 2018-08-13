@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import os
@@ -10,12 +9,12 @@ from subprocess import STDOUT, CalledProcessError, check_output
 
 import git
 import yaml
-from quart import Quart, Response, current_app, jsonify, make_response, request
+from flask import Flask, Response, current_app, jsonify, make_response, request
 from utilkit import fileutil
 
 import settings
 
-app = Quart(__name__)
+app = Flask(__name__)
 app.debug = settings.DEBUG
 
 logger = logging.getLogger('webhaak')
@@ -244,7 +243,7 @@ def handle_invalid_usage(error):
 # == Web app endpoints ======
 
 @app.route('/')
-async def indexpage():
+def indexpage():
     logger.debug('Root page requested')
     return 'Welcome to <a href="https://github.com/aquatix/webhaak">Webhaak</a>, see the documentation to how to setup and use webhooks.'
 
@@ -265,7 +264,7 @@ async def indexpage():
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
 #@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
-async def apptrigger(appkey, triggerkey):
+def apptrigger(appkey, triggerkey):
     """Fire the trigger described by the configuration under `triggerkey`"""
     logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
     if request.method == 'POST':
@@ -304,7 +303,7 @@ async def apptrigger(appkey, triggerkey):
 @app.route('/monitor')
 #@app.route('/monitor/')
 #@app.route('/monitor/monitor.html')
-async def monitor():
+def monitor():
     """Monitoring ping"""
     result = 'OK'
     return result
@@ -319,7 +318,7 @@ async def monitor():
 
 
 @app.route('/getappkey')
-async def getappkey():
+def getappkey():
     """Generate new appkey"""
     return json.dumps({'key': os.urandom(24).encode('hex')})
 
