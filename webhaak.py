@@ -1,3 +1,4 @@
+import binascii
 import json
 import logging
 import os
@@ -356,7 +357,7 @@ def monitor():
 @app.route('/getappkey')
 def getappkey():
     """Generate new appkey"""
-    return json.dumps({'key': os.urandom(24).encode('hex')})
+    return json.dumps({'key': binascii.hexlify(os.urandom(24)).decode('utf-8')})
 
 
 if __name__ == '__main__':
