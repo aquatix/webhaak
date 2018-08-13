@@ -1,18 +1,17 @@
 import json
 import logging
-import git
 import os
-import yaml
-from subprocess import check_output, STDOUT, CalledProcessError
-from logging.handlers import TimedRotatingFileHandler
 from datetime import timedelta
 from functools import update_wrapper
-from flask import make_response, request, current_app
-from flask import Flask
-from flask import Response
-from flask import jsonify
-from werkzeug.exceptions import abort
+from logging.handlers import TimedRotatingFileHandler
+from multiprocessing import Process
+from subprocess import STDOUT, CalledProcessError, check_output
+
+import git
+import yaml
+from flask import Flask, Response, current_app, jsonify, make_response, request
 from utilkit import fileutil
+
 import settings
 
 app = Flask(__name__)
@@ -28,14 +27,13 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
+# Load the configuration of the various projects/hooks
 with open(settings.PROJECTS_FILE, 'r') as pf:
     projects = fileutil.yaml_ordered_load(pf, yaml.SafeLoader)
 
 
 def gettriggersettings(appkey, triggerkey):
-    """
-    Look up the trigger and return the repo and command to be updated and fired
-    """
+    """Look up the trigger and return the repo and command to be updated and fired"""
     for project in projects:
         if projects[project]['appkey'] == appkey:
             for trigger in projects[project]['triggers']:
@@ -45,9 +43,7 @@ def gettriggersettings(appkey, triggerkey):
 
 
 def get_repo_basename(repo_url):
-    """
-    Extract repository basename from its url, as that will be the name of  directory it will be cloned into1
-    """
+    """Extract repository basename from its url, as that will be the name of directory it will be cloned into"""
     result = os.path.basename(repo_url)
     filename, file_extension = os.path.splitext(result)
     if file_extension == '.git':
@@ -56,10 +52,14 @@ def get_repo_basename(repo_url):
     return result
 
 
+def fetchinfo_to_str(fetchinfo):
+    """git.remote.FetchInfo to human readable representation"""
+    result = fetchinfo[0].note
+    return result
+
+
 def update_repo(config):
-    """
-    Update (pull) the Git repo
-    """
+    """Update (pull) the Git repo"""
     projectname = config[0]
     triggerconfig = config[1]
 
@@ -83,7 +83,8 @@ def update_repo(config):
 
         apprepo = git.Repo(repo_dir)
         origin = apprepo.remote('origin')
-        result = origin.fetch()                  # assure we actually have data. fetch() returns useful information
+        result = fetchinfo_to_str(origin.fetch())  # assure we actually have data. fetch() returns useful information
+        logger.info('Fetch result: %s', result)
         origin.pull()
         logger.info('[' + projectname + '] Done pulling, checkout()')
         #logger.debug(apprepo.git.branch())
@@ -105,14 +106,12 @@ def update_repo(config):
 
 
 def run_command(config):
-    """
-    Run the command(s) defined for this trigger
-    """
+    """Run the command(s) defined for this trigger"""
     projectname = config[0]
     triggerconfig = config[1]
     if 'command' not in triggerconfig:
         # No command to execute, return
-        logger.info('[' + projectname + '] No command to execute')
+        logger.info('[%s] No command to execute', projectname)
         return None
     command = triggerconfig['command']
     # Replace some placeholders to be used in executing scripts from one of the repos
@@ -127,20 +126,50 @@ def run_command(config):
     return result
 
 
+def do_pull_andor_command(config):
+    """Asynchronous task, performing the git pulling and the specified scripting"""
+    print('do_pull_andor_command')
+    result = {'application': config[0]}
+    result['trigger'] = config[1]
+    if 'repo' in config[1]:
+        try:
+            result['repo_result'] = update_repo(config)
+            logger.info('result repo: %s', str(result['repo_result']))
+        except git.GitCommandError as e:
+            result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
+            logger.error('giterror: %s', str(e))
+            return result
+        except (OSError, KeyError) as e:
+            result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
+            logger.error('oserror: %s', str(e))
+            return result
+
+    try:
+        result['command_result'] = run_command(config)
+        logger.info('result command: %s', str(result['command_result']))
+        result['status'] = 'OK'
+    except (OSError, CalledProcessError) as e:
+        result['status'] = 'error'
+        result['type'] = 'commanderror'
+        result['message'] = str(e)
+        logger.error('commanderror: %s', str(e))
+
+    return result
+
+
 # == API request support functions/mixins ======
 
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
                 automatic_options=True):
-    """
-    Decorator to send the correct cross-domain headers
+    """Decorator to send the correct cross-domain headers
     src: https://blog.skyred.fi/articles/better-crossdomain-snippet-for-flask.html
     """
     if methods is not None:
         methods = ', '.join(sorted(x.upper() for x in methods))
-    if headers is not None and not isinstance(headers, basestring):
+    if headers is not None and not isinstance(headers, str):
         headers = ', '.join(x.upper() for x in headers)
-    if not isinstance(origin, basestring):
+    if not isinstance(origin, str):
         origin = ', '.join(origin)
     if isinstance(max_age, timedelta):
         max_age = max_age.total_seconds()
@@ -234,17 +263,15 @@ def indexpage():
 
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
-@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
+#@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
 def apptrigger(appkey, triggerkey):
-    """
-    Fire the trigger described by the configuration under `triggerkey`
-    """
-    logger.info(request.method + ' on appkey: ' + appkey + ' triggerkey: ' + triggerkey)
+    """Fire the trigger described by the configuration under `triggerkey`"""
+    logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
     if request.method == 'POST':
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
             payload = request.get_json()
-            logger.info('received GitHub ping for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
+            logger.info('received GitHub ping for %s hook: %s ', payload['repository']['full_name'], payload['hook']['url'])
             return json.dumps({'msg': 'Hi!'})
         if request.headers.get('X-GitHub-Event') != "push":
             payload = request.get_json()
@@ -267,48 +294,17 @@ def apptrigger(appkey, triggerkey):
         #raise InvalidAPIUsage('Incorrect/incomplete parameter(s) provided', status_code=404)
         #raise NotFound('Incorrect app/trigger requested')
         logger.error('appkey/triggerkey combo not found')
-        abort(404)
-    else:
-        result = {'application': config[0]}
-        result['trigger'] = config[1]
-        if 'repo' in config[1]:
-            try:
-                result['repo_result'] = update_repo(config)
-                logger.info('result repo: ' + str(result['repo_result']))
-            except git.GitCommandError as e:
-                result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
-                logger.error('giterror: ' + str(e))
-                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-            except OSError as e:
-                result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-                logger.error('oserror: ' + str(e))
-                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-            except KeyError as e:
-                result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-                logger.error('oserror: ' + str(e))
-                return Response(json.dumps(result).replace('/', '\/'), status=412, mimetype='application/json')
-
-        try:
-            result['command_result'] = run_command(config)
-            logger.info('result command: ' + str(result['command_result']))
-        except (OSError, CalledProcessError) as e:
-            result['status'] = 'error'
-            result['type'] = 'commanderror'
-            result['message'] = str(e)
-            logger.error('commanderror: ' + str(e))
-            return Response(json.dumps(result), status=412, mimetype='application/json')
-
-        result['status'] = 'OK'
-        return Response(json.dumps(result).replace('/', '\/'), status=200, mimetype='application/json')
+        return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
+    p = Process(target=do_pull_andor_command, args=(config,))
+    p.start()
+    return Response(json.dumps({'status': 'OK'}), status=200, mimetype='application/json')
 
 
 @app.route('/monitor')
-@app.route('/monitor/')
-@app.route('/monitor/monitor.html')
+#@app.route('/monitor/')
+#@app.route('/monitor/monitor.html')
 def monitor():
-    """
-    Monitoring ping
-    """
+    """Monitoring ping"""
     result = 'OK'
     return result
 
@@ -329,6 +325,6 @@ def getappkey():
 
 if __name__ == '__main__':
     if settings.DEBUG == False:
-        app.run(host='0.0.0.0', port=settings.PORT, debug=settings.DEBUG)
-    else:
         app.run(port=settings.PORT, debug=settings.DEBUG)
+    else:
+        app.run(host='0.0.0.0', port=settings.PORT, debug=settings.DEBUG)
