@@ -7,3 +7,5 @@ utilkit>=0.3
 pyyaml
 # Git
 gitpython
+# Notifications
+python-pushover

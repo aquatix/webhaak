@@ -3,10 +3,12 @@ import logging
 import os
 from datetime import timedelta
 from functools import update_wrapper
+from logging.handlers import TimedRotatingFileHandler
 from multiprocessing import Process
 from subprocess import STDOUT, CalledProcessError, check_output
 
 import git
+import pushover
 import yaml
 from flask import Flask, Response, current_app, jsonify, make_response, request
 from utilkit import fileutil
@@ -20,7 +22,7 @@ logger = logging.getLogger('webhaak')
 logger.setLevel(logging.DEBUG)
 #fh = logging.handlers.RotatingFileHandler('dcp_search.log', maxBytes=100000000, backupCount=10)
 # Log will rotate daily with a max history of LOG_BACKUP_COUNT
-fh = logging.handlers.TimedRotatingFileHandler(
+fh = TimedRotatingFileHandler(
     settings.LOG_LOCATION,
     when='d',
     interval=1,
@@ -34,6 +36,33 @@ logger.addHandler(fh)
 # Load the configuration of the various projects/hooks
 with open(settings.PROJECTS_FILE, 'r') as pf:
     projects = fileutil.yaml_ordered_load(pf, yaml.SafeLoader)
+
+
+def notify_user(result, config):
+    """Send a PushOver message if configured
+
+    result is a dictionary with fields:
+      command_result
+      status: 'OK' | 'error'
+      type: 'commanderror'
+      message
+    """
+    try:
+        client = pushover.Client(settings.PUSHOVER_USERKEY, api_token=settings.PUSHOVER_APPTOKEN)
+        print(config)
+        projectname = config[0]
+        triggerconfig = config[1]
+        title = ''
+        message = 'repo: {}\nbranch: {}\ncommand: {}'.format(triggerconfig['repo'], triggerconfig['repo_branch'], triggerconfig['command'])
+        if result['status'] == 'OK':
+            title = "Hook for {} ran successfully".format(projectname)
+        else:
+            title = "Hook for {} failed".format(projectname)
+            message = message + '\n\n{}'.format(result['message'])
+        client.send_message(message, title=title)
+        logging.info('Notification sent')
+    except AttributeError:
+        logging.warn('Notification through PushOver failed because of missing configuration')
 
 
 def gettriggersettings(appkey, triggerkey):
@@ -131,7 +160,7 @@ def run_command(config):
 
 
 def do_pull_andor_command(config):
-    """Asynchronous task, performing the git pulling and the specified scripting"""
+    """Asynchronous task, performing the git pulling and the specified scripting inside a Process"""
     print('do_pull_andor_command')
     result = {'application': config[0]}
     result['trigger'] = config[1]
@@ -158,6 +187,7 @@ def do_pull_andor_command(config):
         result['message'] = str(e)
         logger.error('commanderror: %s', str(e))
 
+    notify_user(result, config)
     return result
 
 
