@@ -3,7 +3,6 @@ import logging
 import os
 from datetime import timedelta
 from functools import update_wrapper
-from logging.handlers import TimedRotatingFileHandler
 from multiprocessing import Process
 from subprocess import STDOUT, CalledProcessError, check_output
 
@@ -21,7 +20,12 @@ logger = logging.getLogger('webhaak')
 logger.setLevel(logging.DEBUG)
 #fh = logging.handlers.RotatingFileHandler('dcp_search.log', maxBytes=100000000, backupCount=10)
 # Log will rotate daily with a max history of LOG_BACKUP_COUNT
-fh = TimedRotatingFileHandler(settings.LOG_LOCATION, when='d', interval=1, backupCount=settings.LOG_BACKUP_COUNT)
+fh = logging.handlers.TimedRotatingFileHandler(
+    settings.LOG_LOCATION,
+    when='d',
+    interval=1,
+    backupCount=settings.LOG_BACKUP_COUNT
+)
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
