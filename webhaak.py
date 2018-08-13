@@ -347,16 +347,21 @@ def monitor():
     return result
 
 
+def generatekey():
+    """Generate a random ascii string to be used as identifier"""
+    return binascii.hexlify(os.urandom(24))
+
+
 @app.cli.command()
 def getappkey():
     """Generate new appkey"""
-    print(binascii.hexlify(os.urandom(24)).decode('utf-8'))
+    print(generatekey())
 
 
 @app.route('/getappkey')
 def getappkey():
     """Generate new appkey"""
-    return json.dumps({'key': binascii.hexlify(os.urandom(24)).decode('utf-8')})
+    return json.dumps({'key': generatekey().decode('utf-8')})
 
 
 if __name__ == '__main__':
