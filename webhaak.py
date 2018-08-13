@@ -39,7 +39,7 @@ with open(settings.PROJECTS_FILE, 'r') as pf:
 
 
 def notify_user(result, config):
-    """Send a PushOver message if configured
+    """Send a PushOver message if configured, after git and command have run
 
     result is a dictionary with fields:
       command_result
@@ -58,7 +58,7 @@ def notify_user(result, config):
         if result['status'] == 'OK':
             title = "Hook for {} ran successfully".format(projectname)
         else:
-            title = "Hook for {} failed".format(projectname)
+            title = "Hook for {} failed: {}".format(projectname, result['type'])
             message = message + '\n\n{}'.format(result['message'])
         logging.debug(message)
         logging.info('Sending notification...')
@@ -66,7 +66,7 @@ def notify_user(result, config):
         client.send_message(message, title=title)
         logging.info('Notification sent')
     except AttributeError:
-        logging.warn('Notification through PushOver failed because of missing configuration')
+        logging.warning('Notification through PushOver failed because of missing configuration')
 
 
 def gettriggersettings(appkey, triggerkey):
@@ -165,7 +165,6 @@ def run_command(config):
 
 def do_pull_andor_command(config):
     """Asynchronous task, performing the git pulling and the specified scripting inside a Process"""
-    print('do_pull_andor_command')
     result = {'application': config[0]}
     result['trigger'] = config[1]
     if 'repo' in config[1]:
@@ -175,11 +174,11 @@ def do_pull_andor_command(config):
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
             logger.error('giterror: %s', str(e))
-            return result
+            notify_user(result, config)
         except (OSError, KeyError) as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
             logger.error('oserror: %s', str(e))
-            return result
+            notify_user(result, config)
 
     try:
         result['command_result'] = run_command(config)
