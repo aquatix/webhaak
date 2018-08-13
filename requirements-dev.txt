@@ -4,19 +4,19 @@
 #
 #    pip-compile --output-file requirements-dev.txt requirements-dev.in
 #
-aiofiles==0.3.2           # via quart
-astroid==1.6.5            # via pylint
+aiofiles==0.4.0           # via quart
+astroid==2.0.4            # via pylint
 blinker==1.4              # via quart
-certifi==2018.4.16        # via requests
+certifi==2018.8.13        # via requests
 chardet==3.0.4            # via requests
 click==6.7                # via quart
 future==0.16.0            # via utilkit
-gitdb2==2.0.3             # via gitpython
-gitpython==2.1.10
+gitdb2==2.0.4             # via gitpython
+gitpython==2.1.11
 h11==0.7.0                # via hypercorn, wsproto
 h2==3.0.1                 # via hypercorn
 hpack==3.0.0              # via h2
-hypercorn==0.1.0          # via quart
+hypercorn==0.2.4          # via quart
 hyperframe==5.1.0         # via h2
 idna==2.7                 # via requests
 isort==4.3.4              # via pylint
@@ -26,14 +26,16 @@ lazy-object-proxy==1.3.1  # via astroid
 markupsafe==1.0           # via jinja2
 mccabe==0.6.1             # via pylint
 multidict==4.3.1          # via quart
-pylint==1.9.2
-pytz==2018.4              # via utilkit
-pyyaml==3.12
-quart==0.6.1
+pylint==2.1.1
+pytoml==0.1.18            # via hypercorn
+pytz==2018.5              # via utilkit
+pyyaml==3.13
+quart==0.6.5
 requests==2.19.1
-six==1.11.0               # via astroid, pylint
-smmap2==2.0.3             # via gitdb2
+six==1.11.0               # via astroid
+smmap2==2.0.4             # via gitdb2
 sortedcontainers==2.0.4   # via quart
+typed-ast==1.1.0          # via astroid
 typing-extensions==3.6.5  # via hypercorn
 urllib3==1.23             # via requests
 utilkit==0.4.1
