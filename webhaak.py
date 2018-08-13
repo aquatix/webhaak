@@ -334,7 +334,7 @@ def apptrigger(appkey, triggerkey):
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
     p = Process(target=do_pull_andor_command, args=(config,))
     p.start()
-    return Response(json.dumps({'status': 'OK'}), status=200, mimetype='application/json')
+    return Response(json.dumps({'status': 'OK', 'message': 'Command accepted and will be run in the background'}), status=200, mimetype='application/json')
 
 
 @app.route('/monitor')
