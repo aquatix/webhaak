@@ -335,7 +335,12 @@ def apptrigger(appkey, triggerkey):
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
     p = Process(target=do_pull_andor_command, args=(config,))
     p.start()
-    return Response(json.dumps({'status': 'OK', 'message': 'Command accepted and will be run in the background'}), status=200, mimetype='application/json')
+    return Response(
+        json.dumps({
+            'status': 'OK',
+            'message': 'Command accepted and will be run in the background'
+        }), status=200, mimetype='application/json'
+    )
 
 
 @app.route('/monitor')
@@ -353,7 +358,7 @@ def generatekey():
 
 
 @app.cli.command()
-def getappkey():
+def printappkey():
     """Generate new appkey"""
     print(generatekey())
 
@@ -361,7 +366,7 @@ def getappkey():
 @app.route('/getappkey')
 def getappkey():
     """Generate new appkey"""
-    return json.dumps({'key': generatekey().decode('utf-8')})
+    return Response(json.dumps({'key': generatekey().decode('utf-8')}, status=200, mimetype='application/json'))
 
 
 if __name__ == '__main__':
