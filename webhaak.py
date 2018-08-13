@@ -48,17 +48,21 @@ def notify_user(result, config):
       message
     """
     try:
-        client = pushover.Client(settings.PUSHOVER_USERKEY, api_token=settings.PUSHOVER_APPTOKEN)
-        print(config)
         projectname = config[0]
         triggerconfig = config[1]
         title = ''
-        message = 'repo: {}\nbranch: {}\ncommand: {}'.format(triggerconfig['repo'], triggerconfig['repo_branch'], triggerconfig['command'])
+        branch = 'master'
+        if 'repo_branch' in triggerconfig:
+            branch = triggerconfig['repo_branch']
+        message = 'repo: {}\nbranch: {}\ncommand: {}'.format(triggerconfig['repo'], branch, triggerconfig['command'])
         if result['status'] == 'OK':
             title = "Hook for {} ran successfully".format(projectname)
         else:
             title = "Hook for {} failed".format(projectname)
             message = message + '\n\n{}'.format(result['message'])
+        logging.debug(message)
+        logging.info('Sending notification...')
+        client = pushover.Client(settings.PUSHOVER_USERKEY, api_token=settings.PUSHOVER_APPTOKEN)
         client.send_message(message, title=title)
         logging.info('Notification sent')
     except AttributeError:
@@ -188,7 +192,6 @@ def do_pull_andor_command(config):
         logger.error('commanderror: %s', str(e))
 
     notify_user(result, config)
-    return result
 
 
 # == API request support functions/mixins ======
