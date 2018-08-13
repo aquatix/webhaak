@@ -1,4 +1,5 @@
 import binascii
+import click
 import json
 import logging
 import os
@@ -346,12 +347,10 @@ def monitor():
     return result
 
 
-
-# New in Flask 1.0, not released yet
-#@app.cli.command()
-#def getappkey():
-#    """Generate new appkey"""
-#    os.urandom(24)
+@app.cli.command()
+def getappkey():
+    """Generate new appkey"""
+    print(binascii.hexlify(os.urandom(24)).decode('utf-8'))
 
 
 @app.route('/getappkey')
