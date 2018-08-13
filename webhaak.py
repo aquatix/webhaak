@@ -244,7 +244,7 @@ def handle_invalid_usage(error):
 # == Web app endpoints ======
 
 @app.route('/')
-def indexpage():
+async def indexpage():
     logger.debug('Root page requested')
     return 'Welcome to <a href="https://github.com/aquatix/webhaak">Webhaak</a>, see the documentation to how to setup and use webhooks.'
 
@@ -265,7 +265,7 @@ def indexpage():
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
 #@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
-def apptrigger(appkey, triggerkey):
+async def apptrigger(appkey, triggerkey):
     """Fire the trigger described by the configuration under `triggerkey`"""
     logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
     if request.method == 'POST':
