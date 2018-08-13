@@ -5,6 +5,7 @@ import os
 from datetime import timedelta
 from functools import update_wrapper
 from logging.handlers import TimedRotatingFileHandler
+from multiprocessing import Process
 from subprocess import STDOUT, CalledProcessError, check_output
 
 import git
@@ -58,7 +59,7 @@ def fetchinfo_to_str(fetchinfo):
     return result
 
 
-async def update_repo(config):
+def update_repo(config):
     """Update (pull) the Git repo"""
     projectname = config[0]
     triggerconfig = config[1]
@@ -105,7 +106,7 @@ async def update_repo(config):
     return result
 
 
-async def run_command(config):
+def run_command(config):
     """Run the command(s) defined for this trigger"""
     projectname = config[0]
     triggerconfig = config[1]
@@ -126,14 +127,14 @@ async def run_command(config):
     return result
 
 
-async def do_pull_andor_command(config):
+def do_pull_andor_command(config):
     """Asynchronous task, performing the git pulling and the specified scripting"""
     print('do_pull_andor_command')
     result = {'application': config[0]}
     result['trigger'] = config[1]
     if 'repo' in config[1]:
         try:
-            result['repo_result'] = await update_repo(config)
+            result['repo_result'] = update_repo(config)
             logger.info('result repo: %s', str(result['repo_result']))
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
@@ -145,7 +146,7 @@ async def do_pull_andor_command(config):
             return result
 
     try:
-        result['command_result'] = await run_command(config)
+        result['command_result'] = run_command(config)
         logger.info('result command: %s', str(result['command_result']))
         result['status'] = 'OK'
     except (OSError, CalledProcessError) as e:
@@ -264,17 +265,17 @@ def indexpage():
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
 #@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
-async def apptrigger(appkey, triggerkey):
+def apptrigger(appkey, triggerkey):
     """Fire the trigger described by the configuration under `triggerkey`"""
     logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
     if request.method == 'POST':
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
-            payload = await request.get_json()
+            payload = request.get_json()
             logger.info('received GitHub ping for %s hook: %s ', payload['repository']['full_name'], payload['hook']['url'])
             return json.dumps({'msg': 'Hi!'})
         if request.headers.get('X-GitHub-Event') != "push":
-            payload = await request.get_json()
+            payload = request.get_json()
             logger.info('received wrong event type from GitHub for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
             return json.dumps({'msg': "wrong event type"})
         else:
@@ -295,7 +296,8 @@ async def apptrigger(appkey, triggerkey):
         #raise NotFound('Incorrect app/trigger requested')
         logger.error('appkey/triggerkey combo not found')
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
-    await do_pull_andor_command.delay(config)
+    p = Process(target=do_pull_andor_command, args=(config,))
+    p.start()
     return Response(json.dumps({'status': 'OK'}), status=200, mimetype='application/json')
 
 
