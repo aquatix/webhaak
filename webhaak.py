@@ -6,7 +6,7 @@ from datetime import timedelta
 from functools import update_wrapper
 from logging.handlers import TimedRotatingFileHandler
 from multiprocessing import Process
-from subprocess import STDOUT, CalledProcessError, check_output
+import subprocess
 
 import click
 import git
@@ -156,12 +156,27 @@ def run_command(config):
     # Replace some placeholders to be used in executing scripts from one of the repos
     command = command.replace('REPODIR', os.path.join(settings.REPOS_CACHE_DIR, projectname))
     command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
-    logger.info('[' + projectname + '] Executing ' + command)
+    logger.info('[%s] Executing `%s`', projectname, command)
 
-    command_parts = command.split(' ')
-    logger.info(str(command_parts))
-    command_parameters = ' '.join(command_parts[1:])
-    result = check_output(command_parameters, executable=command_parts[0], stderr=STDOUT, shell=True, universal_newlines=True)
+    #command_parts = command.split(' ')
+    #logger.info(str(command_parts))
+    #command_parameters = ' '.join(command_parts[1:])
+    #result = subprocess.check_output(
+    #    command_parameters,
+    #    executable=command_parts[0],
+    #    stderr=subprocess.STDOUT,
+    #    shell=True,
+    #    universal_newlines=True
+    #)
+    # TODO: capture_output is new in Python 3.7, replaces stdout and stderr
+    #result = subprocess.run(command_parts, capture_output=True, check=True, shell=True, universal_newlines=True)
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        universal_newlines=True
+    )
     return result
 
 
@@ -182,17 +197,17 @@ def do_pull_andor_command(config):
             logger.error('oserror: %s', str(e))
             notify_user(result, config)
 
-    try:
-        result['command_result'] = run_command(config)
-        logger.info('result command: %s', str(result['command_result']))
+    cmdresult = run_command(config)
+    if cmdresult.returncode == 0:
+        logger.info('result command: %s', str(cmdresult.stdout))
         result['status'] = 'OK'
-    except (OSError, CalledProcessError) as e:
+    else:
         result['status'] = 'error'
         result['type'] = 'commanderror'
-        result['message'] = str(e)
+        result['message'] = cmdresult.stderr
         # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
-        logger.error('commanderror with returncode %s: %s', str(e.returncode), str(e))
-        logger.error(str(e.output))
+        logger.error('commanderror with returncode %s: %s', str(cmdresult.returncode), cmdresult.stderr)
+        logger.error(cmdresult.stderr)
 
     notify_user(result, config)
 
