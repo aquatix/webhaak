@@ -161,7 +161,7 @@ def run_command(config):
     command_parts = command.split(' ')
     logger.info(str(command_parts))
     command_parameters = ' '.join(command_parts[1:])
-    result = check_output(command_parameters, executable=command_parts[0], stderr=STDOUT, shell=True)
+    result = check_output(command_parameters, executable=command_parts[0], stderr=STDOUT, shell=True, universal_newlines=True)
     return result
 
 
@@ -190,7 +190,9 @@ def do_pull_andor_command(config):
         result['status'] = 'error'
         result['type'] = 'commanderror'
         result['message'] = str(e)
-        logger.error('commanderror: %s', str(e))
+        # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
+        logger.error('commanderror with returncode %s: %s', str(e.returncode), str(e))
+        logger.error(str(e.output))
 
     notify_user(result, config)
 
