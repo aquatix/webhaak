@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [unreleased]
 
 ### Added
+
+### Changed
+
+### Removed
+
+
+## [0.3.0] - 2018-10-01
+
+### Added
 - Python 3 compatibility
 - Subprocess worker, making requests process the pull/clone and script execution asynchronous from the API call
 - Give more output about the checkout and pull in the response JSON
