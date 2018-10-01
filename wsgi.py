@@ -1,5 +1,8 @@
 # Activate virtualenv
 import settings
+#import locale
+#print(locale.getdefaultlocale())
+#print(locale.getpreferredencoding())
 activate_this = getattr(settings, 'VENV', None)
 # FIXME: python 2 *and* python 3 compatibility
 # Python 2
