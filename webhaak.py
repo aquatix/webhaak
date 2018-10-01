@@ -381,7 +381,7 @@ def printappkey():
 @app.route('/getappkey')
 def getappkey():
     """Generate new appkey"""
-    return Response(json.dumps({'key': generatekey().decode('utf-8')}, status=200, mimetype='application/json'))
+    return Response(json.dumps({'key': generatekey().decode('utf-8')}), status=200, mimetype='application/json')
 
 
 if __name__ == '__main__':
