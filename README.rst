@@ -45,12 +45,6 @@ url's when wanted (e.g., on push to repository).
 
 Url's are of the form https://hook.example.com/app/<appkey>/<triggerkey>
 
-Also run the webhaak Celery worker (preferably as supervisord or systemd task):
-
-.. code-block:: bash
-
-    celery -A webhaak.celery worker
-
 
 Example configuration
 ---------------------
