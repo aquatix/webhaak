@@ -159,16 +159,6 @@ def run_command(config):
     command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
     logger.info('[%s] Executing `%s`', projectname, command)
 
-    #command_parts = command.split(' ')
-    #logger.info(str(command_parts))
-    #command_parameters = ' '.join(command_parts[1:])
-    #result = subprocess.check_output(
-    #    command_parameters,
-    #    executable=command_parts[0],
-    #    stderr=subprocess.STDOUT,
-    #    shell=True,
-    #    universal_newlines=True
-    #)
     # TODO: capture_output is new in Python 3.7, replaces stdout and stderr
     #result = subprocess.run(command_parts, capture_output=True, check=True, shell=True, universal_newlines=True)
     result = subprocess.run(
@@ -208,7 +198,12 @@ def do_pull_andor_command(config):
         result['type'] = 'commanderror'
         result['message'] = cmdresult.stderr.strip()
         # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
-        logger.error('[%s] commanderror with returncode %s: %s', projectname, str(cmdresult.returncode), cmdresult.stderr)
+        logger.error(
+            '[%s] commanderror with returncode %s: %s',
+            projectname,
+            str(cmdresult.returncode),
+            cmdresult.stderr
+        )
         logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
         logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
 
