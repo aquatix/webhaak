@@ -204,8 +204,8 @@ def do_pull_andor_command(config):
             str(cmdresult.returncode),
             cmdresult.stderr
         )
-        logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
         logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
+        logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
 
     notify_user(result, config)
 
