@@ -107,30 +107,30 @@ def update_repo(config):
     if 'repoparent' in triggerconfig and triggerconfig['repoparent']:
         repo_parent = triggerconfig['repoparent']
 
-    logger.info('[' + projectname + '] Updating ' + repo_url)
-    logger.info('[' + projectname + '] Repo parent ' + repo_parent)
+    logger.info('[%s] Updating %s', projectname, repo_url)
+    logger.info('[%s] Repo parent %s', projectname, repo_parent)
 
     # Ensure cache dir for webhaak exists and is writable
     fileutil.ensure_dir_exists(repo_parent) # throws OSError if repo_parent is not writable
 
     # TODO: check whether dir exists with different repository
     repo_dir = os.path.join(repo_parent, get_repo_basename(repo_url))
-    logger.info('[' + projectname + '] Repo dir ' + repo_dir)
+    logger.info('[%s] Repo dir %s', projectname, repo_dir)
     if os.path.isdir(repo_dir):
         # Repo already exists locally, do a pull
-        logger.info('[' + projectname + '] Repo exists, pull')
+        logger.info('[%s] Repo exists, pull', projectname)
 
         apprepo = git.Repo(repo_dir)
         origin = apprepo.remote('origin')
         result = fetchinfo_to_str(origin.fetch())  # assure we actually have data. fetch() returns useful information
-        logger.info('Fetch result: %s', result)
+        logger.info('[%s] Fetch result: %s', projectname, result)
         origin.pull()
-        logger.info('[' + projectname + '] Done pulling, checkout()')
+        logger.info('[%s] Done pulling, checkout()', projectname)
         #logger.debug(apprepo.git.branch())
         result += ' ' + str(apprepo.git.checkout())
     else:
         # Repo needs to be cloned
-        logger.info('[' + projectname + '] Repo does not exist yet, clone')
+        logger.info('[%s] Repo does not exist yet, clone', projectname)
         apprepo = git.Repo.init(repo_dir)
         origin = apprepo.create_remote('origin', repo_url)
         origin.fetch()                  # assure we actually have data. fetch() returns useful information
@@ -138,7 +138,7 @@ def update_repo(config):
         apprepo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
         # push and pull behaves similarly to `git push|pull`
         result = origin.pull()
-        logger.info('[' + projectname + '] Done pulling, checkout()')
+        logger.info('[%s] Done pulling, checkout()', projectname)
         #logger.debug(apprepo.git.branch())
         result += ' ' + str(apprepo.git.checkout())
     return result
@@ -156,6 +156,7 @@ def run_command(config):
     # Replace some placeholders to be used in executing scripts from one of the repos
     command = command.replace('REPODIR', os.path.join(settings.REPOS_CACHE_DIR, projectname))
     command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
+    command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
     logger.info('[%s] Executing `%s`', projectname, command)
 
     #command_parts = command.split(' ')
@@ -182,32 +183,33 @@ def run_command(config):
 
 def do_pull_andor_command(config):
     """Asynchronous task, performing the git pulling and the specified scripting inside a Process"""
-    result = {'application': config[0]}
+    projectname = config[0]
+    result = {'application': projectname}
     result['trigger'] = config[1]
     if 'repo' in config[1]:
         try:
             result['repo_result'] = update_repo(config)
-            logger.info('result repo: %s', str(result['repo_result']))
+            logger.info('[%s] result repo: %s', projectname, str(result['repo_result']))
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
-            logger.error('giterror: %s', str(e))
+            logger.error('[%s] giterror: %s', projectname, str(e))
             notify_user(result, config)
         except (OSError, KeyError) as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-            logger.error('oserror: %s', str(e))
+            logger.error('[%s] oserror: %s', projectname, str(e))
             notify_user(result, config)
 
     cmdresult = run_command(config)
     if cmdresult.returncode == 0:
-        logger.info('result command: %s', str(cmdresult.stdout))
+        logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
         result['status'] = 'OK'
     else:
         result['status'] = 'error'
         result['type'] = 'commanderror'
-        result['message'] = cmdresult.stderr
+        result['message'] = cmdresult.stderr.strip()
         # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
-        logger.error('commanderror with returncode %s: %s', str(cmdresult.returncode), cmdresult.stderr)
-        logger.error(cmdresult.stderr)
+        logger.error('[%s] commanderror with returncode %s: %s', projectname, str(cmdresult.returncode), cmdresult.stderr)
+        logger.error('[%s] %s', projectname, cmdresult.stderr)
 
     notify_user(result, config)
 
