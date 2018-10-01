@@ -1,5 +1,4 @@
 import binascii
-import click
 import json
 import logging
 import os
@@ -9,6 +8,7 @@ from logging.handlers import TimedRotatingFileHandler
 from multiprocessing import Process
 from subprocess import STDOUT, CalledProcessError, check_output
 
+import click
 import git
 import pushover
 import yaml
