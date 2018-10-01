@@ -13,11 +13,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [unreleased]
 
 ### Added
-- Celery worker, making requests process the pull/clone and script execution asynchronous from the API call
+- Python 3 compatibility
+- Subprocess worker, making requests process the pull/clone and script execution asynchronous from the API call
 - Give more output about the checkout and pull in the response JSON
+- PushOver integration, providing feedback after the subprocess is done with updating and running its job
 
 ### Changed
 - Fixes to the example
+- Better logging of the results of the jobs
+- Use subprocess.run() instead of check_output()
+
+### Removed
+- Trial with Redis
+- Trial with Quart (asyncio Flask-alike)
 
 
 ## [0.2.0] - 2016-05-13 (Friday the 13th)
