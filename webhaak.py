@@ -209,7 +209,8 @@ def do_pull_andor_command(config):
         result['message'] = cmdresult.stderr.strip()
         # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
         logger.error('[%s] commanderror with returncode %s: %s', projectname, str(cmdresult.returncode), cmdresult.stderr)
-        logger.error('[%s] %s', projectname, cmdresult.stderr)
+        logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
+        logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
 
     notify_user(result, config)
 
