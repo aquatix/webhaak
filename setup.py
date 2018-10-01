@@ -7,19 +7,19 @@ https://github.com/pypa/sampleproject
 
 from setuptools import setup
 # To use a consistent encoding
-from codecs import open
+from codecs import open as openfile
 from os import path
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with openfile(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='webhaak', # pip install webhaak
+    name='webhaak',  # pip install webhaak
     description=' Simple webhook service to update and deploy sites and do other maintenance',
-    #long_description=open('README.md', 'rt').read(),
+    # long_description=openfile('README.md', 'rt').read(),
     long_description=long_description,
 
     # version
@@ -35,7 +35,7 @@ setup(
 
     # as a practice no need to hard code version unless you know program wont
     # work unless the specific versions are used
-    install_requires=['Flask', 'GitPython'],
+    install_requires=['Flask', 'GitPython', 'python-pushover', 'pyyaml', 'requests' 'utilkit'],
 
     py_modules=['webhaak'],
 
