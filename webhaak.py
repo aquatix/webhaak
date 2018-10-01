@@ -168,7 +168,6 @@ def run_command(config):
         shell=True,
         universal_newlines=True
     )
-    logger.debug(result)
     return result
 
 
@@ -191,7 +190,6 @@ def do_pull_andor_command(config):
             notify_user(result, config)
 
     cmdresult = run_command(config)
-    logger.debug(cmdresult)
     if cmdresult.returncode == 0:
         logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
         result['status'] = 'OK'
