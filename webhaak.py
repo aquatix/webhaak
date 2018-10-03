@@ -330,7 +330,6 @@ def listtriggers(secretkey):
 
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
-#@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
 def apptrigger(appkey, triggerkey):
     """Fire the trigger described by the configuration under `triggerkey`"""
     logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
@@ -344,7 +343,7 @@ def apptrigger(appkey, triggerkey):
                 payload['hook']['url']
             )
             return json.dumps({'msg': 'Hi!'})
-        elif request.headers.get('X-GitHub-Event') != "push":
+        if request.headers.get('X-GitHub-Event') != "push":
             payload = request.get_json()
             logger.info(
                 'received wrong event type from GitHub for %s hook: %s',
@@ -352,17 +351,16 @@ def apptrigger(appkey, triggerkey):
                 payload['hook']['url']
             )
             return json.dumps({'msg': "wrong event type"})
-        else:
-            payload = request.get_json()
-            event_info = 'received push from GitHub for '
-            if 'repository' in payload:
-                event_info += payload['repository']['full_name']
-            if 'pusher' in payload:
-                event_info += ' by ' + payload['pusher']['name']
-            if 'compare' in payload:
-                event_info += ', compare: ' + payload['compare']
-            logger.info(payload)
-            logger.info(event_info)
+        payload = request.get_json()
+        event_info = 'received push from GitHub for '
+        if 'repository' in payload:
+            event_info += payload['repository']['full_name']
+        if 'pusher' in payload:
+            event_info += ' by ' + payload['pusher']['name']
+        if 'compare' in payload:
+            event_info += ', compare: ' + payload['compare']
+        logger.info(payload)
+        logger.info(event_info)
 
     config = gettriggersettings(appkey, triggerkey)
     if config is None:
