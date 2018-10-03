@@ -11,9 +11,8 @@ import subprocess
 import click
 import git
 import pushover
-import yaml
+import strictyaml
 from flask import Flask, Response, abort, current_app, jsonify, make_response, request
-from utilkit import fileutil
 
 import settings
 
@@ -36,7 +35,7 @@ logger.addHandler(fh)
 
 # Load the configuration of the various projects/hooks
 with open(settings.PROJECTS_FILE, 'r') as pf:
-    projects = fileutil.yaml_ordered_load(pf, yaml.SafeLoader)
+    projects = strictyaml.load(pf.read()).data
 
 
 def notify_user(result, config):
@@ -110,7 +109,8 @@ def update_repo(config):
     logger.info('[%s] Repo parent %s', projectname, repo_parent)
 
     # Ensure cache dir for webhaak exists and is writable
-    fileutil.ensure_dir_exists(repo_parent)  # throws OSError if repo_parent is not writable
+    if not os.path.exists(repo_parent):
+        os.makedirs(repo_parent)  # throws OSError if repo_parent is not writable
 
     # TODO: check whether dir exists with different repository
     repo_dir = os.path.join(repo_parent, get_repo_basename(repo_url))
