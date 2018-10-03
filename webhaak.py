@@ -308,6 +308,8 @@ def listtriggers(secretkey):
     except AttributeError:
         abort(404)
 
+    server_url = request.host_url
+
     result = {}
     for project in projects:
         result[project] = {
@@ -319,7 +321,12 @@ def listtriggers(secretkey):
             result[project]['triggers'].append(
                 {
                     'title': trigger,
-                    'triggerkey': projects[project]['triggers'][trigger]['triggerkey']
+                    'triggerkey': projects[project]['triggers'][trigger]['triggerkey'],
+                    'url': '{}app/{}/{}'.format(
+                        server_url,
+                        projects[project]['appkey'],
+                        projects[project]['triggers'][trigger]['triggerkey']
+                    )
                 }
             )
     return Response(
