@@ -299,6 +299,7 @@ def indexpage():
 
 
 @app.route('/admin/<secretkey>/list', methods=['GET'])
+@crossdomain(origin='*')
 def listtriggers(secretkey):
     """List the appkeys and triggerkeys"""
     print(secretkey)
