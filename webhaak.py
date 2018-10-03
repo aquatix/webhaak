@@ -12,7 +12,7 @@ import click
 import git
 import pushover
 import yaml
-from flask import Flask, Response, current_app, jsonify, make_response, request
+from flask import Flask, Response, abort, current_app, jsonify, make_response, request
 from utilkit import fileutil
 
 import settings
@@ -299,6 +299,36 @@ def handle_invalid_usage(error):
 def indexpage():
     logger.debug('Root page requested')
     return 'Welcome to <a href="https://github.com/aquatix/webhaak">Webhaak</a>, see the documentation to how to setup and use webhooks.'
+
+
+@app.route('/admin/<secretkey>/list', methods=['GET'])
+def listtriggers(secretkey):
+    """List the appkeys and triggerkeys"""
+    print(secretkey)
+    print(settings.SECRETKEY)
+    try:
+        if secretkey != settings.SECRETKEY:
+            abort(404)
+    except AttributeError:
+        abort(404)
+
+    result = {}
+    for project in projects:
+        result[project] = {
+            'title': project,
+            'appkey': projects[project]['appkey'],
+            'triggers': [],
+        }
+        for trigger in projects[project]['triggers']:
+            result[project]['triggers'].append(
+                {
+                    'title': trigger,
+                    'triggerkey': projects[project]['triggers'][trigger]['triggerkey']
+                }
+            )
+    return Response(
+        json.dumps({'projects': result}), status=200, mimetype='application/json'
+    )
 
 
 #@app.route('/app/<appkey>', methods=['GET', 'OPTIONS'])

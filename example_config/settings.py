@@ -11,6 +11,9 @@ PROJECTS_FILE = 'projects.yaml'
 #PROJECTS_FILE = '/srv/hook.example.com/config/projects.yaml'
 REPOS_CACHE_DIR = '/var/cache/webhaak'
 
+# SECRETKEY is used for listing projects and other admin urls
+# SECRETKEY = 'myNiceLittleSecret'
+
 LOG_LOCATION = 'webhaak.log'
 #LOG_LOCATION = '/var/log/webhaak/webhaak.log'
 # How many logs to keep in log rotation:
