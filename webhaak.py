@@ -376,9 +376,9 @@ def apptrigger(appkey, triggerkey):
     )
 
 
+@app.route('/monitor/monitor.html')
+@app.route('/monitor/')
 @app.route('/monitor')
-#@app.route('/monitor/')
-#@app.route('/monitor/monitor.html')
 def monitor():
     """Monitoring ping"""
     result = 'OK'
