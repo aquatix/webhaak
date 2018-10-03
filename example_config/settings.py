@@ -3,7 +3,7 @@ VENV = '/srv/hook.example.com/venv/bin/activate_this.py'
 
 PORT = 8086
 
-MAX_CACHE_AGE = 600 # seconds
+MAX_CACHE_AGE = 600  # seconds
 
 DEBUG = False
 

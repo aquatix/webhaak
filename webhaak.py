@@ -22,7 +22,6 @@ app.debug = settings.DEBUG
 
 logger = logging.getLogger('webhaak')
 logger.setLevel(logging.DEBUG)
-#fh = logging.handlers.RotatingFileHandler('dcp_search.log', maxBytes=100000000, backupCount=10)
 # Log will rotate daily with a max history of LOG_BACKUP_COUNT
 fh = TimedRotatingFileHandler(
     settings.LOG_LOCATION,
@@ -111,7 +110,7 @@ def update_repo(config):
     logger.info('[%s] Repo parent %s', projectname, repo_parent)
 
     # Ensure cache dir for webhaak exists and is writable
-    fileutil.ensure_dir_exists(repo_parent) # throws OSError if repo_parent is not writable
+    fileutil.ensure_dir_exists(repo_parent)  # throws OSError if repo_parent is not writable
 
     # TODO: check whether dir exists with different repository
     repo_dir = os.path.join(repo_parent, get_repo_basename(repo_url))
@@ -126,7 +125,6 @@ def update_repo(config):
         logger.info('[%s] Fetch result: %s', projectname, result)
         origin.pull()
         logger.info('[%s] Done pulling, checkout()', projectname)
-        #logger.debug(apprepo.git.branch())
         result += ' ' + str(apprepo.git.checkout())
     else:
         # Repo needs to be cloned
@@ -139,7 +137,6 @@ def update_repo(config):
         # push and pull behaves similarly to `git push|pull`
         result = origin.pull()
         logger.info('[%s] Done pulling, checkout()', projectname)
-        #logger.debug(apprepo.git.branch())
         result += ' ' + str(apprepo.git.checkout())
     return result
 
@@ -160,7 +157,7 @@ def run_command(config):
     logger.info('[%s] Executing `%s`', projectname, command)
 
     # TODO: capture_output is new in Python 3.7, replaces stdout and stderr
-    #result = subprocess.run(command_parts, capture_output=True, check=True, shell=True, universal_newlines=True)
+    # result = subprocess.run(command_parts, capture_output=True, check=True, shell=True, universal_newlines=True)
     result = subprocess.run(
         command,
         stdout=subprocess.PIPE,
@@ -331,20 +328,6 @@ def listtriggers(secretkey):
     )
 
 
-#@app.route('/app/<appkey>', methods=['GET', 'OPTIONS'])
-#@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
-#def approot(appkey):
-#    """
-#    List some generic info about the app
-#    """
-#    for app in projects:
-#        print app
-#        if projects[app]['appkey'] == appkey:
-#            print 'found'
-#            return app
-#    return appkey
-
-
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
 #@crossdomain(origin='*', max_age=settings.MAX_CACHE_AGE)
 def apptrigger(appkey, triggerkey):
@@ -354,11 +337,19 @@ def apptrigger(appkey, triggerkey):
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
             payload = request.get_json()
-            logger.info('received GitHub ping for %s hook: %s ', payload['repository']['full_name'], payload['hook']['url'])
+            logger.info(
+                'received GitHub ping for %s hook: %s ',
+                payload['repository']['full_name'],
+                payload['hook']['url']
+            )
             return json.dumps({'msg': 'Hi!'})
-        if request.headers.get('X-GitHub-Event') != "push":
+        elif request.headers.get('X-GitHub-Event') != "push":
             payload = request.get_json()
-            logger.info('received wrong event type from GitHub for ' + payload['repository']['full_name'] + ' hook: ' + payload['hook']['url'])
+            logger.info(
+                'received wrong event type from GitHub for %s hook: %s',
+                payload['repository']['full_name'],
+                payload['hook']['url']
+            )
             return json.dumps({'msg': "wrong event type"})
         else:
             payload = request.get_json()
@@ -374,8 +365,6 @@ def apptrigger(appkey, triggerkey):
 
     config = gettriggersettings(appkey, triggerkey)
     if config is None:
-        #raise InvalidAPIUsage('Incorrect/incomplete parameter(s) provided', status_code=404)
-        #raise NotFound('Incorrect app/trigger requested')
         logger.error('appkey/triggerkey combo not found')
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
     p = Process(target=do_pull_andor_command, args=(config,))
@@ -415,7 +404,7 @@ def getappkey():
 
 
 if __name__ == '__main__':
-    if settings.DEBUG == False:
+    if not settings.DEBUG:
         app.run(port=settings.PORT, debug=settings.DEBUG)
     else:
         app.run(host='0.0.0.0', port=settings.PORT, debug=settings.DEBUG)
