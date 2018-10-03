@@ -302,8 +302,6 @@ def indexpage():
 @crossdomain(origin='*')
 def listtriggers(secretkey):
     """List the appkeys and triggerkeys"""
-    print(secretkey)
-    print(settings.SECRETKEY)
     try:
         if secretkey != settings.SECRETKEY:
             abort(404)
