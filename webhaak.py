@@ -335,6 +335,7 @@ def listtriggers(secretkey):
 
 
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
+@crossdomain(origin='*')
 def apptrigger(appkey, triggerkey):
     """Fire the trigger described by the configuration under `triggerkey`"""
     logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
