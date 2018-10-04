@@ -15,10 +15,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Optional endpoint to list all projects (apps) and their triggers. Enable by setting a SECRETKEY in settings.py
   The endpoint is located at /admin/<secretkey>/list and [webhaak-ui](https://github.com/aquatix/webhaak-ui) is an example client.
+- Possibility to remotely use the endpoints (e.g., through jsonp)
 
 ### Changed
+- Changed yaml library to strictyaml, do be safer
 
 ### Removed
+- pyyaml dependency
+- utilkit dependency
 
 
 ## [0.3.0] - 2018-10-01
