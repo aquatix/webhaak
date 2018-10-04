@@ -187,8 +187,11 @@ def do_pull_andor_command(config):
             notify_user(result, config)
 
     cmdresult = run_command(config)
-    if cmdresult.returncode == 0:
+    if cmdresult and cmdresult.returncode == 0:
         logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
+        result['status'] = 'OK'
+    elif not cmdresult:
+        logger.info('[%s] no command configured', projectname)
         result['status'] = 'OK'
     else:
         result['status'] = 'error'
