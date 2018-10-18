@@ -4,11 +4,11 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-certifi==2018.8.24        # via requests
+certifi==2018.10.15       # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via flask
 flask==1.0.2
-gitdb2==2.0.4             # via gitpython
+gitdb2==2.0.5             # via gitpython
 gitpython==2.1.11
 idna==2.7                 # via requests
 itsdangerous==0.24        # via flask
@@ -16,10 +16,10 @@ jinja2==2.10              # via flask
 markupsafe==1.0           # via jinja2
 python-dateutil==2.7.3    # via strictyaml
 python-pushover==0.4
-requests==2.19.1
-ruamel.yaml==0.15.71      # via strictyaml
+requests==2.20.0
+ruamel.yaml==0.15.74      # via strictyaml
 six==1.11.0               # via python-dateutil
-smmap2==2.0.4             # via gitdb2
+smmap2==2.0.5             # via gitdb2
 strictyaml==0.13.0
-urllib3==1.23             # via requests
+urllib3==1.24             # via requests
 werkzeug==0.14.1          # via flask
