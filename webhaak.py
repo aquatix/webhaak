@@ -364,12 +364,15 @@ def apptrigger(appkey, triggerkey):
             return json.dumps({'msg': "wrong event type"})
         payload = request.get_json()
         event_info = 'received push from GitHub for '
-        if 'repository' in payload:
-            event_info += payload['repository']['full_name']
-        if 'pusher' in payload:
-            event_info += ' by ' + payload['pusher']['name']
-        if 'compare' in payload:
-            event_info += ', compare: ' + payload['compare']
+        if payload:
+            if 'repository' in payload:
+                event_info += payload['repository']['full_name']
+            if 'pusher' in payload:
+                event_info += ' by ' + payload['pusher']['name']
+            if 'compare' in payload:
+                event_info += ', compare: ' + payload['compare']
+        else:
+            event_info += 'unknown, as no json was received. Check that GitHub webhook content type is application/json'
         logger.info(payload)
         logger.info(event_info)
 
