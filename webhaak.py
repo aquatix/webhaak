@@ -48,8 +48,8 @@ def notify_user(result, config):
       message
     """
     try:
-        projectname = config[0]
         triggerconfig = config[1]
+        projectname = '{}>{}'.format(config[0], triggerconfig['title'])
         title = ''
         branch = 'master'
         if 'repo_branch' in triggerconfig:
@@ -75,7 +75,9 @@ def gettriggersettings(appkey, triggerkey):
         if projects[project]['appkey'] == appkey:
             for trigger in projects[project]['triggers']:
                 if projects[project]['triggers'][trigger]['triggerkey'] == triggerkey:
-                    return (project, projects[project]['triggers'][trigger])
+                    triggerconfig = projects[project]['triggers'][trigger]
+                    triggerconfig['title'] = trigger
+                    return (project, triggerconfig)
     return None
 
 
