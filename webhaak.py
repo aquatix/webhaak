@@ -183,10 +183,12 @@ def do_pull_andor_command(config):
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
             logger.error('[%s] giterror: %s', projectname, str(e))
             notify_user(result, config)
+            return
         except (OSError, KeyError) as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
             logger.error('[%s] oserror: %s', projectname, str(e))
             notify_user(result, config)
+            return
 
     cmdresult = run_command(config)
     if cmdresult and cmdresult.returncode == 0:
