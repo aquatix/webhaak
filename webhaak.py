@@ -153,7 +153,10 @@ def run_command(config):
         return None
     command = triggerconfig['command']
     # Replace some placeholders to be used in executing scripts from one of the repos
-    command = command.replace('REPODIR', os.path.join(settings.REPOS_CACHE_DIR, projectname))
+    repo_parent = settings.REPOS_CACHE_DIR
+    if 'repoparent' in triggerconfig and triggerconfig['repoparent']:
+        repo_parent = triggerconfig['repoparent']
+    command = command.replace('REPODIR', os.path.join(repo_parent, projectname))
     command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
     command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
     logger.info('[%s] Executing `%s`', projectname, command)
