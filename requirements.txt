@@ -17,7 +17,7 @@ markupsafe==1.1.0         # via jinja2
 python-dateutil==2.7.5    # via strictyaml
 python-pushover==0.4
 requests==2.21.0
-ruamel.yaml==0.15.81      # via strictyaml
+ruamel.yaml==0.15.87      # via strictyaml
 six==1.12.0               # via python-dateutil
 smmap2==2.0.5             # via gitdb2
 strictyaml==1.0.0
