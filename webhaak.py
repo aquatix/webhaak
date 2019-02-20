@@ -2,17 +2,18 @@ import binascii
 import json
 import logging
 import os
+import subprocess
 from datetime import timedelta
 from functools import update_wrapper
 from logging.handlers import TimedRotatingFileHandler
 from multiprocessing import Process
-import subprocess
 
 import click
 import git
 import pushover
 import strictyaml
-from flask import Flask, Response, abort, current_app, jsonify, make_response, request
+from flask import (Flask, Response, abort, current_app, jsonify, make_response,
+                   request)
 
 import settings
 
