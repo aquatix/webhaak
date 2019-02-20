@@ -70,8 +70,13 @@ def notify_user(result, config):
         logging.warning('Notification through PushOver failed because of missing configuration')
 
 
-def gettriggersettings(appkey, triggerkey):
-    """Look up the trigger and return the repo and command to be updated and fired"""
+def get_trigger_settings(appkey, triggerkey):
+    """Look up the trigger and return the repo and command to be updated and fired
+
+    :param appkey: application key part of the url
+    :param triggerkey: trigger key part of the url, sub part of the config
+    :return: tuple with project info and the trigger config
+    """
     for project in projects:
         if projects[project]['appkey'] == appkey:
             for trigger in projects[project]['triggers']:
@@ -403,7 +408,7 @@ def apptrigger(appkey, triggerkey):
         logger.info(payload)
         logger.info(event_info)
 
-    config = gettriggersettings(appkey, triggerkey)
+    config = get_trigger_settings(appkey, triggerkey)
     if config is None:
         logger.error('appkey/triggerkey combo not found')
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
