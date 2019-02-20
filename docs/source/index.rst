@@ -10,6 +10,8 @@ Welcome to webhaak's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   webhaak
+   modules
 
 
 Indices and tables
