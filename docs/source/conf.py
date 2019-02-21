@@ -13,6 +13,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import subprocess
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -25,8 +26,22 @@ author = 'Michiel Scholten'
 
 # The short X.Y version
 version = ''
+# Make sure the working directory is our project
+cwd = os.path.dirname(os.path.realpath(__file__))
+try:
+    version = subprocess.check_output(["git", "describe", "--always", "--tags"], stderr=None, cwd=cwd).strip()
+except subprocess.CalledProcessError:
+    version = ''
+
+try:
+    # byte string needs to be converted to a string
+    version = version.decode("utf-8")
+except AttributeError:
+    # version already was a str
+    pass
 # The full version, including alpha/beta/rc tags
-release = ''
+#release = ''
+release = version
 
 
 # -- General configuration ---------------------------------------------------
