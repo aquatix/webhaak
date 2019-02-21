@@ -1,6 +1,9 @@
 Example configuration files
 ===========================
 
+Examples of various configuration possibilities to help you get started. The `source scripts are available too <https://github.com/aquatix/webhaak/tree/master/example_config>`_.
+
+
 Configuration file
 ------------------
 
