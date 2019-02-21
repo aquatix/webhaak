@@ -36,3 +36,12 @@ paragoo:
       triggerkey: 67a729b6cbfaa78075925631552f4eec29938f7a5a19f908
       repo: git@github.com:aquatix/paragoo-theme-material.git
       command: python REPODIR/generate_variants.py
+
+webhaak:
+    appkey: bdbff089697cb6d07f12498a905a76454ba5467f8b2d5197
+    triggers:
+        update:
+            triggerkey: 9bc193c48b8927d97e35ed7f85181c8305f2f5bb3011c3a8
+            repo: git@github.com:aquatix/webhaak.git
+            repoparent: /srv/www/hook.example.com
+            command: /srv/www/hook.example.com/scripts/update_flask.sh webhaak REPODIR

@@ -33,3 +33,19 @@ uWSGI
 .. literalinclude:: ../../example_config/uwsgi.ini
    :language: bash
    :linenos:
+
+
+Helper scripts
+--------------
+
+Updating a Flask project:
+
+.. literalinclude:: ../../example_config/update_flask.sh
+   :language: bash
+   :linenos:
+
+Updating a Python virtualenv (also used by the Flask update script):
+
+.. literalinclude:: ../../example_config/update_virtualenv.sh
+   :language: bash
+   :linenos:
