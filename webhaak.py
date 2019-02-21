@@ -152,9 +152,6 @@ def update_repo(config):
         origin = apprepo.remote('origin')
         result = fetchinfo_to_str(origin.fetch())  # assure we actually have data. fetch() returns useful information
         logger.info('[%s] Fetch result: %s', projectname, result)
-        origin.pull()
-        logger.info('[%s] Done pulling, checkout()', projectname)
-        result += ' ' + str(apprepo.git.checkout())
     else:
         # Repo needs to be cloned
         logger.info('[%s] Repo does not exist yet, clone', projectname)
@@ -163,10 +160,14 @@ def update_repo(config):
         origin.fetch()                  # assure we actually have data. fetch() returns useful information
         # Setup a local tracking branch of a remote branch
         apprepo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
-        # push and pull behaves similarly to `git push|pull`
-        result = origin.pull()
-        logger.info('[%s] Done pulling, checkout()', projectname)
-        result += ' ' + str(apprepo.git.checkout())
+    branch = 'master'
+    if 'repo_branch' in triggerconfig:
+        branch = triggerconfig['repo_branch']
+    apprepo.git.checkout(branch)
+    # push and pull behaves similarly to `git push|pull`
+    result = origin.pull()
+    logger.info('[%s] Done pulling, checkout()', projectname)
+    result += ' ' + str(apprepo.git.checkout())
     return result
 
 
