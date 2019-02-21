@@ -430,7 +430,7 @@ def apptrigger(appkey, triggerkey):
                 event_info += ', compare: ' + payload['compare_url']
         else:
             event_info += 'unknown, as no json was received. Check that {} webhook content type is application/json'.format(vcs_source)
-        logger.info(payload)
+        logger.debug(payload)
         logger.info(event_info)
 
     config = get_trigger_settings(appkey, triggerkey)
