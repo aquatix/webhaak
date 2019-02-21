@@ -53,8 +53,8 @@ def notify_user(result, config):
         projectname = '{}>{}'.format(config[0], triggerconfig['title'])
         title = ''
         branch = 'master'
-        if 'repo_branch' in triggerconfig:
-            branch = triggerconfig['repo_branch']
+        if 'branch' in triggerconfig:
+            branch = triggerconfig['branch']
         message = 'repo: {}\nbranch: {}\ncommand: {}'.format(triggerconfig['repo'], branch, triggerconfig['command'])
         if result['status'] == 'OK':
             title = "Hook for {} ran successfully".format(projectname)
@@ -161,8 +161,8 @@ def update_repo(config):
         # Setup a local tracking branch of a remote branch
         apprepo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
     branch = 'master'
-    if 'repo_branch' in triggerconfig:
-        branch = triggerconfig['repo_branch']
+    if 'branch' in triggerconfig:
+        branch = triggerconfig['branch']
     apprepo.git.checkout(branch)
     # push and pull behaves similarly to `git push|pull`
     result = origin.pull()

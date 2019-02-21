@@ -20,7 +20,7 @@ aquariusoft.org:
     trigger2:
       triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
       repo: git@github.com:aquatix/paragoo.git
-      repo_branch: develop
+      branch: develop
       command: |
           bash /home/myuser/bin/update_all_the_things.sh
 
