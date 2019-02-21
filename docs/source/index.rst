@@ -10,7 +10,8 @@ Welcome to webhaak's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   webhaak
+   exampleconfig
+
    modules
 
    CHANGELOG
