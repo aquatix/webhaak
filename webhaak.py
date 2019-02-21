@@ -163,11 +163,11 @@ def update_repo(config):
     branch = 'master'
     if 'branch' in triggerconfig:
         branch = triggerconfig['branch']
-    logger.info('[%s] checkout() branch %s', projectname, branch)
+    logger.info('[%s] checkout() branch \'%s\'', projectname, branch)
     result = str(apprepo.git.checkout(branch))
     # push and pull behaves similarly to `git push|pull`
     result += ' ' + str(origin.pull())
-    logger.info('[%s] Done pulling branch %s', projectname, branch)
+    logger.info('[%s] Done pulling branch \'%s\'', projectname, branch)
     return result
 
 
