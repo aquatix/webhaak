@@ -6,6 +6,8 @@ webhaak
 `webhaak`_ is a simple `webhook`_ service to update and deploy sites and do
 other maintenance without having to ssh to a node.
 
+`webhaak is on ReadTheDocs <https://webhaak.readthedocs.io/en/latest/>`_
+
 
 Installation
 ------------
