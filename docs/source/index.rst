@@ -13,6 +13,8 @@ Welcome to webhaak's documentation!
    webhaak
    modules
 
+   CHANGELOG
+
 
 Indices and tables
 ==================
