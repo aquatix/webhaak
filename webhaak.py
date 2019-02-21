@@ -8,7 +8,6 @@ from functools import update_wrapper
 from logging.handlers import TimedRotatingFileHandler
 from multiprocessing import Process
 
-import click
 import git
 import pushover
 import strictyaml
