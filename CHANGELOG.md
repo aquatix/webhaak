@@ -16,10 +16,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Optional endpoint to list all projects (apps) and their triggers. Enable by setting a SECRETKEY in settings.py
   The endpoint is located at /admin/<secretkey>/list and [webhaak-ui](https://github.com/aquatix/webhaak-ui) is an example client.
 - Possibility to remotely use the endpoints (e.g., through jsonp)
+- Git-based version string generation
 - [ReadTheDocs](https://webhaak.readthedocs.io/en/latest/), including apidoc
+- Support for gitea webhooks
 
 ### Changed
-- Changed yaml library to strictyaml, do be safer
+- Changed yaml library to strictyaml, to be safer
 
 ### Removed
 - pyyaml dependency

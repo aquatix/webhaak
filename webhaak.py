@@ -374,37 +374,61 @@ def listtriggers(secretkey):
 @app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
 @crossdomain(origin='*')
 def apptrigger(appkey, triggerkey):
-    """Fire the trigger described by the configuration under `triggerkey`"""
+    """Fire the trigger described by the configuration under `triggerkey`
+
+    :param appkey: application key part of the url
+    :param triggerkey: trigger key part of the url, sub part of the config
+    :return: json Response
+    """
     logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
     if request.method == 'POST':
+        if request.headers.get('X-Gitea-Event'):
+            vcs_source = 'Gitea'
+        elif request.headers.get('X-Gogs-Event'):
+            vcs_source = 'Gogs'
+        elif request.headers.get('X-GitHub-Event'):
+            vcs_source = 'GitHub'
+        else:
+            vcs_source = '<unknown>'
+
+        payload = request.get_json()
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
-            payload = request.get_json()
             logger.info(
-                'received GitHub ping for %s hook: %s ',
+                'received %s ping for %s hook: %s ',
+                vcs_source,
                 payload['repository']['full_name'],
                 payload['hook']['url']
             )
             return json.dumps({'msg': 'Hi!'})
-        if request.headers.get('X-GitHub-Event') != "push":
-            payload = request.get_json()
+        if (
+                request.headers.get('X-GitHub-Event') == "push" or
+                request.headers.get('X-Gitea-Event') == "push" or
+                request.headers.get('X-Gogs-Event') == "push"
+            ):
+            event_info = 'received push from {} for '.format(vcs_source)
+        else:
             logger.info(
-                'received wrong event type from GitHub for %s hook: %s',
+                'received wrong event type from %s for %s hook: %s',
+                vcs_source,
                 payload['repository']['full_name'],
                 payload['hook']['url']
             )
             return json.dumps({'msg': "wrong event type"})
-        payload = request.get_json()
-        event_info = 'received push from GitHub for '
         if payload:
             if 'repository' in payload:
                 event_info += payload['repository']['full_name']
             if 'pusher' in payload:
-                event_info += ' by ' + payload['pusher']['name']
+                if vcs_source in ('Gitea', 'Gogs'):
+                    event_info += ' by ' + payload['pusher']['username']
+                elif vcs_source == 'GitHub':
+                    event_info += ' by ' + payload['pusher']['name']
             if 'compare' in payload:
                 event_info += ', compare: ' + payload['compare']
+            elif 'compare_url' in payload:
+                event_info += ', compare: ' + payload['compare_url']
         else:
-            event_info += 'unknown, as no json was received. Check that GitHub webhook content type is application/json'
+            event_info += 'unknown, as no json was received. Check that {} webhook content type is application/json'.format(vcs_source)
         logger.info(payload)
         logger.info(event_info)
 
