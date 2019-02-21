@@ -166,7 +166,7 @@ def update_repo(config):
     apprepo.git.checkout(branch)
     # push and pull behaves similarly to `git push|pull`
     result = origin.pull()
-    logger.info('[%s] Done pulling, checkout()', projectname)
+    logger.info('[%s] Done pulling, checkout() branch %s', projectname, branch)
     result += ' ' + str(apprepo.git.checkout())
     return result
 
