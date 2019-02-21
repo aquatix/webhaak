@@ -10,10 +10,10 @@ Welcome to webhaak's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   README
+   Introduction <README>
    exampleconfig
 
-   modules
+   apiDoc <webhaak>
 
    CHANGELOG
 
