@@ -22,7 +22,7 @@ aquariusoft.org:
       repo: git@github.com:aquatix/paragoo.git
       branch: develop
       command: |
-          bash /home/myuser/bin/update_all_the_things.sh
+          bash /home/myuser/bin/update_all_the_things.sh REPOVERSION
 
 paragoo:
   appkey: 6fa726e09524c41e5ff0751a811d34f5dac81cf23d6b5fb4
