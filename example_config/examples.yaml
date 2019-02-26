@@ -1,41 +1,41 @@
 example1:
-  appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
-  triggers:
-    trigger1:
-      triggerkey: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
-      repo: git@github.com:aquatix/webhaak.git
-      command: sudo supervisorctl restart webhaak
-    trigger2:
-      triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
-      repo: ...
-      command: bash /home/myuser/bin/update_all_the_things.sh
+    appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
+    triggers:
+        trigger1:
+            triggerkey: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
+            repo: git@github.com:aquatix/webhaak.git
+            command: sudo supervisorctl restart webhaak
+        trigger2:
+            triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
+            repo: ...
+            command: bash /home/myuser/bin/update_all_the_things.sh
 
 aquariusoft.org:
-  appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
-  triggers:
-    trigger1:
-      triggerkey: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
-      repo: git@github.com:aquatix/aquariusoft.org.git
-      command: update_aquariusoft.sh
-    trigger2:
-      triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
-      repo: git@github.com:aquatix/paragoo.git
-      branch: develop
-      command: |
-          bash /home/myuser/bin/update_all_the_things.sh REPOVERSION
+    appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
+    triggers:
+        trigger1:
+            triggerkey: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
+            repo: git@github.com:aquatix/aquariusoft.org.git
+            command: update_aquariusoft.sh
+        trigger2:
+            triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
+            repo: git@github.com:aquatix/paragoo.git
+            branch: develop
+            command: |
+                    bash /home/myuser/bin/update_all_the_things.sh REPOVERSION
 
 paragoo:
-  appkey: 6fa726e09524c41e5ff0751a811d34f5dac81cf23d6b5fb4
-  triggers:
-    update:
-      triggerkey: 613b285e72f654b7b7957e5562f5728fbb9049b3d7c58d7d
-      repo: git@github.com:aquatix/paragoo.git
-      command: |
-          bash /home/myuser/bin/update_all_the_things.sh
-    updatetheme:
-      triggerkey: 67a729b6cbfaa78075925631552f4eec29938f7a5a19f908
-      repo: git@github.com:aquatix/paragoo-theme-material.git
-      command: python REPODIR/generate_variants.py
+    appkey: 6fa726e09524c41e5ff0751a811d34f5dac81cf23d6b5fb4
+    triggers:
+        update:
+            triggerkey: 613b285e72f654b7b7957e5562f5728fbb9049b3d7c58d7d
+            repo: git@github.com:aquatix/paragoo.git
+            command: |
+                    bash /home/myuser/bin/update_all_the_things.sh
+        updatetheme:
+            triggerkey: 67a729b6cbfaa78075925631552f4eec29938f7a5a19f908
+            repo: git@github.com:aquatix/paragoo-theme-material.git
+            command: python REPODIR/generate_variants.py
 
 webhaak:
     appkey: bdbff089697cb6d07f12498a905a76454ba5467f8b2d5197
