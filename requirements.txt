@@ -13,7 +13,7 @@ gitpython==2.1.11
 idna==2.8                 # via requests
 itsdangerous==1.1.0       # via flask
 jinja2==2.10              # via flask
-markupsafe==1.1.0         # via jinja2
+markupsafe==1.1.1         # via jinja2
 python-dateutil==2.8.0    # via strictyaml
 python-pushover==0.4
 requests==2.21.0
