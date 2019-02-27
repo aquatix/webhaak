@@ -62,6 +62,7 @@ def notify_user(result, config):
             message = message + '\n\n{}'.format(result['message'])
         logging.debug(message)
         logging.info('Sending notification...')
+        # TODO: option to send to Telegram chat
         client = pushover.Client(settings.PUSHOVER_USERKEY, api_token=settings.PUSHOVER_APPTOKEN)
         client.send_message(message, title=title)
         logging.info('Notification sent')

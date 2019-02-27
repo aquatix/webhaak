@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Changed yaml library to strictyaml, to be safer
 - Better logging
+- Fixed 'REPODIR' substitution in commands
 
 ### Removed
 - pyyaml dependency
