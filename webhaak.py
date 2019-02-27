@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import subprocess
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import update_wrapper
 from logging.handlers import TimedRotatingFileHandler
 from multiprocessing import Process
@@ -54,7 +54,12 @@ def notify_user(result, config):
         branch = 'master'
         if 'branch' in triggerconfig:
             branch = triggerconfig['branch']
-        message = 'repo: {}\nbranch: {}\ncommand: {}'.format(triggerconfig['repo'], branch, triggerconfig['command'])
+        message = 'repo: {}\nbranch: {}\ncommand: {}\nruntime: {}'.format(
+            triggerconfig['repo'],
+            branch,
+            triggerconfig['command'],
+            result['runtime']
+        )
         if result['status'] == 'OK':
             title = "Hook for {} ran successfully".format(projectname)
         else:
@@ -208,6 +213,7 @@ def run_command(config):
 def do_pull_andor_command(config):
     """Asynchronous task, performing the git pulling and the specified scripting inside a Process"""
     projectname = config[0]
+    starttime = datetime.now()
     result = {'application': projectname}
     result['trigger'] = config[1]
     if 'repo' in config[1]:
@@ -245,6 +251,8 @@ def do_pull_andor_command(config):
         )
         logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
         logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
+
+    result['runtime'] = datetime.now() - starttime
 
     notify_user(result, config)
 
