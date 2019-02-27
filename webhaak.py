@@ -52,12 +52,15 @@ def notify_user(result, config):
         projectname = '{}>{}'.format(config[0], triggerconfig['title'])
         title = ''
         branch = 'master'
+        command = 'n/a'
+        if 'command' in triggerconfig:
+            command = triggerconfig['command']
         if 'branch' in triggerconfig:
             branch = triggerconfig['branch']
         message = 'repo: {}\nbranch: {}\ncommand: {}\nruntime: {}'.format(
             triggerconfig['repo'],
             branch,
-            triggerconfig['command'],
+            command,
             result['runtime']
         )
         if result['status'] == 'OK':
