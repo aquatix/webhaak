@@ -183,7 +183,8 @@ def run_command(config):
     repo_parent = settings.REPOS_CACHE_DIR
     if 'repoparent' in triggerconfig and triggerconfig['repoparent']:
         repo_parent = triggerconfig['repoparent']
-    command = command.replace('REPODIR', os.path.join(repo_parent, projectname))
+    repo_url = triggerconfig['repo']
+    command = command.replace('REPODIR', os.path.join(repo_parent, get_repo_basename(repo_url)))
     command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
     if 'REPOVERSION' in command:
         version = get_repo_version(os.path.join(repo_parent, projectname))
