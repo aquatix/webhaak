@@ -185,6 +185,9 @@ def run_command(config):
         repo_parent = triggerconfig['repoparent']
     command = command.replace('REPODIR', os.path.join(repo_parent, projectname))
     command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
+    if 'REPOVERSION' in command:
+        version = get_repo_version(os.path.join(repo_parent, projectname))
+        command = command.replace('REPOVERSION', version)
     command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
     logger.info('[%s] Executing `%s`', projectname, command)
 
