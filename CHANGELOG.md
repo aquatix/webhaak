@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [ReadTheDocs](https://webhaak.readthedocs.io/en/latest/), including apiDoc
 - Support for Gitea and Gogs webhooks
 - Support for checking out a certain branch (use `branch: <name>`)
+- Notification also includes runtime of the Git update and command execution
 
 ### Changed
 - Changed yaml library to strictyaml, to be safer
