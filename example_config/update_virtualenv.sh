@@ -36,7 +36,7 @@ if [[ -z ${VIRTUAL_ENV} ]]; then
     cd "$REQUIREMENTSDIR"
 
     pip install pip-tools --upgrade
-    pip-sync ${REQUIREMENTSFILE}
+    pip-sync "${REQUIREMENTSFILE}"
 else
     echo "A virtualenv is already activated: $VIRTUAL_ENV"
     exit 3
