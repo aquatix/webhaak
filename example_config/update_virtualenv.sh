@@ -25,17 +25,15 @@ fi
 
 if [[ -z ${VIRTUAL_ENV} ]]; then
     # Only activate the virtualenv if we aren't in one already
-    #export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
-    #source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
-    #workon paragoo
-
-    # No virtualenvwrapper for python 3 on Debian
     source ${VIRTUALENVDIR}/bin/activate
     REQUIREMENTSDIR=$(dirname "${REQUIREMENTSFILE}")
 
     cd "$REQUIREMENTSDIR"
 
+    # Make sure to run the latest pip and pip-tools
+    pip install pip --upgrade
     pip install pip-tools --upgrade
+
     pip-sync "${REQUIREMENTSFILE}"
 else
     echo "A virtualenv is already activated: $VIRTUAL_ENV"
