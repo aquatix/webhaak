@@ -201,7 +201,7 @@ def run_command(config, hook_info):
         command = command.replace('REPOVERSION', version)
 
     for key in hook_info:
-        if type(hook_info[key]) is str:
+        if isinstance(hook_info[key], str):
             command = command.replace(key.upper(), hook_info[key])
 
     command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
