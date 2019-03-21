@@ -36,6 +36,9 @@ paragoo:
             triggerkey: 67a729b6cbfaa78075925631552f4eec29938f7a5a19f908
             repo: git@github.com:aquatix/paragoo-theme-material.git
             command: python REPODIR/generate_variants.py
+        flake8:
+            triggerkey: 181bd69f610e8544ffa4092b487658636388f7444cb4238f
+            command: /srv/www/hook.example.com/scripts/flake8diff.sh /srv/www/hook.example.com/venvtests/bin/activate paragoo "REPODIR" "EMAIL" COMMIT_BEFORE COMMIT_AFTER "COMPARE_URL"
 
 webhaak:
     appkey: bdbff089697cb6d07f12498a905a76454ba5467f8b2d5197
