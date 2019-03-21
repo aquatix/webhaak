@@ -438,6 +438,12 @@ def apptrigger(appkey, triggerkey):
             )
             return json.dumps({'msg': "wrong event type"})
         if payload:
+            if 'ref' in payload:
+                hook_info['ref'] = payload['ref']
+                if 'heads' in payload['ref']:
+                    hook_info['branch'] = payload['ref'].replace('refs/heads/', '')
+                elif 'tags' in payload['ref']:
+                    hook_info['tag'] = payload['ref'].replace('refs/tags/', '')
             if 'repository' in payload:
                 event_info += payload['repository']['full_name']
                 hook_info['reponame'] = payload['repository']['full_name']
