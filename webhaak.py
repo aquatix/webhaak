@@ -179,7 +179,7 @@ def update_repo(config):
     return result
 
 
-def run_command(config):
+def run_command(config, hook_info):
     """Run the command(s) defined for this trigger"""
     projectname = config[0]
     triggerconfig = config[1]
@@ -198,6 +198,13 @@ def run_command(config):
     if 'REPOVERSION' in command:
         version = get_repo_version(os.path.join(repo_parent, projectname))
         command = command.replace('REPOVERSION', version)
+
+    for key in hook_info:
+        logger.debug(key)
+        logger.debug(type(hook_info[key]))
+        if type(hook_info[key]) == 'str':
+            command = command.replace(key.upper(), hook_info[key])
+
     command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
     logger.info('[%s] Executing `%s`', projectname, command)
 
@@ -213,7 +220,7 @@ def run_command(config):
     return result
 
 
-def do_pull_andor_command(config):
+def do_pull_andor_command(config, hook_info):
     """Asynchronous task, performing the git pulling and the specified scripting inside a Process"""
     projectname = config[0]
     starttime = datetime.now()
@@ -234,7 +241,7 @@ def do_pull_andor_command(config):
             notify_user(result, config)
             return
 
-    cmdresult = run_command(config)
+    cmdresult = run_command(config, hook_info)
     if cmdresult and cmdresult.returncode == 0:
         logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
         result['status'] = 'OK'
@@ -407,6 +414,7 @@ def apptrigger(appkey, triggerkey):
         else:
             vcs_source = '<unknown>'
 
+        hook_info = {'vcs_source': vcs_source}
         payload = request.get_json()
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
@@ -434,25 +442,51 @@ def apptrigger(appkey, triggerkey):
         if payload:
             if 'repository' in payload:
                 event_info += payload['repository']['full_name']
+                hook_info['reponame'] = payload['repository']['full_name']
             if 'pusher' in payload:
                 if vcs_source in ('Gitea', 'Gogs'):
                     event_info += ' by ' + payload['pusher']['username']
+                    hook_info['username'] = payload['pusher']['username']
+                    hook_info['email'] = payload['pusher']['email']
                 elif vcs_source == 'GitHub':
                     event_info += ' by ' + payload['pusher']['name']
+                    hook_info['username'] = payload['pusher']['name']
+                    hook_info['email'] = payload['pusher']['email']
             if 'compare' in payload:
                 event_info += ', compare: ' + payload['compare']
+                hook_info['compare_url'] = payload['compare']
             elif 'compare_url' in payload:
                 event_info += ', compare: ' + payload['compare_url']
+                hook_info['compare_url'] = payload['compare_url']
+            if 'before' in payload:
+                hook_info['commit_before'] = payload['before']
+            if 'after' in payload:
+                hook_info['commit_after'] = payload['after']
+            if 'commits' in payload:
+                # Gather info on the commits included in this push
+                hook_info['commits'] = []
+                for commit in payload['commits']:
+                    commit = {}
+                    if 'sha' in commit:
+                        commit['hash'] = commit['sha']
+                    elif 'id' in commit:
+                        commit['hash'] = commit['id']
+                    if 'author' in commit:
+                        commit['name'] = commit['author']['name']
+                        commit['email'] = commit['author']['email']
+                    hook_info['commits'].append(commit)
+
         else:
             event_info += 'unknown, as no json was received. Check that {} webhook content type is application/json'.format(vcs_source)
         logger.debug(payload)
+        logger.debug(hook_info)
         logger.info(event_info)
 
     config = get_trigger_settings(appkey, triggerkey)
     if config is None:
         logger.error('appkey/triggerkey combo not found')
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
-    p = Process(target=do_pull_andor_command, args=(config,))
+    p = Process(target=do_pull_andor_command, args=(config, hook_info,))
     p.start()
     return Response(
         json.dumps({
