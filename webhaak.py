@@ -403,6 +403,11 @@ def apptrigger(appkey, triggerkey):
     :return: json Response
     """
     logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
+    config = get_trigger_settings(appkey, triggerkey)
+    if config is None:
+        logger.error('appkey/triggerkey combo not found')
+        return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
+
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
             vcs_source = 'Gitea'
@@ -410,24 +415,33 @@ def apptrigger(appkey, triggerkey):
             vcs_source = 'Gogs'
         elif request.headers.get('X-GitHub-Event'):
             vcs_source = 'GitHub'
+        elif request.headers.get('X-Event-Key'):
+            # Other option is to check for User-Agent: Bitbucket-Webhooks/2.0
+            vcs_source = 'BitBucket'
         else:
             vcs_source = '<unknown>'
 
         hook_info = {'vcs_source': vcs_source}
         payload = request.get_json()
+        logger.debug(payload)
+        hook_info['url'] = ''
+        if payload:
+            if 'repository' in payload:
+                hook_info['url'] = payload['repository']['html_url']
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
             logger.info(
                 'received %s ping for %s hook: %s ',
                 vcs_source,
                 payload['repository']['full_name'],
-                payload['hook']['url']
+                hook_info['url']
             )
             return json.dumps({'msg': 'Hi!'})
         if (
                 request.headers.get('X-GitHub-Event') == "push"
                 or request.headers.get('X-Gitea-Event') == "push"
                 or request.headers.get('X-Gogs-Event') == "push"
+                or request.headers.get('X-Event-Key') == "repo:push"
         ):
             event_info = 'received push from {} for '.format(vcs_source)
         else:
@@ -435,10 +449,23 @@ def apptrigger(appkey, triggerkey):
                 'received wrong event type from %s for %s hook: %s',
                 vcs_source,
                 payload['repository']['full_name'],
-                payload['hook']['url']
+                hook_info['url']
             )
             return json.dumps({'msg': "wrong event type"})
         if payload:
+            if 'push' in payload:
+                # BitBucket, which has a completely different format
+                hook_info['commit_before'] = payload['push']['changes']['old']['target']['hash']
+                hook_info['commit_after'] = payload['push']['changes']['new']['target']['hash']
+                hook_info['compare_url'] = payload['push']['changes']['links']['diff']['href']
+
+                hook_info['commits'] = []
+                for commit in payload['push']['changes']['commits']:
+                    commit_info = {'hash': commit['hash']}
+                    commit_info['name'] = commit['author']['user']['username']
+                    commit_info['email'] = commit['author']['raw']
+                    hook_info['commits'].append(commit_info)
+
             if 'ref' in payload:
                 hook_info['ref'] = payload['ref']
                 if 'heads' in payload['ref']:
@@ -448,6 +475,18 @@ def apptrigger(appkey, triggerkey):
             if 'repository' in payload:
                 event_info += payload['repository']['full_name']
                 hook_info['reponame'] = payload['repository']['full_name']
+            if 'actor' in payload:
+                # BitBucket pusher; no email address known here though
+                event_info += ' by ' + payload['actor']['username']
+                hook_info['username'] = payload['actor']['username']
+
+                logger.debug(config[1])
+                if 'authors' in config[1]:
+                    # Look up the email address in the known authors list of the project
+                    for author in config[1]['authors']:
+                        if author.lower() == hook_info['username'].lower():
+                            hook_info['email'] = config[1]['authors'][author]
+                            break
             if 'pusher' in payload:
                 if vcs_source in ('Gitea', 'Gogs'):
                     event_info += ' by ' + payload['pusher']['username']
@@ -461,6 +500,7 @@ def apptrigger(appkey, triggerkey):
                 event_info += ', compare: ' + payload['compare']
                 hook_info['compare_url'] = payload['compare']
             elif 'compare_url' in payload:
+                # GitHub, gitea, gogs
                 event_info += ', compare: ' + payload['compare_url']
                 hook_info['compare_url'] = payload['compare_url']
             if 'before' in payload:
@@ -480,17 +520,11 @@ def apptrigger(appkey, triggerkey):
                         commit_info['name'] = commit['author']['name']
                         commit_info['email'] = commit['author']['email']
                     hook_info['commits'].append(commit_info)
-
         else:
             event_info += 'unknown, as no json was received. Check that {} webhook content type is application/json'.format(vcs_source)
-        logger.debug(payload)
         logger.debug(hook_info)
         logger.info(event_info)
 
-    config = get_trigger_settings(appkey, triggerkey)
-    if config is None:
-        logger.error('appkey/triggerkey combo not found')
-        return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
     p = Process(target=do_pull_andor_command, args=(config, hook_info,))
     p.start()
     return Response(

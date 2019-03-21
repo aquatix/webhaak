@@ -22,11 +22,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support for checking out a certain branch (use `branch: <name>`)
 - Notification also includes runtime of the Git update and command execution
 - Gather information about the webhook (push) event, to be used by commands, with keyword substitution
+- BitBucket support
 
 ### Changed
 - Changed yaml library to strictyaml, to be safer
 - Better logging
 - Fixed 'REPODIR' substitution in commands
+- Fixes for wrong payload lookups on pings and some other crashes
 
 ### Removed
 - pyyaml dependency
