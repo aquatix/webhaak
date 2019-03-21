@@ -468,7 +468,7 @@ def apptrigger(appkey, triggerkey):
                 # Only take info from the first change item
                 hook_info['commit_before'] = payload['push']['changes'][0]['old']['target']['hash']
                 hook_info['commit_after'] = payload['push']['changes'][0]['new']['target']['hash']
-                hook_info['compare_url'] = payload['push']['changes'][0]['links']['diff']['href']
+                hook_info['compare_url'] = payload['push']['changes'][0]['links']['html']['href']
 
                 hook_info['commits'] = []
                 for commit in payload['push']['changes'][0]['commits']:
