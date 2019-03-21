@@ -464,9 +464,9 @@ def apptrigger(appkey, triggerkey):
                 # BitBucket, which has a completely different format
                 logger.debug('Amount of changes in this push: %d', len(payload['push']['changes']))
                 # Only take info from the first change item
-                hook_info['commit_before'] = payload['push']['changes']['old'][0]['target']['hash']
-                hook_info['commit_after'] = payload['push']['changes']['new'][0]['target']['hash']
-                hook_info['compare_url'] = payload['push']['changes']['links'][0]['diff']['href']
+                hook_info['commit_before'] = payload['push']['changes'][0]['old']['target']['hash']
+                hook_info['commit_after'] = payload['push']['changes'][0]['new']['target']['hash']
+                hook_info['compare_url'] = payload['push']['changes'][0]['links']['diff']['href']
 
                 hook_info['commits'] = []
                 for commit in payload['push']['changes'][0]['commits']:
