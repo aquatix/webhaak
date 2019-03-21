@@ -200,8 +200,6 @@ def run_command(config, hook_info):
         command = command.replace('REPOVERSION', version)
 
     for key in hook_info:
-        logger.debug(key)
-        logger.debug(type(hook_info[key]))
         if type(hook_info[key]) == 'str':
             command = command.replace(key.upper(), hook_info[key])
 
@@ -466,15 +464,15 @@ def apptrigger(appkey, triggerkey):
                 # Gather info on the commits included in this push
                 hook_info['commits'] = []
                 for commit in payload['commits']:
-                    commit = {}
+                    commit_info = {}
                     if 'sha' in commit:
-                        commit['hash'] = commit['sha']
+                        commit_info['hash'] = commit['sha']
                     elif 'id' in commit:
-                        commit['hash'] = commit['id']
+                        commit_info['hash'] = commit['id']
                     if 'author' in commit:
-                        commit['name'] = commit['author']['name']
-                        commit['email'] = commit['author']['email']
-                    hook_info['commits'].append(commit)
+                        commit_info['name'] = commit['author']['name']
+                        commit_info['email'] = commit['author']['email']
+                    hook_info['commits'].append(commit_info)
 
         else:
             event_info += 'unknown, as no json was received. Check that {} webhook content type is application/json'.format(vcs_source)
