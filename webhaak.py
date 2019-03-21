@@ -235,11 +235,13 @@ def do_pull_andor_command(config, hook_info):
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
             logger.error('[%s] giterror: %s', projectname, str(e))
+            result['runtime'] = datetime.now() - starttime
             notify_user(result, config)
             return
         except (OSError, KeyError) as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
             logger.error('[%s] oserror: %s', projectname, str(e))
+            result['runtime'] = datetime.now() - starttime
             notify_user(result, config)
             return
 
