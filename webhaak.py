@@ -427,21 +427,21 @@ def apptrigger(appkey, triggerkey):
         hook_info = {'vcs_source': vcs_source}
         payload = request.get_json()
         logger.debug(payload)
-        hook_info['url'] = ''
+        url = ''
         if payload:
             if 'repository' in payload:
                 if 'html_url' in payload['repository']:
-                    hook_info['url'] = payload['repository']['html_url']
+                    url = payload['repository']['html_url']
                 elif 'links' in payload['repository']:
                     # BitBucket
-                    hook_info['url'] = payload['repository']['links']['html']['href']
+                    url = payload['repository']['links']['html']['href']
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
             logger.info(
                 'received %s ping for %s hook: %s ',
                 vcs_source,
                 payload['repository']['full_name'],
-                hook_info['url']
+                url
             )
             return json.dumps({'msg': 'Hi!'})
         if (
@@ -456,7 +456,7 @@ def apptrigger(appkey, triggerkey):
                 'received wrong event type from %s for %s hook: %s',
                 vcs_source,
                 payload['repository']['full_name'],
-                hook_info['url']
+                url
             )
             return json.dumps({'msg': "wrong event type"})
         if payload:
