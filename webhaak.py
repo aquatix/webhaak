@@ -418,10 +418,10 @@ def apptrigger(appkey, triggerkey):
             )
             return json.dumps({'msg': 'Hi!'})
         if (
-                request.headers.get('X-GitHub-Event') == "push" or
-                request.headers.get('X-Gitea-Event') == "push" or
-                request.headers.get('X-Gogs-Event') == "push"
-            ):
+                request.headers.get('X-GitHub-Event') == "push"
+                or request.headers.get('X-Gitea-Event') == "push"
+                or request.headers.get('X-Gogs-Event') == "push"
+        ):
             event_info = 'received push from {} for '.format(vcs_source)
         else:
             logger.info(
