@@ -53,12 +53,15 @@ def notify_user(result, config):
         title = ''
         branch = 'master'
         command = 'n/a'
+        repo = 'n/a'
         if 'command' in triggerconfig:
             command = triggerconfig['command']
         if 'branch' in triggerconfig:
             branch = triggerconfig['branch']
+        if 'repo' in triggerconfig:
+            repo = triggerconfig['repo']
         message = 'repo: {}\nbranch: {}\ncommand: {}\nruntime: {}'.format(
-            triggerconfig['repo'],
+            repo,
             branch,
             command,
             result['runtime']
