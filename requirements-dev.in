@@ -1,5 +1,7 @@
 -r requirements.in
 
+bandit
+flake8
 pylint
 
 sphinx
