@@ -13,6 +13,7 @@ import pushover
 import strictyaml
 from flask import (Flask, Response, abort, current_app, jsonify, make_response,
                    request)
+from strictyaml import Bool, Map, MapPattern, Optional, Str
 
 import settings
 
@@ -33,9 +34,28 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
+# strictyaml schema for project settings
+schema = MapPattern(
+    Str(),
+    Map(
+        {
+            "appkey": Str(),
+            "triggers": MapPattern(Str(), Map({
+                "triggerkey": Str(),
+                Optional("notify"): Bool(),
+                Optional("repo"): Str(),
+                Optional("repoparent"): Str(),
+                Optional("repo_branch"): Str(),
+                Optional("command"): Str(),
+                Optional("authors"): MapPattern(Str(), Str()),
+            }))
+        }
+    )
+)
+
 # Load the configuration of the various projects/hooks
 with open(settings.PROJECTS_FILE, 'r') as pf:
-    projects = strictyaml.load(pf.read()).data
+    projects = strictyaml.load(pf.read(), schema).data
 
 
 def notify_user(result, config):
