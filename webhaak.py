@@ -288,7 +288,7 @@ def do_pull_andor_command(config, hook_info):
 
     result['runtime'] = datetime.now() - starttime
 
-    if 'notify' not in config[1] or config[1]['notify'] != 'false':
+    if 'notify' not in config[1] or config[1]['notify']:
         notify_user(result, config)
 
 
