@@ -45,7 +45,7 @@ schema = MapPattern(
                 Optional("notify"): Bool(),
                 Optional("repo"): Str(),
                 Optional("repoparent"): Str(),
-                Optional("repo_branch"): Str(),
+                Optional("branch"): Str(),
                 Optional("command"): Str(),
                 Optional("authors"): MapPattern(Str(), Str()),
             }))
