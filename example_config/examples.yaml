@@ -48,3 +48,16 @@ webhaak:
             repo: git@github.com:aquatix/webhaak.git
             repoparent: /srv/www/hook.example.com
             command: /srv/www/hook.example.com/scripts/update_flask.sh webhaak REPODIR
+        flake8:
+            triggerkey: 92a78e26514dc3089b95b49bcc0865fefb7d14dd43c51542
+            notify: false
+            command: /srv/www/hook.example.com/scripts/flake8diff.sh /srv/www/hook.example.com/venvtests/bin/activate webhaak /srv/www/hook.example.com/webhaak "EMAIL" COMMIT_BEFORE COMMIT_AFTER "COMPARE_URL"
+        bitbucket:
+            triggerkey: 0865fefb7d14dd43c515420865fefb7d14dd43c51542bdea
+            notify: false
+            repo: git@bitbucket.org:aquatix/webhaak.git
+            repoparent: /srv/www/_tests
+            command: /srv/www/hook.example.com/flake8diff.sh /srv/www/hook.example.com/venvtests/bin/activate webhaak "REPODIR" "EMAIL" COMMIT_BEFORE COMMIT_AFTER "COMPARE_URL"
+            authors:
+                aquatix: itsme@example.com
+                another: mario@example.com
