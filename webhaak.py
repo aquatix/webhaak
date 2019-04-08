@@ -487,15 +487,22 @@ def apptrigger(appkey, triggerkey):
             if 'push' in payload:
                 # BitBucket, which has a completely different format
                 logger.debug('Amount of changes in this push: %d', len(payload['push']['changes']))
+                hook_info['commit_before'] = None  # When a branch is created, old is null; use as default
                 # Only take info from the first change item
-                hook_info['commit_before'] = payload['push']['changes'][0]['old']['target']['hash']
+                if payload['push']['changes'][0]['old']:
+                    # Info on the previous commit is available (so not a new branch)
+                    hook_info['commit_before'] = payload['push']['changes'][0]['old']['target']['hash']
                 hook_info['commit_after'] = payload['push']['changes'][0]['new']['target']['hash']
                 hook_info['compare_url'] = payload['push']['changes'][0]['links']['html']['href']
 
                 hook_info['commits'] = []
                 for commit in payload['push']['changes'][0]['commits']:
                     commit_info = {'hash': commit['hash']}
-                    commit_info['name'] = commit['author']['user']['username']
+                    if 'user' in commit['author']:
+                        if 'username' in commit['author']['user']:
+                            commit_info['name'] = commit['author']['user']['username']
+                        else:
+                            commit_info['name'] = commit['author']['user']['nickname']
                     commit_info['email'] = commit['author']['raw']
                     hook_info['commits'].append(commit_info)
 
