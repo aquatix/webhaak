@@ -434,6 +434,7 @@ def apptrigger(appkey, triggerkey):
         logger.error('appkey/triggerkey combo not found')
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
 
+    hook_info = {}
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
             vcs_source = 'Gitea'
@@ -447,7 +448,7 @@ def apptrigger(appkey, triggerkey):
         else:
             vcs_source = '<unknown>'
 
-        hook_info = {'vcs_source': vcs_source}
+        hook_info['vcs_source'] = vcs_source
         payload = request.get_json()
         logger.debug(payload)
         url = ''
