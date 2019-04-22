@@ -561,7 +561,10 @@ def apptrigger(appkey, triggerkey):
                         commit_info['email'] = commit['author']['email']
                     hook_info['commits'].append(commit_info)
         else:
-            event_info += 'unknown, as no json was received. Check that {} webhook content type is application/json'.format(vcs_source)
+            '{}unknown, as no json was received. Check that {} webhook content type is application/json'.format(
+                event_info,
+                vcs_source
+            )
         logger.debug(hook_info)
         logger.info(event_info)
 
