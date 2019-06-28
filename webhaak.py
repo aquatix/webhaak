@@ -569,7 +569,7 @@ def apptrigger(appkey, triggerkey):
                     hook_info['commits'].append(commit_info)
             if sentry_message:
                 event_info += payload['project_name']
-                sentry_fields = ['project_name', 'culprit', 'url', 'message']
+                sentry_fields = ['project_name', 'culprit', 'url', 'message', 'title']
                 for field in sentry_fields:
                     if field in payload:
                         hook_info[field] = payload[field]
