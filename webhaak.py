@@ -225,7 +225,7 @@ def run_command(config, hook_info):
 
     for key in hook_info:
         if isinstance(hook_info[key], str):
-            command = command.replace(key.upper(), hook_info[key])
+            command = command.replace(key.upper(), hook_info[key].replace('"', '\"'))
 
     command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
     logger.info('[%s] Executing `%s`', projectname, command)
