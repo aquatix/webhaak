@@ -569,10 +569,12 @@ def apptrigger(appkey, triggerkey):
                     hook_info['commits'].append(commit_info)
             if sentry_message:
                 event_info += payload['project_name']
-                sentry_fields = ['project_name', 'culprit', 'url', 'message', 'title']
+                sentry_fields = ['project_name', 'culprit', 'url', 'message']
                 for field in sentry_fields:
                     if field in payload:
                         hook_info[field] = payload[field]
+                if 'event' in payload and payload['event'] and 'title' in payload['event']:
+                    hook_info['title'] = payload['event']['title']
         else:
             '{}unknown, as no json was received. Check that {} webhook content type is application/json'.format(
                 event_info,
