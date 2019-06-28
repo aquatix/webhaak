@@ -445,6 +445,8 @@ def apptrigger(appkey, triggerkey):
         elif request.headers.get('X-Event-Key'):
             # Other option is to check for User-Agent: Bitbucket-Webhooks/2.0
             vcs_source = 'BitBucket'
+        elif request.headers.get('Sentry-Trace'):
+            logger.debug('Sentry webhook')
         else:
             vcs_source = '<unknown>'
 
