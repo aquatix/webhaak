@@ -449,6 +449,7 @@ def apptrigger(appkey, triggerkey):
         elif request.headers.get('Sentry-Trace'):
             logger.debug('Sentry webhook')
             sentry_message = True
+            vcs_source = 'n/a'
         else:
             vcs_source = '<unknown>'
 
