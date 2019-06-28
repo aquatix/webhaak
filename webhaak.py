@@ -435,6 +435,7 @@ def apptrigger(appkey, triggerkey):
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
 
     hook_info = {}
+    sentry_message = False
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
             vcs_source = 'Gitea'
@@ -447,6 +448,7 @@ def apptrigger(appkey, triggerkey):
             vcs_source = 'BitBucket'
         elif request.headers.get('Sentry-Trace'):
             logger.debug('Sentry webhook')
+            sentry_message = True
         else:
             vcs_source = '<unknown>'
 
@@ -477,6 +479,8 @@ def apptrigger(appkey, triggerkey):
                 or request.headers.get('X-Event-Key') == "repo:push"
         ):
             event_info = 'received push from {} for '.format(vcs_source)
+        elif sentry_message:
+            event_info = 'received push from Sentry for '
         else:
             logger.info(
                 'received wrong event type from %s for %s hook: %s',
@@ -562,6 +566,12 @@ def apptrigger(appkey, triggerkey):
                         commit_info['name'] = commit['author']['name']
                         commit_info['email'] = commit['author']['email']
                     hook_info['commits'].append(commit_info)
+            if sentry_message:
+                event_info += payload['project_name']
+                sentry_fields = ['project_name', 'culprit', 'url', 'message']
+                for field in sentry_fields:
+                    if field in payload:
+                        hook_info[field] = payload[field]
         else:
             '{}unknown, as no json was received. Check that {} webhook content type is application/json'.format(
                 event_info,
