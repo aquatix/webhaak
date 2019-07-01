@@ -524,8 +524,10 @@ def apptrigger(appkey, triggerkey):
                 hook_info['reponame'] = payload['repository']['full_name']
             if 'actor' in payload:
                 # BitBucket pusher; no email address known here though
-                event_info += ' by ' + payload['actor']['username']
-                hook_info['username'] = payload['actor']['username']
+                event_info += ' by ' + payload['actor']['nickname']
+                if 'display_name' in payload['actor']:
+                    event_info += ' ({})'.format(payload['actor']['display_name'])
+                hook_info['username'] = payload['actor']['nickname']
 
                 logger.debug(config[1])
                 if 'authors' in config[1]:
