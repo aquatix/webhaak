@@ -8,6 +8,8 @@ other maintenance without having to ssh to a node.
 
 `webhaak is on ReadTheDocs <https://webhaak.readthedocs.io/en/latest/>`_
 
+webhaak supports ``git push`` hooks from GitHub, BitBucket, gitea, and gogs; for these it can automatically update checkouts. It also recognises Sentry notifications, and of course regular calls.
+
 
 Installation
 ------------
