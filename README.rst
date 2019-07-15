@@ -92,7 +92,7 @@ See the `Changelog`_.
 .. |Code quality| image:: https://api.codacy.com/project/badge/Grade/e18e62698761411482716d0fceb65bfe
    :target: https://www.codacy.com/app/aquatix/webhaak?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=aquatix/webhaak&amp;utm_campaign=Badge_Grade
    :alt: Code Quality
-.. |Known vulnerabilities| image:: https://snyk.io/test/github/aquatix/webhaak/badge.svg?targetFile={requirements.txt})
+.. |Known vulnerabilities| image:: https://snyk.io/test/github/aquatix/webhaak/badge.svg?targetFile=requirements.txt
    :target: https://snyk.io/test/github/aquatix/webhaak
    :alt: Known vulnerabilities
 .. _hook settings: https://github.com/aquatix/webhaak/blob/master/example_config/examples.yaml
