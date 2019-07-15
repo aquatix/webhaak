@@ -1,7 +1,7 @@
 webhaak
 =======
 
-|PyPI version| |PyPI downloads| |PyPI license| |Code health|
+|PyPI version| |PyPI downloads| |PyPI license| |Code quality| |Known vulnerabilities|
 
 `webhaak`_ is a simple `webhook`_ service to update and deploy sites and do
 other maintenance without having to ssh to a node.
@@ -89,9 +89,12 @@ See the `Changelog`_.
    :target: https://pypi.python.org/pypi/webhaak/
 .. |PyPI license| image:: https://img.shields.io/github/license/aquatix/webhaak.svg
    :target: https://pypi.python.org/pypi/webhaak/
-.. |Code health| image:: https://landscape.io/github/aquatix/webhaak/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/aquatix/webhaak/master
-   :alt: Code Health
+.. |Code quality| image:: https://api.codacy.com/project/badge/Grade/e18e62698761411482716d0fceb65bfe
+   :target: https://www.codacy.com/app/aquatix/webhaak?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=aquatix/webhaak&amp;utm_campaign=Badge_Grade
+   :alt: Code Quality
+.. |Known vulnerabilities| image:: https://snyk.io/test/github/aquatix/webhaak/badge.svg?targetFile={requirements.txt})
+   :target: https://snyk.io/test/github/aquatix/webhaak
+   :alt: Known vulnerabilities
 .. _hook settings: https://github.com/aquatix/webhaak/blob/master/example_config/examples.yaml
 .. _vhost for Apache2.4: https://github.com/aquatix/webhaak/blob/master/example_config/apache_vhost.conf
 .. _uwsgi.ini: https://github.com/aquatix/webhaak/blob/master/example_config/uwsgi.ini
