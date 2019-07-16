@@ -5,7 +5,6 @@ import os
 import subprocess
 from datetime import datetime, timedelta
 from functools import update_wrapper
-from logging.handlers import FileHandler
 from multiprocessing import Process
 
 import git
@@ -22,7 +21,7 @@ app.debug = settings.DEBUG
 
 app.logger.setLevel(logging.DEBUG)
 # Log will rotate daily with a max history of LOG_BACKUP_COUNT
-fh = FileHandler(
+fh = logging.FileHandler(
     settings.LOG_LOCATION
 )
 fh.setLevel(logging.DEBUG)
