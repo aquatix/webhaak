@@ -382,10 +382,13 @@ def indexpage():
 @crossdomain(origin='*')
 def listtriggers(secretkey):
     """List the appkeys and triggerkeys"""
+    app.logger.debug('Trigger list requested')
     try:
         if secretkey != settings.SECRETKEY:
+            app.logger.debug('Secret key incorrect trying to list triggers')
             abort(404)
     except AttributeError:
+        app.logger.debug('Secret key not found trying to list triggers')
         abort(404)
 
     server_url = request.host_url
