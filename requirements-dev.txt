@@ -7,15 +7,15 @@
 alabaster==0.7.12         # via sphinx
 astroid==2.2.5            # via pylint
 babel==2.7.0              # via sphinx
-bandit==1.6.1
+bandit==1.6.2
 certifi==2019.6.16        # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via flask
 commonmark==0.9.0         # via recommonmark
 docutils==0.14            # via recommonmark, sphinx
 entrypoints==0.3          # via flake8
-flake8==3.7.7
-flask==1.0.3
+flake8==3.7.8
+flask==1.1.1
 future==0.17.1            # via commonmark
 gitdb2==2.0.5             # via gitpython
 gitpython==2.1.11
@@ -28,7 +28,7 @@ lazy-object-proxy==1.4.1  # via astroid
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8, pylint
 packaging==19.0           # via sphinx
-pbr==5.3.1                # via stevedore
+pbr==5.4.0                # via stevedore
 pycodestyle==2.5.0        # via flake8
 pyflakes==2.1.1           # via flake8
 pygments==2.4.2           # via sphinx
@@ -40,7 +40,7 @@ pytz==2019.1              # via babel
 pyyaml==5.1.1             # via bandit
 recommonmark==0.5.0
 requests==2.22.0
-ruamel.yaml==0.15.97      # via strictyaml
+ruamel.yaml==0.15.99      # via strictyaml
 six==1.12.0               # via astroid, bandit, packaging, python-dateutil, stevedore
 smmap2==2.0.5             # via gitdb2
 snowballstemmer==1.9.0    # via sphinx
