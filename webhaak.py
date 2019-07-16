@@ -5,7 +5,7 @@ import os
 import subprocess
 from datetime import datetime, timedelta
 from functools import update_wrapper
-from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import FileHandler
 from multiprocessing import Process
 
 import git
@@ -20,19 +20,15 @@ import settings
 app = Flask(__name__)
 app.debug = settings.DEBUG
 
-logger = logging.getLogger('webhaak')
-logger.setLevel(logging.DEBUG)
+app.logger.setLevel(logging.DEBUG)
 # Log will rotate daily with a max history of LOG_BACKUP_COUNT
-fh = TimedRotatingFileHandler(
-    settings.LOG_LOCATION,
-    when='d',
-    interval=1,
-    backupCount=settings.LOG_BACKUP_COUNT
+fh = FileHandler(
+    settings.LOG_LOCATION
 )
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
-logger.addHandler(fh)
+app.logger.addHandler(fh)
 
 # strictyaml schema for project settings
 schema = MapPattern(
@@ -165,8 +161,8 @@ def update_repo(config):
     if 'repoparent' in triggerconfig and triggerconfig['repoparent']:
         repo_parent = triggerconfig['repoparent']
 
-    logger.info('[%s] Updating %s', projectname, repo_url)
-    logger.info('[%s] Repo parent %s', projectname, repo_parent)
+    app.logger.info('[%s] Updating %s', projectname, repo_url)
+    app.logger.info('[%s] Repo parent %s', projectname, repo_parent)
 
     # Ensure cache dir for webhaak exists and is writable
     if not os.path.exists(repo_parent):
@@ -174,18 +170,18 @@ def update_repo(config):
 
     # TODO: check whether dir exists with different repository
     repo_dir = os.path.join(repo_parent, get_repo_basename(repo_url))
-    logger.info('[%s] Repo dir %s', projectname, repo_dir)
+    app.logger.info('[%s] Repo dir %s', projectname, repo_dir)
     if os.path.isdir(repo_dir):
         # Repo already exists locally, do a pull
-        logger.info('[%s] Repo exists, pull', projectname)
+        app.logger.info('[%s] Repo exists, pull', projectname)
 
         apprepo = git.Repo(repo_dir)
         origin = apprepo.remote('origin')
         result = fetchinfo_to_str(origin.fetch())  # assure we actually have data. fetch() returns useful information
-        logger.info('[%s] Fetch result: %s', projectname, result)
+        app.logger.info('[%s] Fetch result: %s', projectname, result)
     else:
         # Repo needs to be cloned
-        logger.info('[%s] Repo does not exist yet, clone', projectname)
+        app.logger.info('[%s] Repo does not exist yet, clone', projectname)
         apprepo = git.Repo.init(repo_dir)
         origin = apprepo.create_remote('origin', repo_url)
         origin.fetch()                  # assure we actually have data. fetch() returns useful information
@@ -194,11 +190,11 @@ def update_repo(config):
     branch = 'master'
     if 'branch' in triggerconfig:
         branch = triggerconfig['branch']
-    logger.info('[%s] checkout() branch \'%s\'', projectname, branch)
+    app.logger.info('[%s] checkout() branch \'%s\'', projectname, branch)
     result = str(apprepo.git.checkout(branch))
     # pull (so really update) the checked out branch to latest commit
     origin.pull()
-    logger.info('[%s] Done pulling branch \'%s\'', projectname, branch)
+    app.logger.info('[%s] Done pulling branch \'%s\'', projectname, branch)
     return result
 
 
@@ -208,7 +204,7 @@ def run_command(config, hook_info):
     triggerconfig = config[1]
     if 'command' not in triggerconfig:
         # No command to execute, return
-        logger.info('[%s] No command to execute', projectname)
+        app.logger.info('[%s] No command to execute', projectname)
         return None
     command = triggerconfig['command']
     # Replace some placeholders to be used in executing scripts from one of the repos
@@ -228,7 +224,7 @@ def run_command(config, hook_info):
             command = command.replace(key.upper(), hook_info[key].replace('"', '\"'))
 
     command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
-    logger.info('[%s] Executing `%s`', projectname, command)
+    app.logger.info('[%s] Executing `%s`', projectname, command)
 
     # TODO: capture_output is new in Python 3.7, replaces stdout and stderr
     # result = subprocess.run(command_parts, capture_output=True, check=True, shell=True, universal_newlines=True)
@@ -251,40 +247,40 @@ def do_pull_andor_command(config, hook_info):
     if 'repo' in config[1]:
         try:
             result['repo_result'] = update_repo(config)
-            logger.info('[%s] result repo: %s', projectname, str(result['repo_result']))
+            app.logger.info('[%s] result repo: %s', projectname, str(result['repo_result']))
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
-            logger.error('[%s] giterror: %s', projectname, str(e))
+            app.logger.error('[%s] giterror: %s', projectname, str(e))
             result['runtime'] = datetime.now() - starttime
             notify_user(result, config)
             return
         except (OSError, KeyError) as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-            logger.error('[%s] oserror: %s', projectname, str(e))
+            app.logger.error('[%s] oserror: %s', projectname, str(e))
             result['runtime'] = datetime.now() - starttime
             notify_user(result, config)
             return
 
     cmdresult = run_command(config, hook_info)
     if cmdresult and cmdresult.returncode == 0:
-        logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
+        app.logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
         result['status'] = 'OK'
     elif not cmdresult:
-        logger.info('[%s] no command configured', projectname)
+        app.logger.info('[%s] no command configured', projectname)
         result['status'] = 'OK'
     else:
         result['status'] = 'error'
         result['type'] = 'commanderror'
         result['message'] = cmdresult.stderr.strip()
         # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
-        logger.error(
+        app.logger.error(
             '[%s] commanderror with returncode %s: %s',
             projectname,
             str(cmdresult.returncode),
             cmdresult.stderr
         )
-        logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
-        logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
+        app.logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
+        app.logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
 
     result['runtime'] = datetime.now() - starttime
 
@@ -379,7 +375,7 @@ def handle_invalid_usage(error):
 
 @app.route('/')
 def indexpage():
-    logger.debug('Root page requested')
+    app.logger.debug('Root page requested')
     return 'Welcome to <a href="https://github.com/aquatix/webhaak">Webhaak</a>, see the documentation to how to setup and use webhooks.'
 
 
@@ -428,10 +424,10 @@ def apptrigger(appkey, triggerkey):
     :param triggerkey: trigger key part of the url, sub part of the config
     :return: json Response
     """
-    logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
+    app.logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
     config = get_trigger_settings(appkey, triggerkey)
     if config is None:
-        logger.error('appkey/triggerkey combo not found')
+        app.logger.error('appkey/triggerkey combo not found')
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
 
     hook_info = {}
@@ -447,7 +443,7 @@ def apptrigger(appkey, triggerkey):
             # Other option is to check for User-Agent: Bitbucket-Webhooks/2.0
             vcs_source = 'BitBucket'
         elif request.headers.get('Sentry-Trace'):
-            logger.debug('Sentry webhook')
+            app.logger.debug('Sentry webhook')
             sentry_message = True
             vcs_source = 'n/a'
         else:
@@ -455,7 +451,7 @@ def apptrigger(appkey, triggerkey):
 
         hook_info['vcs_source'] = vcs_source
         payload = request.get_json()
-        logger.debug(payload)
+        app.logger.debug(payload)
         url = ''
         if payload:
             if 'repository' in payload:
@@ -466,7 +462,7 @@ def apptrigger(appkey, triggerkey):
                     url = payload['repository']['links']['html']['href']
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
-            logger.info(
+            app.logger.info(
                 'received %s ping for %s hook: %s ',
                 vcs_source,
                 payload['repository']['full_name'],
@@ -483,7 +479,7 @@ def apptrigger(appkey, triggerkey):
         elif sentry_message:
             event_info = 'received push from Sentry for '
         else:
-            logger.info(
+            app.logger.info(
                 'received wrong event type from %s for %s hook: %s',
                 vcs_source,
                 payload['repository']['full_name'],
@@ -493,7 +489,7 @@ def apptrigger(appkey, triggerkey):
         if payload:
             if 'push' in payload:
                 # BitBucket, which has a completely different format
-                logger.debug('Amount of changes in this push: %d', len(payload['push']['changes']))
+                app.logger.debug('Amount of changes in this push: %d', len(payload['push']['changes']))
                 hook_info['commit_before'] = None  # When a branch is created, old is null; use as default
                 # Only take info from the first change item
                 if payload['push']['changes'][0]['old']:
@@ -529,7 +525,7 @@ def apptrigger(appkey, triggerkey):
                     event_info += ' ({})'.format(payload['actor']['display_name'])
                 hook_info['username'] = payload['actor']['nickname']
 
-                logger.debug(config[1])
+                app.logger.debug(config[1])
                 if 'authors' in config[1]:
                     # Look up the email address in the known authors list of the project
                     for author in config[1]['authors']:
@@ -582,8 +578,8 @@ def apptrigger(appkey, triggerkey):
                 event_info,
                 vcs_source
             )
-        logger.debug(hook_info)
-        logger.info(event_info)
+        app.logger.debug(hook_info)
+        app.logger.info(event_info)
 
     p = Process(target=do_pull_andor_command, args=(config, hook_info,))
     p.start()
