@@ -588,6 +588,7 @@ def apptrigger(appkey, triggerkey):
                         stacktrace.append(frame_message)
                     # Sentry puts the items of the trace from last to first in the json, so reverse the trace
                     stacktrace.reverse()
+                    app.logger.debug(stacktrace)
                     hook_info['stacktrace'] = '\\n'.join(stacktrace)
         else:
             '{}unknown, as no json was received. Check that {} webhook content type is application/json'.format(
