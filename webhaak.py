@@ -573,8 +573,22 @@ def apptrigger(appkey, triggerkey):
                 for field in sentry_fields:
                     if field in payload:
                         hook_info[field] = payload[field]
+                hook_info['stacktrace'] = 'Not available'
                 if 'event' in payload and payload['event'] and 'title' in payload['event']:
                     hook_info['title'] = payload['event']['title']
+                    # Always take the last set
+                    frames = payload['event']['exception']['values'][-1]['stacktrace']['frames']
+                    stacktrace = []
+                    for frame in frames:
+                        frame_message = '*{}* in *{}* at line *{}*'.format(
+                            frame['filename'],
+                            frame['function'],
+                            frame['lineno']
+                        )
+                        stacktrace.append(frame_message)
+                    # Sentry puts the items of the trace from last to first in the json, so reverse the trace
+                    stacktrace.reverse()
+                    hook_info['stacktrace'] = '\\n'.join(stacktrace)
         else:
             '{}unknown, as no json was received. Check that {} webhook content type is application/json'.format(
                 event_info,

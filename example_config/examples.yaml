@@ -26,7 +26,7 @@ aquariusoft.org:
         sentry:
             triggerkey: 7c6bd635948eea920fc15df87400a45b056c9779f4305bf0
             notify: false
-            command: /srv/scripts/sentry_to_telegram.sh "PROJECT_NAME" "CULPRIT" "URL" "TITLE"
+            command: /srv/scripts/sentry_to_telegram.sh "PROJECT_NAME" "CULPRIT" "URL" "TITLE" "STACKTRACE"
 
 paragoo:
     appkey: 6fa726e09524c41e5ff0751a811d34f5dac81cf23d6b5fb4
