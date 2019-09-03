@@ -2,8 +2,8 @@
 set -e
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
 
-if [ "$#" -ne 4 ]; then
-    echo "USAGE: sentry_to_telegram.sh [projectname] [culprit] [url] [message]"
+if [ "$#" -ne 5 ]; then
+    echo "USAGE: sentry_to_telegram.sh [projectname] [culprit] [url] [message] [stacktrace]"
     exit 1
 fi
 
@@ -11,6 +11,7 @@ PROJECTNAME="${1}"
 CULPRIT="${2}"
 URL="${3}"
 MESSAGE="${4}"
+STACKTRACE="${5}"
 
 # Filter away known things
 if [[ $MESSAGE == *"Het ElementTree object kon niet"* ||
@@ -24,11 +25,20 @@ fi
 # Make the URL a bit more neat
 URL=${URL//?referrer=webhooks_plugin/}
 
+if [ $STACKTRACE != "Not available" ]; then
+    TRACETEXT="
+Stacktrace:
+
+${STACKTRACE}
+
+"
+fi
+
 # The message to send
 REPORT="[${PROJECTNAME}] ${MESSAGE}
 
 in ${CULPRIT}
-
+${TRACETEXT}
 ${URL}"
 
 #REPORT="${REPORT//_/\_/}"
