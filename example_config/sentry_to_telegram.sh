@@ -1,6 +1,7 @@
 #!/bin/bash
-set -e
+
 # Any subsequent(*) commands which fail will cause the shell script to exit immediately
+set -e
 
 if [ "$#" -ne 5 ]; then
     echo "USAGE: sentry_to_telegram.sh [projectname] [culprit] [url] [message] [stacktrace]"
@@ -27,33 +28,29 @@ URL=${URL//?referrer=webhooks_plugin/}
 
 if [ $STACKTRACE != "Not available" ]; then
     TRACETEXT="
-Stacktrace:
-
 ${STACKTRACE}
 
 "
+
+# Replace literal \n with end of lines
+TRACETEXT=${TRACETEXT//\\n/
+}
 fi
 
 # The message to send
 REPORT="[${PROJECTNAME}] ${MESSAGE}
 
-in ${CULPRIT}
+in *${CULPRIT}*
 ${TRACETEXT}
 ${URL}"
-
-#REPORT="${REPORT//_/\_/}"
 
 # AwesomeCorp dev groupchat
 CHATID="-4242424242"
 KEY="YOUR:KEY-HERE"
-TIME="10"
-URL="https://api.telegram.org/bot$KEY/sendMessage"
 
-curl -s --max-time $TIME -d "chat_id=$CHATID&disable_web_page_preview=1&text=$REPORT" $URL >/dev/null
-exit
-curl -X "POST" "https://api.telegram.org/bot${KEY}/sendMessage" \
-     -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" \
+curl -s -G \
      --data-urlencode "text=${REPORT}" \
      --data-urlencode "chat_id=${CHATID}" \
      --data-urlencode "disable_web_page_preview=true" \
-     --data-urlencode "parse_mode=markdown"
+     --data-urlencode "parse_mode=Markdown" \
+    "https://api.telegram.org/bot${KEY}/sendMessage" > /dev/null
