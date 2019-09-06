@@ -444,6 +444,8 @@ def apptrigger(appkey, triggerkey):
         elif request.headers.get('X-Event-Key'):
             # Other option is to check for User-Agent: Bitbucket-Webhooks/2.0
             vcs_source = 'BitBucket'
+            if 'pullrequest:' in request.headers.get('X-Event-Key') == 'pullrequest:fulfilled':
+                hook_info['pullrequest_status'] = request.headers.get('X-Event-Key').split(':')[1].strip()
         elif request.headers.get('Sentry-Trace'):
             app.logger.debug('Sentry webhook')
             sentry_message = True
@@ -510,6 +512,12 @@ def apptrigger(appkey, triggerkey):
                             commit_info['name'] = commit['author']['user']['nickname']
                     commit_info['email'] = commit['author']['raw']
                     hook_info['commits'].append(commit_info)
+
+            if 'pullrequest' in payload:
+                # BitBucket pullrequest event
+                if 'rendered' in payload['pullrequest']:
+                    hook_info['pullrequest_title'] = payload['pullrequest']['rendered']['title']['raw']
+                    hook_info['pullrequest_description'] = payload['pullrequest']['rendered']['description']['raw']
 
             if 'ref' in payload:
                 hook_info['ref'] = payload['ref']
