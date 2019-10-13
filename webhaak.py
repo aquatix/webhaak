@@ -433,6 +433,7 @@ def apptrigger(appkey, triggerkey):
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
 
     hook_info = {}
+    hook_info['event_type'] = 'push'
     sentry_message = False
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
@@ -446,6 +447,7 @@ def apptrigger(appkey, triggerkey):
             vcs_source = 'BitBucket'
             if 'pullrequest:' in request.headers.get('X-Event-Key') == 'pullrequest:fulfilled':
                 hook_info['pullrequest_status'] = request.headers.get('X-Event-Key').split(':')[1].strip()
+                hook_info['event_type'] = 'merge'
         elif request.headers.get('Sentry-Trace'):
             app.logger.debug('Sentry webhook')
             sentry_message = True
