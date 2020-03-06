@@ -576,18 +576,24 @@ def apptrigger(appkey, triggerkey):
                 hook_info['stacktrace'] = 'Not available'
                 if 'event' in payload and payload['event'] and 'title' in payload['event']:
                     hook_info['title'] = payload['event']['title']
-                    # Always take the last set
-                    frames = payload['event']['exception']['values'][-1]['stacktrace']['frames']
                     stacktrace = []
-                    for frame in frames:
-                        frame_message = '*{}* in *{}* at line *{}*'.format(
-                            frame['filename'],
-                            frame['function'],
-                            frame['lineno']
-                        )
-                        stacktrace.append(frame_message)
-                    # Sentry puts the items of the trace from last to first in the json, so reverse the trace
-                    stacktrace.reverse()
+                    if 'exception' in payload['event']:
+                        # Always take the last set
+                        frames = payload['event']['exception']['values'][-1]['stacktrace']['frames']
+                        for frame in frames:
+                            frame_message = '*{}* in *{}* at line *{}*'.format(
+                                frame['filename'],
+                                frame['function'],
+                                frame['lineno']
+                            )
+                            stacktrace.append(frame_message)
+                        # Sentry puts the items of the trace from last to first in the json, so reverse the trace
+                        stacktrace.reverse()
+                    elif 'logentry' in payload['event']:
+                        if 'message' in payload['event']['logentry']:
+                            stacktrace.append(payload['event']['logentry']['message']
+                        if 'formatted' in payload['event']['logentry']:
+                            stacktrace.append(payload['event']['logentry']['formatted']
                     app.logger.debug(stacktrace)
                     hook_info['stacktrace'] = '\\n'.join(stacktrace)
         else:
