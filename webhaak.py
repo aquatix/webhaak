@@ -433,6 +433,7 @@ def apptrigger(appkey, triggerkey):
         return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
 
     hook_info = {}
+    hook_info['event_type'] = 'push'
     sentry_message = False
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
@@ -444,6 +445,15 @@ def apptrigger(appkey, triggerkey):
         elif request.headers.get('X-Event-Key'):
             # Other option is to check for User-Agent: Bitbucket-Webhooks/2.0
             vcs_source = 'BitBucket'
+            # Examples: pullrequest:fulfilled pullrequest:created
+            event_key = request.headers.get('X-Event-Key')
+            app.logger.debug('BitBucket event: %s', event_key)
+            if 'pullrequest:' in event_key:
+                hook_info['pullrequest_status'] = request.headers.get('X-Event-Key').split(':')[1].strip()
+                if hook_info['pullrequest_status'] == 'fulfilled':
+                    hook_info['event_type'] = 'merge'
+                elif hook_info['pullrequest_status'] == 'created':
+                    hook_info['event_type'] = 'new'
         elif request.headers.get('Sentry-Trace'):
             app.logger.debug('Sentry webhook')
             sentry_message = True
@@ -511,6 +521,20 @@ def apptrigger(appkey, triggerkey):
                     commit_info['email'] = commit['author']['raw']
                     hook_info['commits'].append(commit_info)
 
+            if 'pullrequest' in payload:
+                # BitBucket pullrequest event
+                if 'rendered' in payload['pullrequest']:
+                    hook_info['pullrequest_title'] = payload['pullrequest']['rendered']['title']['raw']
+                    hook_info['pullrequest_description'] = payload['pullrequest']['rendered']['description']['raw']
+                if 'close_source_branch' in payload['pullrequest']:
+                    hook_info['pullrequest_close_source_branch'] = payload['pullrequest']['close_source_branch']
+                if 'state' in payload['pullrequest']:
+                    if payload['pullrequest']['state'] == 'MERGED':
+                        hook_info['pullrequest_author'] = payload['pullrequest']['author']['display_name']
+                        hook_info['pullrequest_closed_by'] = payload['pullrequest']['closed_by']['display_name']
+                if 'links' in payload['pullrequest'] and 'html' in payload['pullrequest']['links']:
+                    hook_info['pullrequest_url'] = payload['pullrequest']['links']['html']
+
             if 'ref' in payload:
                 hook_info['ref'] = payload['ref']
                 if 'heads' in payload['ref']:
@@ -520,6 +544,8 @@ def apptrigger(appkey, triggerkey):
             if 'repository' in payload:
                 event_info += payload['repository']['full_name']
                 hook_info['reponame'] = payload['repository']['full_name']
+                if 'name' in payload['repository']:
+                    hook_info['project_name'] = payload['repository']['name']
             if 'actor' in payload:
                 # BitBucket pusher; no email address known here though
                 event_info += ' by ' + payload['actor']['nickname']
