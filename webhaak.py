@@ -38,6 +38,7 @@ schema = MapPattern(
             "triggers": MapPattern(Str(), Map({
                 "triggerkey": Str(),
                 Optional("notify"): Bool(),
+                Optional("notify_on_error"): Bool(),
                 Optional("repo"): Str(),
                 Optional("repoparent"): Str(),
                 Optional("branch"): Str(),
@@ -283,7 +284,10 @@ def do_pull_andor_command(config, hook_info):
 
     result['runtime'] = datetime.now() - starttime
 
-    if 'notify' not in config[1] or config[1]['notify']:
+    if (
+            ('notify' not in config[1] or config[1]['notify'])
+            or (result['status'] == 'error' and ('notify_on_error' in config[1] and config[1]['notify_on_error']))
+    ):
         notify_user(result, config)
 
 
