@@ -591,9 +591,9 @@ def apptrigger(appkey, triggerkey):
                         stacktrace.reverse()
                     elif 'logentry' in payload['event']:
                         if 'message' in payload['event']['logentry']:
-                            stacktrace.append(payload['event']['logentry']['message']
+                            stacktrace.append(payload['event']['logentry']['message'])
                         if 'formatted' in payload['event']['logentry']:
-                            stacktrace.append(payload['event']['logentry']['formatted']
+                            stacktrace.append(payload['event']['logentry']['formatted'])
                     app.logger.debug(stacktrace)
                     hook_info['stacktrace'] = '\\n'.join(stacktrace)
         else:
