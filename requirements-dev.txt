@@ -36,7 +36,7 @@ pyparsing==2.4.6          # via packaging
 python-dateutil==2.8.1    # via strictyaml
 python-pushover==0.4      # via -r requirements.in
 pytz==2019.3              # via babel
-pyyaml==5.3               # via bandit
+pyyaml==5.3.1             # via bandit
 recommonmark==0.6.0       # via -r requirements-dev.in
 requests==2.23.0          # via -r requirements.in, python-pushover, sphinx
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
@@ -56,7 +56,7 @@ stevedore==1.32.0         # via bandit
 strictyaml==1.0.6         # via -r requirements.in
 typed-ast==1.4.1          # via astroid
 urllib3==1.25.8           # via requests
-werkzeug==1.0.0           # via flask
+werkzeug==1.0.1           # via flask
 wrapt==1.11.2             # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:

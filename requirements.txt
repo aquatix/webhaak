@@ -23,4 +23,4 @@ six==1.14.0               # via python-dateutil
 smmap==3.0.1              # via gitdb
 strictyaml==1.0.6         # via -r requirements.in
 urllib3==1.25.8           # via requests
-werkzeug==1.0.0           # via flask
+werkzeug==1.0.1           # via flask
