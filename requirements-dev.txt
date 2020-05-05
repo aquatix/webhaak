@@ -5,47 +5,47 @@
 #    pip-compile requirements-dev.in
 #
 alabaster==0.7.12         # via sphinx
-astroid==2.3.3            # via pylint
+astroid==2.4.1            # via pylint
 babel==2.8.0              # via sphinx
 bandit==1.6.2             # via -r requirements-dev.in
-certifi==2019.11.28       # via requests
+certifi==2020.4.5.1       # via requests
 chardet==3.0.4            # via requests
-click==7.1.1              # via flask
+click==7.1.2              # via flask
 commonmark==0.9.1         # via recommonmark
 docutils==0.16            # via recommonmark, sphinx
 entrypoints==0.3          # via flake8
 flake8==3.7.9             # via -r requirements-dev.in
-flask==1.1.1              # via -r requirements.in
-gitdb==4.0.2              # via gitpython
-gitpython==3.1.0          # via -r requirements.in, bandit
+flask==1.1.2              # via -r requirements.in
+gitdb==4.0.5              # via gitpython
+gitpython==3.1.2          # via -r requirements.in, bandit
 idna==2.9                 # via requests
 imagesize==1.2.0          # via sphinx
 isort==4.3.21             # via pylint
 itsdangerous==1.1.0       # via flask
-jinja2==2.11.1            # via flask, sphinx
+jinja2==2.11.2            # via flask, sphinx
 lazy-object-proxy==1.4.3  # via astroid
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8, pylint
 packaging==20.3           # via sphinx
-pbr==5.4.4                # via stevedore
+pbr==5.4.5                # via stevedore
 pycodestyle==2.5.0        # via flake8
 pyflakes==2.1.1           # via flake8
 pygments==2.6.1           # via sphinx
-pylint==2.4.4             # via -r requirements-dev.in
-pyparsing==2.4.6          # via packaging
+pylint==2.5.2             # via -r requirements-dev.in
+pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via strictyaml
 python-pushover==0.4      # via -r requirements.in
-pytz==2019.3              # via babel
+pytz==2020.1              # via babel
 pyyaml==5.3.1             # via bandit
 recommonmark==0.6.0       # via -r requirements-dev.in
 requests==2.23.0          # via -r requirements.in, python-pushover, sphinx
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.10      # via strictyaml
 six==1.14.0               # via astroid, bandit, packaging, python-dateutil, stevedore
-smmap==3.0.1              # via gitdb
+smmap==3.0.4              # via gitdb
 snowballstemmer==2.0.0    # via sphinx
 sphinx-rtd-theme==0.4.3   # via -r requirements-dev.in
-sphinx==2.4.4             # via -r requirements-dev.in, recommonmark, sphinx-rtd-theme
+sphinx==3.0.3             # via -r requirements-dev.in, recommonmark, sphinx-rtd-theme
 sphinxcontrib-applehelp==1.0.2  # via sphinx
 sphinxcontrib-devhelp==1.0.2  # via sphinx
 sphinxcontrib-htmlhelp==1.0.3  # via sphinx
@@ -54,10 +54,10 @@ sphinxcontrib-qthelp==1.0.3  # via sphinx
 sphinxcontrib-serializinghtml==1.1.4  # via sphinx
 stevedore==1.32.0         # via bandit
 strictyaml==1.0.6         # via -r requirements.in
-typed-ast==1.4.1          # via astroid
-urllib3==1.25.8           # via requests
+toml==0.10.0              # via pylint
+urllib3==1.25.9           # via requests
 werkzeug==1.0.1           # via flask
-wrapt==1.11.2             # via astroid
+wrapt==1.12.1             # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
