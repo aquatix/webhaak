@@ -17,9 +17,13 @@ certifi==2021.10.8
 charset-normalizer==2.0.10
     # via requests
 click==8.0.3
-    # via flask
+    # via
+    #   flask
+    #   rq
 commonmark==0.9.1
     # via recommonmark
+deprecated==1.2.13
+    # via redis
 docutils==0.17.1
     # via
     #   recommonmark
@@ -56,7 +60,9 @@ mccabe==0.6.1
     #   flake8
     #   pylint
 packaging==21.3
-    # via sphinx
+    # via
+    #   redis
+    #   sphinx
 pbr==5.8.0
     # via stevedore
 platformdirs==2.4.1
@@ -81,11 +87,15 @@ pyyaml==6.0
     # via bandit
 recommonmark==0.7.1
     # via -r requirements-dev.in
+redis==4.1.0
+    # via rq
 requests==2.27.1
     # via
     #   -r requirements.in
     #   python-pushover
     #   sphinx
+rq==1.10.1
+    # via -r requirements.in
 six==1.16.0
     # via python-dateutil
 smmap==5.0.0
@@ -127,7 +137,9 @@ urllib3==1.26.7
 werkzeug==2.0.2
     # via flask
 wrapt==1.13.3
-    # via astroid
+    # via
+    #   astroid
+    #   deprecated
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

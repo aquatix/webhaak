@@ -9,7 +9,11 @@ certifi==2021.10.8
 charset-normalizer==2.0.10
     # via requests
 click==8.0.3
-    # via flask
+    # via
+    #   flask
+    #   rq
+deprecated==1.2.13
+    # via redis
 flask==2.0.2
     # via -r requirements.in
 gitdb==4.0.9
@@ -24,14 +28,22 @@ jinja2==3.0.3
     # via flask
 markupsafe==2.0.1
     # via jinja2
+packaging==21.3
+    # via redis
+pyparsing==3.0.6
+    # via packaging
 python-dateutil==2.8.2
     # via strictyaml
 python-pushover==0.4
     # via -r requirements.in
+redis==4.1.0
+    # via rq
 requests==2.27.1
     # via
     #   -r requirements.in
     #   python-pushover
+rq==1.10.1
+    # via -r requirements.in
 six==1.16.0
     # via python-dateutil
 smmap==5.0.0
@@ -44,3 +56,5 @@ urllib3==1.26.7
     # via requests
 werkzeug==2.0.2
     # via flask
+wrapt==1.13.3
+    # via deprecated

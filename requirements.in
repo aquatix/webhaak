@@ -8,3 +8,5 @@ strictyaml
 gitpython
 # Notifications
 python-pushover
+# Worker
+rq
