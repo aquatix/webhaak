@@ -6,16 +6,18 @@ from datetime import timedelta
 from functools import update_wrapper
 
 import strictyaml
-from flask import (Flask, Response, abort, current_app, jsonify, make_response,
-                   request)
+#  from flask import (Flask, Response, abort, current_app, jsonify, make_response,
+#                     request)
+from fastapi import FastAPI
 from redis import Redis
 from rq import Queue
 from strictyaml import Bool, Map, MapPattern, Optional, Str
 
-import tasks
-from tasks import settings
+#  import tasks
+#  from tasks import settings
 
-app = Flask(__name__)
+# app = FastAPI(__name__)
+app = FastAPI()
 app.debug = settings.DEBUG
 
 app.logger.setLevel(logging.DEBUG)
