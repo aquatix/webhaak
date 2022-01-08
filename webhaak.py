@@ -8,7 +8,8 @@ from functools import update_wrapper
 import strictyaml
 #  from flask import (Flask, Response, abort, current_app, jsonify, make_response,
 #                     request)
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from redis import Redis
 from rq import Queue
 from strictyaml import Bool, Map, MapPattern, Optional, Str
@@ -18,17 +19,21 @@ from strictyaml import Bool, Map, MapPattern, Optional, Str
 
 # app = FastAPI(__name__)
 app = FastAPI()
-app.debug = settings.DEBUG
+DEBUG = os.getenv("DEBUG", False)
+PROJECTS_FILE = os.getenv("PROJECTS_FILE", "projects.yaml")
+SECRETKEY = os.getenv("SECRETKEY", "")
+#  app.debug = settings.DEBUG
 
-app.logger.setLevel(logging.DEBUG)
+logger = logging.getLogger('webhaak')
+logger.setLevel(logging.DEBUG)
 # Log will rotate daily with a max history of LOG_BACKUP_COUNT
-fh = logging.FileHandler(
-    settings.LOG_LOCATION
-)
-fh.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-app.logger.addHandler(fh)
+#  fh = logging.FileHandler(
+#      settings.LOG_LOCATION
+#  )
+#  fh.setLevel(logging.DEBUG)
+#  formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#  fh.setFormatter(formatter)
+#  logger.addHandler(fh)
 
 # strictyaml schema for project settings
 schema = MapPattern(
@@ -50,114 +55,41 @@ schema = MapPattern(
     )
 )
 
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow requests from everywhere
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Load the configuration of the various projects/hooks
-with open(settings.PROJECTS_FILE, 'r') as pf:
+with open(PROJECTS_FILE, 'r') as pf:
     projects = strictyaml.load(pf.read(), schema).data
 
 
 # == API request support functions/mixins ======
 
-def crossdomain(origin=None, methods=None, headers=None,
-                max_age=21600, attach_to_all=True,
-                automatic_options=True):
-    """Decorator to send the correct cross-domain headers
-    src: https://blog.skyred.fi/articles/better-crossdomain-snippet-for-flask.html
-    """
-    if methods is not None:
-        methods = ', '.join(sorted(x.upper() for x in methods))
-    if headers is not None and not isinstance(headers, str):
-        headers = ', '.join(x.upper() for x in headers)
-    if not isinstance(origin, str):
-        origin = ', '.join(origin)
-    if isinstance(max_age, timedelta):
-        max_age = max_age.total_seconds()
-
-    def get_methods():
-        if methods is not None:
-            return methods
-
-        options_resp = current_app.make_default_options_response()
-        return options_resp.headers['allow']
-
-    def decorator(f):
-        def wrapped_function(*args, **kwargs):
-            if automatic_options and request.method == 'OPTIONS':
-                resp = current_app.make_default_options_response()
-            else:
-                resp = make_response(f(*args, **kwargs))
-            if not attach_to_all and request.method != 'OPTIONS':
-                return resp
-
-            h = resp.headers
-            h['Access-Control-Allow-Origin'] = origin
-            h['Access-Control-Allow-Methods'] = get_methods()
-            h['Access-Control-Max-Age'] = str(max_age)
-            h['Access-Control-Allow-Credentials'] = 'true'
-            h['Access-Control-Allow-Headers'] = \
-                "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-            if headers is not None:
-                h['Access-Control-Allow-Headers'] = headers
-            return resp
-
-        f.provide_automatic_options = False
-        return update_wrapper(wrapped_function, f)
-    return decorator
-
-
-class APIException(Exception):
-    status_code = 400
-
-    def __init__(self, message, status_code=None, payload=None):
-        Exception.__init__(self)
-        self.message = message
-        if status_code is not None:
-            self.status_code = status_code
-        self.payload = payload
-
-    def to_dict(self):
-        rv = dict(self.payload or ())
-        rv['message'] = self.message
-        rv['status_code'] = self.status_code
-        return rv
-
-
-class InvalidAPIUsage(APIException):
-    status_code = 400
-
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return jsonify(error=404, text=str(e)), 404
-
-
-@app.errorhandler(InvalidAPIUsage)
-def handle_invalid_usage(error):
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
-    response.mimetype = 'application/json'
-    return response
-
-
 # == Web app endpoints ======
 
-@app.route('/')
-def indexpage():
-    app.logger.debug('Root page requested')
-    return 'Welcome to <a href="https://github.com/aquatix/webhaak">Webhaak</a>, see the documentation to how to setup and use webhooks.'
+@app.get('/')
+async def indexpage():
+    logger.debug('Root page requested')
+    return{'message': 'Welcome to <a href="https://github.com/aquatix/webhaak">Webhaak</a>, see the documentation to how to setup and use webhooks.'}
 
 
-@app.route('/admin/<secretkey>/list', methods=['GET'])
-@crossdomain(origin='*')
-def listtriggers(secretkey):
+@app.get('/admin/{secretkey}/list')
+async def listtriggers(secretkey):
     """List the appkeys and triggerkeys"""
-    app.logger.debug('Trigger list requested')
+    logger.debug('Trigger list requested')
     try:
-        if secretkey != settings.SECRETKEY:
-            app.logger.debug('Secret key incorrect trying to list triggers')
-            abort(404)
+        if secretkey != SECRETKEY:
+            logger.debug('Secret key incorrect trying to list triggers')
+            raise HTTPException(status_code=404, detail="Secret key not found")
     except AttributeError:
-        app.logger.debug('Secret key not found trying to list triggers')
-        abort(404)
+        logger.debug('Secret key not found trying to list triggers')
+        raise HTTPException(status_code=404, detail="Secret key not found")
 
     server_url = request.host_url
 
@@ -180,25 +112,26 @@ def listtriggers(secretkey):
                     )
                 }
             )
-    return Response(
-        json.dumps({'projects': result}), status=200, mimetype='application/json'
-    )
+    return {'projects': result}
 
 
-@app.route('/app/<appkey>/<triggerkey>', methods=['GET', 'OPTIONS', 'POST'])
-@crossdomain(origin='*')
-def apptrigger(appkey, triggerkey):
+#  @app.route('/app/{appkey}/{triggerkey}', methods=['GET', 'OPTIONS', 'POST'])
+@app.get('/app/{appkey}/{triggerkey}')
+@app.options('/app/{appkey}/{triggerkey}')
+@app.post('/app/{appkey}/{triggerkey}')
+def apptrigger(appkey: str, triggerkey: str, request: Request):
     """Fire the trigger described by the configuration under `triggerkey`
 
     :param appkey: application key part of the url
     :param triggerkey: trigger key part of the url, sub part of the config
     :return: json Response
     """
-    app.logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
+    logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
     config = tasks.get_trigger_settings(appkey, triggerkey)
     if config is None:
-        app.logger.error('appkey/triggerkey combo not found')
-        return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
+        logger.error('appkey/triggerkey combo not found')
+        # return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
+        raise HTTPException(status_code=404, detail="Error")
 
     hook_info = {}
     hook_info['event_type'] = 'push'
@@ -215,7 +148,7 @@ def apptrigger(appkey, triggerkey):
             vcs_source = 'BitBucket'
             # Examples: pullrequest:fulfilled pullrequest:created
             event_key = request.headers.get('X-Event-Key')
-            app.logger.debug('BitBucket event: %s', event_key)
+            logger.debug('BitBucket event: %s', event_key)
             if 'pullrequest:' in event_key:
                 hook_info['pullrequest_status'] = request.headers.get('X-Event-Key').split(':')[1].strip()
                 if hook_info['pullrequest_status'] == 'fulfilled':
@@ -223,7 +156,7 @@ def apptrigger(appkey, triggerkey):
                 elif hook_info['pullrequest_status'] == 'created':
                     hook_info['event_type'] = 'new'
         elif request.headers.get('Sentry-Trace'):
-            app.logger.debug('Sentry webhook')
+            logger.debug('Sentry webhook')
             sentry_message = True
             vcs_source = 'n/a'
         else:
@@ -231,7 +164,7 @@ def apptrigger(appkey, triggerkey):
 
         hook_info['vcs_source'] = vcs_source
         payload = request.get_json()
-        app.logger.debug(payload)
+        logger.debug(payload)
         url = ''
         if payload:
             if 'repository' in payload:
@@ -242,7 +175,7 @@ def apptrigger(appkey, triggerkey):
                     url = payload['repository']['links']['html']['href']
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
-            app.logger.info(
+            logger.info(
                 'received %s ping for %s hook: %s ',
                 vcs_source,
                 payload['repository']['full_name'],
@@ -259,7 +192,7 @@ def apptrigger(appkey, triggerkey):
         elif sentry_message:
             event_info = 'received push from Sentry for '
         else:
-            app.logger.info(
+            logger.info(
                 'received wrong event type from %s for %s hook: %s',
                 vcs_source,
                 payload['repository']['full_name'],
@@ -269,7 +202,7 @@ def apptrigger(appkey, triggerkey):
         if payload:
             if 'push' in payload:
                 # BitBucket, which has a completely different format
-                app.logger.debug('Amount of changes in this push: %d', len(payload['push']['changes']))
+                logger.debug('Amount of changes in this push: %d', len(payload['push']['changes']))
                 hook_info['commit_before'] = None  # When a branch is created, old is null; use as default
                 # Only take info from the first change item
                 if payload['push']['changes'][0]['old']:
@@ -321,7 +254,7 @@ def apptrigger(appkey, triggerkey):
                     event_info += ' ({})'.format(payload['actor']['display_name'])
                 hook_info['username'] = payload['actor']['nickname']
 
-                app.logger.debug(config[1])
+                logger.debug(config[1])
                 if 'authors' in config[1]:
                     # Look up the email address in the known authors list of the project
                     for author in config[1]['authors']:
@@ -388,15 +321,15 @@ def apptrigger(appkey, triggerkey):
                             stacktrace.append(payload['event']['logentry']['message'])
                         if 'formatted' in payload['event']['logentry']:
                             stacktrace.append(payload['event']['logentry']['formatted'])
-                    app.logger.debug(stacktrace)
+                    logger.debug(stacktrace)
                     hook_info['stacktrace'] = '\\n'.join(stacktrace)
         else:
             '{}unknown, as no json was received. Check that {} webhook content type is application/json'.format(
                 event_info,
                 vcs_source
             )
-        app.logger.debug(hook_info)
-        app.logger.info(event_info)
+        logger.debug(hook_info)
+        logger.info(event_info)
 
     #  print(config)
     #  print('---')
@@ -410,17 +343,15 @@ def apptrigger(appkey, triggerkey):
     # Delay execution of count_words_at_url('http://nvie.com')
     # job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     job = q.enqueue("webhaak.tasks.do_pull_andor_command", args=(config, hook_info,))
-    app.logger.info('Enqueued job with id: %s' % job.id)
-    return Response(
-        json.dumps({
-            'status': 'OK',
-            'message': 'Command accepted and will be run in the background',
-            'job_id': job.id,
-        }), status=200, mimetype='application/json'
-    )
+    logger.info('Enqueued job with id: %s' % job.id)
+    return {
+        'status': 'OK',
+        'message': 'Command accepted and will be run in the background',
+        'job_id': job.id,
+    }
 
 
-@app.route('/status/<job_id>')
+@app.get('/status/{job_id}')
 def job_status(job_id):
     """Show the status of job `job_id`
 
@@ -443,9 +374,9 @@ def job_status(job_id):
     return jsonify(response)
 
 
-@app.route('/monitor/monitor.html')
-@app.route('/monitor/')
-@app.route('/monitor')
+@app.get('/monitor/monitor.html')
+@app.get('/monitor/')
+@app.get('/monitor')
 def monitor():
     """Monitoring ping"""
     result = 'OK'
@@ -457,20 +388,14 @@ def generatekey():
     return binascii.hexlify(os.urandom(24))
 
 
-@app.cli.command()
-def printappkey():
-    """Generate new appkey"""
-    print(generatekey())
+#  @app.cli.command()
+#  def printappkey():
+#      """Generate new appkey"""
+#      print(generatekey())
 
 
-@app.route('/getappkey')
+@app.get('/getappkey')
 def getappkey():
     """Generate new appkey"""
-    return Response(json.dumps({'key': generatekey().decode('utf-8')}), status=200, mimetype='application/json')
+    return {'key': generatekey().decode('utf-8')}
 
-
-if __name__ == '__main__':
-    if not settings.DEBUG:
-        app.run(port=settings.PORT, debug=settings.DEBUG)
-    else:
-        app.run(host='0.0.0.0', port=settings.PORT, debug=settings.DEBUG)
