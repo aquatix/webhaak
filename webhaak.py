@@ -14,7 +14,7 @@ from redis import Redis
 from rq import Queue
 from strictyaml import Bool, Map, MapPattern, Optional, Str
 
-#  import tasks
+from core import tasks
 #  from tasks import settings
 
 # app = FastAPI(__name__)
@@ -342,7 +342,7 @@ def apptrigger(appkey: str, triggerkey: str, request: Request):
 
     # Delay execution of count_words_at_url('http://nvie.com')
     # job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
-    job = q.enqueue("webhaak.tasks.do_pull_andor_command", args=(config, hook_info,))
+    job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s' % job.id)
     return {
         'status': 'OK',
