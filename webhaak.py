@@ -2,12 +2,8 @@ import binascii
 import json
 import logging
 import os
-from datetime import timedelta
-from functools import update_wrapper
 
 import strictyaml
-#  from flask import (Flask, Response, abort, current_app, jsonify, make_response,
-#                     request)
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from redis import Redis
@@ -15,17 +11,15 @@ from rq import Queue
 from strictyaml import Bool, Map, MapPattern, Optional, Str
 
 from core import tasks
-#  from tasks import settings
 
-# app = FastAPI(__name__)
 app = FastAPI()
-DEBUG = os.getenv("DEBUG", False)
+DEBUG = os.getenv("DEBUG", "False")
 PROJECTS_FILE = os.getenv("PROJECTS_FILE", "projects.yaml")
 SECRETKEY = os.getenv("SECRETKEY", "")
-#  app.debug = settings.DEBUG
 
 logger = logging.getLogger('webhaak')
-logger.setLevel(logging.DEBUG)
+if DEBUG.lower() in ('true'):
+    logger.setLevel(logging.DEBUG)
 # Log will rotate daily with a max history of LOG_BACKUP_COUNT
 #  fh = logging.FileHandler(
 #      settings.LOG_LOCATION
@@ -69,18 +63,19 @@ with open(PROJECTS_FILE, 'r') as pf:
     projects = strictyaml.load(pf.read(), schema).data
 
 
-# == API request support functions/mixins ======
-
 # == Web app endpoints ======
 
 @app.get('/')
 async def indexpage():
     logger.debug('Root page requested')
-    return{'message': 'Welcome to <a href="https://github.com/aquatix/webhaak">Webhaak</a>, see the documentation to how to setup and use webhooks.'}
+    return {
+        'message': 'Welcome to Webhaak. See the documentation how to setup and use webhooks: '
+        'https://github.com/aquatix/webhaak'
+    }
 
 
 @app.get('/admin/{secretkey}/list')
-async def listtriggers(secretkey):
+async def listtriggers(secretkey: str, request: Request):
     """List the appkeys and triggerkeys"""
     logger.debug('Trigger list requested')
     try:
@@ -119,7 +114,7 @@ async def listtriggers(secretkey):
 @app.get('/app/{appkey}/{triggerkey}')
 @app.options('/app/{appkey}/{triggerkey}')
 @app.post('/app/{appkey}/{triggerkey}')
-def apptrigger(appkey: str, triggerkey: str, request: Request):
+async def apptrigger(appkey: str, triggerkey: str, request: Request):
     """Fire the trigger described by the configuration under `triggerkey`
 
     :param appkey: application key part of the url
@@ -331,19 +326,13 @@ def apptrigger(appkey: str, triggerkey: str, request: Request):
         logger.debug(hook_info)
         logger.info(event_info)
 
-    #  print(config)
-    #  print('---')
-    #  print(hook_info)
-    #  print('------')
-
     # Create RQ job (task) for this request
     redis_conn = Redis()
     q = Queue(connection=redis_conn)  # no args implies the default queue
 
     # Delay execution of count_words_at_url('http://nvie.com')
-    # job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
-    logger.info('Enqueued job with id: %s' % job.id)
+    logger.info('Enqueued job with id: %s', job.id)
     return {
         'status': 'OK',
         'message': 'Command accepted and will be run in the background',
@@ -352,7 +341,7 @@ def apptrigger(appkey: str, triggerkey: str, request: Request):
 
 
 @app.get('/status/{job_id}')
-def job_status(job_id):
+async def job_status(job_id):
     """Show the status of job `job_id`
 
     :param str job_id:
@@ -371,13 +360,13 @@ def job_status(job_id):
         }
         if job.is_failed:
             response['message'] = job.exc_info.strip().split('\n')[-1]
-    return jsonify(response)
+    return response
 
 
 @app.get('/monitor/monitor.html')
 @app.get('/monitor/')
 @app.get('/monitor')
-def monitor():
+async def monitor():
     """Monitoring ping"""
     result = 'OK'
     return result
@@ -395,7 +384,6 @@ def generatekey():
 
 
 @app.get('/getappkey')
-def getappkey():
+async def getappkey():
     """Generate new appkey"""
     return {'key': generatekey().decode('utf-8')}
-
