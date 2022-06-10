@@ -1,5 +1,5 @@
 # Running the webapp
-fastapi
+fastapi[all]
 # Downloading content from the web
 requests
 # Toolkit for interacting with files, formatting and more
@@ -7,6 +7,7 @@ strictyaml
 # Git
 gitpython
 # Notifications
-python-pushover
+# python-pushover
+--editable=git+https://github.com/ImNtReal/python-pushover.git#egg=python-pushover
 # Worker
 rq

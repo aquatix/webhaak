@@ -47,7 +47,11 @@ next section) and refer to this file from the settings.py.
 Run webhaak as a service under nginx or apache and call the appropriate
 url's when wanted (e.g., on push to repository).
 
+webhaak can also be run from the command line: ``uvicorn webhaak:app --reload``.
+
 Url's are of the form https://hook.example.com/app/<appkey>/<triggerkey>
+
+API documentation is auto-generated, and can be browsed at https://hook.example.com/docs
 
 
 Example configuration

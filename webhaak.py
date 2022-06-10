@@ -16,6 +16,8 @@ app = FastAPI()
 DEBUG = os.getenv("DEBUG", "False")
 PROJECTS_FILE = os.getenv("PROJECTS_FILE", "projects.yaml")
 SECRETKEY = os.getenv("SECRETKEY", "")
+print(f"PROJECTS_FILE: {PROJECTS_FILE}")
+print(f"SECRETKEY: {SECRETKEY}")
 
 logger = logging.getLogger('webhaak')
 if DEBUG.lower() in ('true'):

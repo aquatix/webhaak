@@ -83,8 +83,8 @@ def notify_user(result, config):
         logging.debug(message)
         logging.info('Sending notification...')
         # TODO: option to send to Telegram chat
-        client = pushover.Client(settings.PUSHOVER_USERKEY, api_token=settings.PUSHOVER_APPTOKEN)
-        client.send_message(message, title=title)
+        client = pushover.Pushover(settings.PUSHOVER_APPTOKEN)
+        client.message(settings.PUSHOVER_USERKEY, message, title=title)
         logging.info('Notification sent')
     except AttributeError:
         logging.warning('Notification through PushOver failed because of missing configuration')
