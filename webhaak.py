@@ -61,7 +61,7 @@ app.add_middleware(
 )
 
 # Load the configuration of the various projects/hooks
-with open(PROJECTS_FILE, 'r') as pf:
+with open(PROJECTS_FILE, 'r', encoding='utf-8') as pf:
     projects = strictyaml.load(pf.read(), schema).data
 
 
@@ -84,9 +84,9 @@ async def listtriggers(secretkey: str, request: Request):
         if secretkey != SECRETKEY:
             logger.debug('Secret key incorrect trying to list triggers')
             raise HTTPException(status_code=404, detail="Secret key not found")
-    except AttributeError:
+    except AttributeError as exc:
         logger.debug('Secret key not found trying to list triggers')
-        raise HTTPException(status_code=404, detail="Secret key not found")
+        raise HTTPException(status_code=404, detail="Secret key not found") from exc
 
     server_url = request.host_url
 
@@ -185,7 +185,7 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
                 or request.headers.get('X-Gogs-Event') == "push"
                 or request.headers.get('X-Event-Key') == "repo:push"
         ):
-            event_info = 'received push from {} for '.format(vcs_source)
+            event_info = f'received push from {vcs_source} for '
         elif sentry_message:
             event_info = 'received push from Sentry for '
         else:
