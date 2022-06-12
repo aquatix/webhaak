@@ -43,7 +43,9 @@ schema = MapPattern(
 )
 
 # Load the configuration of the various projects/hooks
-with open(settings.PROJECTS_FILE, 'r', encoding='utf-8') as pf:
+PROJECTS_FILE = os.getenv("PROJECTS_FILE", "projects.yaml")
+print(f"PROJECTS_FILE: {PROJECTS_FILE}")
+with open(PROJECTS_FILE, 'r', encoding='utf-8') as pf:
     projects = strictyaml.load(pf.read(), schema).data
 
 

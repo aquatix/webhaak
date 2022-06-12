@@ -14,9 +14,7 @@ from core import tasks
 
 app = FastAPI()
 DEBUG = os.getenv("DEBUG", "False")
-PROJECTS_FILE = os.getenv("PROJECTS_FILE", "projects.yaml")
 SECRETKEY = os.getenv("SECRETKEY", "")
-print(f"PROJECTS_FILE: {PROJECTS_FILE}")
 print(f"SECRETKEY: {SECRETKEY}")
 
 logger = logging.getLogger('webhaak')
@@ -31,26 +29,6 @@ if DEBUG.lower() in ('true'):
 #  fh.setFormatter(formatter)
 #  logger.addHandler(fh)
 
-# strictyaml schema for project settings
-schema = MapPattern(
-    Str(),
-    Map(
-        {
-            "appkey": Str(),
-            "triggers": MapPattern(Str(), Map({
-                "triggerkey": Str(),
-                Optional("notify"): Bool(),
-                Optional("notify_on_error"): Bool(),
-                Optional("repo"): Str(),
-                Optional("repoparent"): Str(),
-                Optional("branch"): Str(),
-                Optional("command"): Str(),
-                Optional("authors"): MapPattern(Str(), Str()),
-            }))
-        }
-    )
-)
-
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
@@ -59,10 +37,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Load the configuration of the various projects/hooks
-with open(PROJECTS_FILE, 'r', encoding='utf-8') as pf:
-    projects = strictyaml.load(pf.read(), schema).data
 
 
 # == Web app endpoints ======
@@ -91,21 +65,21 @@ async def listtriggers(secretkey: str, request: Request):
     server_url = request.host_url
 
     result = {}
-    for project in projects:
+    for project, project_info in tasks.projects.items():
         result[project] = {
             'title': project,
-            'appkey': projects[project]['appkey'],
+            'appkey': project_info['appkey'],
             'triggers': [],
         }
-        for trigger in projects[project]['triggers']:
+        for trigger in project_info['triggers']:
             result[project]['triggers'].append(
                 {
                     'title': trigger,
-                    'triggerkey': projects[project]['triggers'][trigger]['triggerkey'],
+                    'triggerkey': project_info['triggers'][trigger]['triggerkey'],
                     'url': '{}app/{}/{}'.format(
                         server_url,
-                        projects[project]['appkey'],
-                        projects[project]['triggers'][trigger]['triggerkey']
+                        project_info['appkey'],
+                        project_info['triggers'][trigger]['triggerkey']
                     )
                 }
             )
