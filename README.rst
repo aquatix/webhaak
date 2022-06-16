@@ -47,7 +47,11 @@ next section) and refer to this file from the settings.py.
 Run webhaak as a service under nginx or apache and call the appropriate
 url's when wanted (e.g., on push to repository).
 
-webhaak can also be run from the command line: ``uvicorn webhaak:app --reload``.
+webhaak can also be run from the command line: ``uvicorn webhaak:app --reload``
+
+Run ``gunicorn -k uvicorn.workers.UvicornWorker`` for production.
+
+The RQ background worker can be run from the command line: ``rq worker --with-scheduler``
 
 Url's are of the form https://hook.example.com/app/<appkey>/<triggerkey>
 
