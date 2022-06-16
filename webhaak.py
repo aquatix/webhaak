@@ -62,9 +62,7 @@ async def listtriggers(secretkey: str, request: Request):
         logger.debug('Secret key not found trying to list triggers')
         raise HTTPException(status_code=404, detail="Secret key not found") from exc
 
-    server_url = request.url
-    #print(server_url.domain)
-    #print(server_url.scheme)
+    server_url = request.base_url
 
     result = {}
     for project, project_info in tasks.projects.items():
@@ -78,7 +76,7 @@ async def listtriggers(secretkey: str, request: Request):
                 {
                     'title': trigger,
                     'triggerkey': project_info['triggers'][trigger]['triggerkey'],
-                    'url': '{}/app/{}/{}'.format(
+                    'url': '{}app/{}/{}'.format(
                         server_url,
                         project_info['appkey'],
                         project_info['triggers'][trigger]['triggerkey']
@@ -88,7 +86,6 @@ async def listtriggers(secretkey: str, request: Request):
     return {'projects': result}
 
 
-#  @app.route('/app/{appkey}/{triggerkey}', methods=['GET', 'OPTIONS', 'POST'])
 @app.get('/app/{appkey}/{triggerkey}')
 @app.options('/app/{appkey}/{triggerkey}')
 @app.post('/app/{appkey}/{triggerkey}')
