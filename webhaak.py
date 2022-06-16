@@ -62,7 +62,9 @@ async def listtriggers(secretkey: str, request: Request):
         logger.debug('Secret key not found trying to list triggers')
         raise HTTPException(status_code=404, detail="Secret key not found") from exc
 
-    server_url = request.host_url
+    server_url = request.url
+    #print(server_url.domain)
+    #print(server_url.scheme)
 
     result = {}
     for project, project_info in tasks.projects.items():
@@ -76,7 +78,7 @@ async def listtriggers(secretkey: str, request: Request):
                 {
                     'title': trigger,
                     'triggerkey': project_info['triggers'][trigger]['triggerkey'],
-                    'url': '{}app/{}/{}'.format(
+                    'url': '{}/app/{}/{}'.format(
                         server_url,
                         project_info['appkey'],
                         project_info['triggers'][trigger]['triggerkey']
@@ -170,7 +172,7 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
                 payload['repository']['full_name'],
                 url
             )
-            return json.dumps({'msg': "wrong event type"})
+            return {'error': "wrong event type"}
 
         if not payload:
             '{}unknown, as no json was received. Check that {} webhook content type is application/json'.format(
