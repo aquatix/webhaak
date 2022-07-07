@@ -2,11 +2,12 @@ import logging
 import os
 import subprocess
 from datetime import datetime
+import urllib
 
 import git
 import pushover
 import strictyaml
-from strictyaml import Bool, Map, MapPattern, Optional, Str
+from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
 
 import settings
 
@@ -36,7 +37,13 @@ schema = MapPattern(
                 Optional("repoparent"): Str(),
                 Optional("branch"): Str(),
                 Optional("command"): Str(),
+                # Git author username -> friendly name mapping
                 Optional("authors"): MapPattern(Str(), Str()),
+                # Telegram
+                Optional("telegram_chatid"): Str(),
+                Optional("telegram_token"): Str(),
+                # Sentry
+                Optional("ignore"): Seq(Str()),
             }))
         }
     )
@@ -47,6 +54,47 @@ PROJECTS_FILE = os.getenv("PROJECTS_FILE", "projects.yaml")
 print(f"PROJECTS_FILE: {PROJECTS_FILE}")
 with open(PROJECTS_FILE, 'r', encoding='utf-8') as pf:
     projects = strictyaml.load(pf.read(), schema).data
+
+print(projects)
+
+
+def make_sentry_message(result):
+    """
+    # Filter away known things
+    if [[ $MESSAGE == *"Het ElementTree object kon niet"* ||
+          $MESSAGE == *"The ElementTree object could"* ||
+          $MESSAGE == *"Meerdere resultaten gevonden in de wachtrij"* ||
+          $MESSAGE == *"Found multiple results in"* ||
+          $MESSAGE == *"Openen video is mislukt voor"* ||
+          $MESSAGE == *"SAML login mislukt voor organisatie"* ||
+          $MESSAGE == *"Cannot read property 'mData' of undefined"* ||
+          $MESSAGE == *"Cannot find tmlo for id"* ]];
+    then
+        exit
+    fi
+
+    URL=${URL//?referrer=webhooks_plugin/}
+
+    # Include stacktrace when available
+    if [ "$STACKTRACE" != "Not available" ]; then
+        TRACETEXT="
+    ${STACKTRACE}
+
+    "
+
+    # Replace literal \n with end of lines
+    TRACETEXT=${TRACETEXT//\\n/
+    }
+    fi
+
+    # Create the message to send
+    REPORT="[${PROJECTNAME}] ${MESSAGE}
+
+    in *${CULPRIT}*
+    ${TRACETEXT}
+    ${URL}"
+    """
+    return ''
 
 
 def notify_user(result, config):
@@ -85,8 +133,18 @@ def notify_user(result, config):
         logging.debug(message)
         logging.info('Sending notification...')
         # TODO: option to send to Telegram chat
-        client = pushover.Pushover(settings.PUSHOVER_APPTOKEN)
-        client.message(settings.PUSHOVER_USERKEY, message, title=title)
+        if triggerconfig.get('telegram_chatid') and triggerconfig.get('telegram_token'):
+            telegram_chatid = triggerconfig['telegram_chatid']
+            telegram_token = triggerconfig['telegram_token']
+            # Send to Telegram chat
+            msg = urllib.parse.quote_plus(make_sentry_message(result))
+            urllib.request.urlopen(
+                f"https://api.telegram.org/bot{telegram_token}/sendMessage?chat_id={telegram_chatid}&text={msg}"
+            )
+        else:
+            # Use the Pushover default
+            client = pushover.Pushover(settings.PUSHOVER_APPTOKEN)
+            client.message(settings.PUSHOVER_USERKEY, message, title=title)
         logging.info('Notification sent')
     except AttributeError:
         logging.warning('Notification through PushOver failed because of missing configuration')
@@ -256,26 +314,27 @@ def do_pull_andor_command(config, hook_info):
             notify_user(result, config)
             return
 
-    cmdresult = run_command(config, hook_info)
-    if cmdresult and cmdresult.returncode == 0:
-        logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
-        result['status'] = 'OK'
-    elif not cmdresult:
-        logger.info('[%s] no command configured', projectname)
-        result['status'] = 'OK'
-    else:
-        result['status'] = 'error'
-        result['type'] = 'commanderror'
-        result['message'] = cmdresult.stderr.strip()
-        # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
-        logger.error(
-            '[%s] commanderror with returncode %s: %s',
-            projectname,
-            str(cmdresult.returncode),
-            cmdresult.stderr
-        )
-        logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
-        logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
+    if 'command' in config[1]:
+        cmdresult = run_command(config, hook_info)
+        if cmdresult and cmdresult.returncode == 0:
+            logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
+            result['status'] = 'OK'
+        elif not cmdresult:
+            logger.info('[%s] no command configured', projectname)
+            result['status'] = 'OK'
+        else:
+            result['status'] = 'error'
+            result['type'] = 'commanderror'
+            result['message'] = cmdresult.stderr.strip()
+            # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
+            logger.error(
+                '[%s] commanderror with returncode %s: %s',
+                projectname,
+                str(cmdresult.returncode),
+                cmdresult.stderr
+            )
+            logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
+            logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
 
     result['runtime'] = datetime.now() - starttime
 
