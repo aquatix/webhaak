@@ -177,6 +177,13 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
                 vcs_source
             )
 
+        # Debug: dump payload to disk
+        # eventdate = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+        # with open(f'log/webhaak_events/{eventdate}_event.json', 'w') as outfile:
+        #    json.dump(payload, outfile)
+        # with open(f'log/webhaak_events/{eventdate}_headers.json', 'w') as outfile:
+        #    json.dump({k:v for k, v in request.headers.items()}, outfile)
+
         event_info = incoming.determine_task(config, payload, hook_info, event_info)
 
         logger.debug(hook_info)
