@@ -49,6 +49,8 @@ url's when wanted (e.g., on push to repository).
 
 webhaak can also be run from the command line: ``uvicorn webhaak:app --reload``
 
+Be sure to export/set the ``SECRETKEY`` environment variable before running, it's needed for some management URI's.
+
 Run ``gunicorn -k uvicorn.workers.UvicornWorker`` for production.
 
 The RQ background worker can be run from the command line: ``rq worker --with-scheduler``

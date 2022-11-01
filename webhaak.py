@@ -12,11 +12,9 @@ from core import incoming, tasks
 
 app = FastAPI()
 DEBUG = os.getenv("DEBUG", "False")
-SECRETKEY = os.getenv("SECRETKEY", "")
+# SECRETKEY should be set, it is mandatory. Please set it as env var
+SECRETKEY = os.environ['SECRETKEY']
 print(f"SECRETKEY: {SECRETKEY}")
-if not SECRETKEY:
-    # print('SECRETKEY not set, which is mandatory!')
-    raise RuntimeError('SECRETKEY not set, which is mandatory! Please set it as env var and try again.')
 
 logger = logging.getLogger('webhaak')
 if DEBUG.lower() in ('true'):
