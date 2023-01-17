@@ -511,7 +511,12 @@ def apptrigger(appkey, triggerkey):
                 if payload['push']['changes'][0]['old']:
                     # Info on the previous commit is available (so not a new branch)
                     hook_info['commit_before'] = payload['push']['changes'][0]['old']['target']['hash']
-                hook_info['commit_after'] = payload['push']['changes'][0]['new']['target']['hash']
+                if payload['push']['changes'][0]['new']:
+                    # Info about the (merge) commit is known
+                    hook_info['commit_after'] = payload['push']['changes'][0]['new']['target']['hash']
+                else:
+                     # Likely a 'None' merge commit, so get the info from the branch that is getting merged
+                    hook_info['commit_after'] = payload['push']['changes'][0]['old']['target']['hash']
                 hook_info['compare_url'] = payload['push']['changes'][0]['links']['html']['href']
 
                 hook_info['commits'] = []
