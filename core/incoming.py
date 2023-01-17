@@ -24,7 +24,13 @@ def determine_task(config, payload, hook_info, event_info):
         else:
              # Likely a 'None' merge commit, so get the info from the branch that is getting merged
             hook_info['commit_after'] = payload['push']['changes'][0]['old']['target']['hash']
-        hook_info['compare_url'] = payload['push']['changes'][0]['links']['html']['href']
+
+        if 'links' in payload['push']['changes'][0]:
+            hook_info['compare_url'] = payload['push']['changes'][0]['links']['html']['href']
+        elif payload['push']['changes'][0]['old'] and 'links' in payload['push']['changes'][0]['old']:
+            hook_info['compare_url'] = payload['push']['changes'][0]['old']['links']['html']['href']
+        else:
+            hook_info['compare_url'] = ''
 
         hook_info['commits'] = []
         for commit in payload['push']['changes'][0]['commits']:
