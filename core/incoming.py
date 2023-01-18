@@ -22,7 +22,7 @@ def determine_task(config, payload, hook_info, event_info):
             # Info about the (merge) commit is known
             hook_info['commit_after'] = payload['push']['changes'][0]['new']['target']['hash']
         else:
-             # Likely a 'None' merge commit, so get the info from the branch that is getting merged
+            # Likely a 'None' merge commit, so get the info from the branch that is getting merged
             hook_info['commit_after'] = payload['push']['changes'][0]['old']['target']['hash']
 
         if 'links' in payload['push']['changes'][0]:
