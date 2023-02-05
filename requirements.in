@@ -8,4 +8,5 @@ strictyaml
 gitpython
 # Notifications
 #python-pushover
-git+https://github.com/aquatix/python-pushover#egg=python-pushover
+#git+https://github.com/aquatix/python-pushover#egg=python-pushover
+--editable=git+https://github.com/ImNtReal/python-pushover.git#egg=python-pushover

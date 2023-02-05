@@ -4,6 +4,8 @@
 #
 #    pip-compile requirements.in
 #
+-e git+https://github.com/ImNtReal/python-pushover.git#egg=python-pushover
+    # via -r requirements.in
 certifi==2022.12.7
     # via requests
 charset-normalizer==3.0.1
@@ -28,8 +30,6 @@ markupsafe==2.1.2
     #   werkzeug
 python-dateutil==2.8.2
     # via strictyaml
-python-pushover @ git+https://github.com/aquatix/python-pushover
-    # via -r requirements.in
 requests==2.28.2
     # via
     #   -r requirements.in
