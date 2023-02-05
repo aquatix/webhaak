@@ -7,4 +7,5 @@ strictyaml
 # Git
 gitpython
 # Notifications
-python-pushover
+#python-pushover
+git+https://github.com/aquatix/python-pushover#egg=python-pushover
