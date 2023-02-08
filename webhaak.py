@@ -1,4 +1,5 @@
 import binascii
+from datetime import datetime
 import json
 import logging
 import os
@@ -16,17 +17,12 @@ DEBUG = os.getenv("DEBUG", "False")
 SECRETKEY = os.environ['SECRETKEY']
 print(f"SECRETKEY: {SECRETKEY}")
 
+# Get log output dir for payloads from environment; default is current working dir
+LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
+
 logger = logging.getLogger('webhaak')
 if DEBUG.lower() in ('true'):
     logger.setLevel(logging.DEBUG)
-# Log will rotate daily with a max history of LOG_BACKUP_COUNT
-#  fh = logging.FileHandler(
-#      settings.LOG_LOCATION
-#  )
-#  fh.setLevel(logging.DEBUG)
-#  formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-#  fh.setFormatter(formatter)
-#  logger.addHandler(fh)
 
 # CORS configuration
 app.add_middleware(
@@ -137,6 +133,13 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
         logger.debug(payload)
         url = ''
         if payload:
+            # Debug: dump payload to disk
+            eventdate = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+            with open(f'/var/local/log/webhaak_events/{eventdate}_event.json', 'w', encoding='utf-8') as outfile:
+                json.dump(payload, outfile)
+            with open(f'/var/local/log/webhaak_events/{eventdate}_headers.json', 'w', encoding='utf-8') as outfile:
+                json.dump({k: v for k, v in request.headers.items()}, outfile)
+
             if 'repository' in payload:
                 if 'html_url' in payload['repository']:
                     url = payload['repository']['html_url']
