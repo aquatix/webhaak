@@ -125,11 +125,11 @@ def notify_user(result, config):
             command,
             result['runtime']
         )
-        if result['status'] == 'OK':
-            title = "Hook for {} ran successfully".format(projectname)
+        if result.get('status') == 'OK':
+            title = f'Hook for {projectname} ran successfully'
         else:
-            title = "Hook for {} failed: {}".format(projectname, result['type'])
-            message = message + '\n\n{}'.format(result['message'])
+            title = f'Hook for {projectname} failed: {result["type"]}'
+            message = f'{message}\n\n{result["message"]}'
         logging.debug(message)
         logging.info('Sending notification...')
         # TODO: option to send to Telegram chat
@@ -295,7 +295,7 @@ def do_pull_andor_command(config, hook_info):
     """Asynchronous task, performing the git pulling and the specified scripting inside a Process"""
     projectname = config[0]
     starttime = datetime.now()
-    result = {'application': projectname}
+    result = {'application': projectname, 'result': 'unknown'}
     result['trigger'] = config[1]
     if 'repo' in config[1]:
         try:
