@@ -129,7 +129,7 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
             vcs_source = '<unknown>'
 
         hook_info['vcs_source'] = vcs_source
-        payload = request.get_json()
+        payload = request.json()
         logger.debug(payload)
         url = ''
         if payload:
