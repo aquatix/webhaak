@@ -98,7 +98,8 @@ def make_sentry_message(result):
 
 
 def notify_user(result, config):
-    """Send a PushOver message if configured, after git and command have run
+    """Send a PushOver message if configured, after git operation and command have run.
+    Optionally send a message to the configured Telegram chat.
 
     result is a dictionary with fields:
       command_result
@@ -108,23 +109,12 @@ def notify_user(result, config):
     """
     try:
         triggerconfig = config[1]
-        projectname = '{}>{}'.format(config[0], triggerconfig['title'])
+        projectname = f'{config[0]}>{triggerconfig["title"]}'
         title = ''
-        branch = 'master'
-        command = 'n/a'
-        repo = 'n/a'
-        if 'command' in triggerconfig:
-            command = triggerconfig['command']
-        if 'branch' in triggerconfig:
-            branch = triggerconfig['branch']
-        if 'repo' in triggerconfig:
-            repo = triggerconfig['repo']
-        message = 'repo: {}\nbranch: {}\ncommand: {}\nruntime: {}'.format(
-            repo,
-            branch,
-            command,
-            result['runtime']
-        )
+        branch = triggerconfig.get('branch', 'master')
+        command = triggerconfig.get('command', 'n/a')
+        repo = triggerconfig.get('repo', 'n/a')
+        message = f'repo: {repo}\nbranch: {branch}\ncommand: {command}\nruntime: {result["runtime"]}'
         if result.get('status') == 'OK':
             title = f'Hook for {projectname} ran successfully'
         else:
@@ -132,7 +122,6 @@ def notify_user(result, config):
             message = f'{message}\n\n{result["message"]}'
         logging.debug(message)
         logging.info('Sending notification...')
-        # TODO: option to send to Telegram chat
         if triggerconfig.get('telegram_chatid') and triggerconfig.get('telegram_token'):
             telegram_chatid = triggerconfig['telegram_chatid']
             telegram_token = triggerconfig['telegram_token']
@@ -339,7 +328,7 @@ def do_pull_andor_command(config, hook_info):
     result['runtime'] = datetime.now() - starttime
 
     if (
-            ('notify' not in config[1] or config[1]['notify'])
-            or (result['status'] == 'error' and ('notify_on_error' in config[1] and config[1]['notify_on_error']))
+        ('notify' not in config[1] or config[1]['notify'])
+        or (result['status'] == 'error' and ('notify_on_error' in config[1] and config[1]['notify_on_error']))
     ):
         notify_user(result, config)
