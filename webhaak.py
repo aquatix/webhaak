@@ -19,6 +19,7 @@ print(f"SECRETKEY: {SECRETKEY}")
 
 # Get log output dir for payloads from environment; default is current working dir
 LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
+EVENTLOG_DIR = os.getenv('EVENTLOG_DIR', os.getcwd())
 
 logger = logging.getLogger('webhaak')
 if DEBUG.lower() in ('true'):
@@ -135,9 +136,9 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
         if payload:
             # Debug: dump payload to disk
             eventdate = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
-            with open(f'/var/local/log/webhaak_events/{eventdate}_event.json', 'w', encoding='utf-8') as outfile:
+            with open(f'{EVENTLOG_DIR}/{eventdate}_event.json', 'w', encoding='utf-8') as outfile:
                 json.dump(payload, outfile)
-            with open(f'/var/local/log/webhaak_events/{eventdate}_headers.json', 'w', encoding='utf-8') as outfile:
+            with open(f'{EVENTLOG_DIR}/{eventdate}_headers.json', 'w', encoding='utf-8') as outfile:
                 json.dump({k: v for k, v in request.headers.items()}, outfile)
 
             if 'repository' in payload:
