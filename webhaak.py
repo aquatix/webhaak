@@ -195,6 +195,9 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
 
+    with open(f'{EVENTLOG_DIR}/{job.id}.log', 'w', encoding='utf-8') as outfile:
+        outfile.write(event_info)
+
     server_url = request.base_url
     return {
         'status': 'OK',
@@ -218,9 +221,15 @@ async def job_status(job_id):
     if job is None:
         response = {'status': 'unknown'}
     else:
+        log_contents = ''
+        job_logfile_name = f'{EVENTLOG_DIR}/{job_id}.log'
+        if os.path.isfile(job_logfile_name):
+            with open(job_logfile_name, 'r', encoding='utf-8') as infile:
+                log_contents = infile.readlines
         response = {
             'status': job.get_status(),
             'result': job.result,
+            'log': log_contents,
         }
         if job.is_failed:
             response['message'] = job.exc_info.strip().split('\n')[-1]
