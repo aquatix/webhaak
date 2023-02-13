@@ -70,7 +70,7 @@ def handle_bitbucket_actor(payload, hook_info, event_info, config):
     """
     event_info += ' by ' + payload['actor']['nickname']
     if 'display_name' in payload['actor']:
-        event_info += ' ({})'.format(payload['actor']['display_name'])
+        event_info += f' ({payload["actor"]["display_name"]})'
     hook_info['username'] = payload['actor']['nickname']
 
     logger.debug(config[1])
@@ -121,11 +121,7 @@ def handle_sentry_message(payload, hook_info, event_info):
             # Always take the last set
             frames = payload['event']['exception']['values'][-1]['stacktrace']['frames']
             for frame in frames:
-                frame_message = '*{}* in *{}* at line *{}*'.format(
-                    frame['filename'],
-                    frame['function'],
-                    frame['lineno']
-                )
+                frame_message = f'*{frame["filename"]}* in *{frame["function"]}* at line *{frame["lineno"]}*'
                 stacktrace.append(frame_message)
             # Sentry puts the items of the trace from last to first in the json, so reverse the trace
             stacktrace.reverse()

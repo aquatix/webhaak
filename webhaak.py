@@ -72,11 +72,7 @@ async def listtriggers(secretkey: str, request: Request):
                 {
                     'title': trigger,
                     'triggerkey': project_info['triggers'][trigger]['triggerkey'],
-                    'url': '{}app/{}/{}'.format(
-                        server_url,
-                        project_info['appkey'],
-                        project_info['triggers'][trigger]['triggerkey']
-                    )
+                    'url': f"{server_url}app/{project_info['appkey']}/{project_info['triggers'][trigger]['triggerkey']}"
                 }
             )
     return {'projects': result}
@@ -175,8 +171,9 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
             return {'error': "wrong event type"}
 
         if not payload:
-            '{}unknown, as no json was received. Check that {} webhook content type is application/json'.format(
-                event_info,
+            logger.error(
+                '%s unknown, as no json was received. Check that %s webhook content type is application/json',
+                str(event_info),
                 vcs_source
             )
 
@@ -197,10 +194,13 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
     # Delay execution of count_words_at_url('http://nvie.com')
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
+
+    server_url = request.base_url
     return {
         'status': 'OK',
         'message': 'Command accepted and will be run in the background',
         'job_id': job.id,
+        'url': f'{server_url}app/status/{job.id}'
     }
 
 
