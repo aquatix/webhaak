@@ -188,9 +188,7 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
         #    json.dump({k:v for k, v in request.headers.items()}, outfile)
 
         event_info = incoming.determine_task(config, payload, hook_info, event_info)
-
-        logger.debug(hook_info)
-        logger.info(event_info)
+        # Write event_info to task log
 
     # Create RQ job (task) for this request
     redis_conn = Redis()
