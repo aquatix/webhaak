@@ -203,7 +203,7 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
         'status': 'OK',
         'message': 'Command accepted and will be run in the background',
         'job_id': job.id,
-        'url': f'{server_url}app/status/{job.id}'
+        'url': f'{server_url}status/{job.id}'
     }
 
 
@@ -225,7 +225,7 @@ async def job_status(job_id):
         job_logfile_name = f'{EVENTLOG_DIR}/{job_id}.log'
         if os.path.isfile(job_logfile_name):
             with open(job_logfile_name, 'r', encoding='utf-8') as infile:
-                log_contents = infile.readlines
+                log_contents = infile.readlines()
         response = {
             'status': job.get_status(),
             'result': job.result,
