@@ -115,7 +115,7 @@ def notify_user(result, config):
         branch = triggerconfig.get('branch', 'master')
         command = triggerconfig.get('command', 'n/a')
         repo = triggerconfig.get('repo', 'n/a')
-        message = f'repo: {repo}\nbranch: {branch}\ncommand: {command}\nruntime: {result.get("runtime"}'
+        message = f'repo: {repo}\nbranch: {branch}\ncommand: {command}\nruntime: {result.get("runtime")}'
         if result.get('status') == 'OK':
             title = f'Hook for {projectname} ran successfully'
         else:
