@@ -195,7 +195,7 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
 
-    with open(f'{EVENTLOG_DIR}/{job.id}.log', 'w', encoding='utf-8') as outfile:
+    with open(f'{LOG_DIR}/jobs/{job.id}.log', 'w', encoding='utf-8') as outfile:
         outfile.write(event_info)
 
     server_url = request.base_url

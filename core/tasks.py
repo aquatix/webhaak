@@ -6,6 +6,7 @@ from datetime import datetime
 
 import git
 import pushover
+from rq import get_current_job
 import strictyaml
 from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
 
@@ -269,19 +270,14 @@ def run_command(config, hook_info):
     logger.info('[%s] Executing `%s`', projectname, command)
 
     # TODO: capture_output is new in Python 3.7, replaces stdout and stderr
-    # result = subprocess.run(command_parts, capture_output=True, check=True, shell=True, universal_newlines=True)
-    result = subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        universal_newlines=True
-    )
+    result = subprocess.run(command, capture_output=True, check=True, shell=True, universal_newlines=True)
     return result
 
 
 def do_pull_andor_command(config, hook_info):
     """Asynchronous task, performing the git pulling and the specified scripting inside a Process"""
+    this_job = get_current_job()
+
     projectname = config[0]
     starttime = datetime.now()
     result = {'application': projectname, 'result': 'unknown'}
@@ -305,6 +301,12 @@ def do_pull_andor_command(config, hook_info):
 
     if 'command' in config[1]:
         cmdresult = run_command(config, hook_info)
+
+        with open(f'{settings.LOG_LOCATION}/jobs/{this_job.id}.log', 'a', encoding='utf-8') as outfile:
+            # Save output of the command ran by the job to its log
+            outfile.write('== Command output ======\n')
+            outfile.write(cmdresult)
+
         if cmdresult and cmdresult.returncode == 0:
             logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
             result['status'] = 'OK'
