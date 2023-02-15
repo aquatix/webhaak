@@ -120,7 +120,7 @@ def notify_user(result, config):
             title = f'Hook for {projectname} ran successfully'
         else:
             title = f'Hook for {projectname} failed: {result.get("type")}'
-            message = f'{message}\n\n{result["message"]}'
+            message = f'{message}\n\n{result.get("message")}'
         logging.debug(message)
         logging.info('Sending notification...')
         if triggerconfig.get('telegram_chatid') and triggerconfig.get('telegram_token'):
@@ -303,6 +303,8 @@ def do_pull_andor_command(config, hook_info):
 
         with open(f'{settings.LOG_DIR}/jobs/{this_job.id}.log', 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
+            outfile.write('== Command returncode ======\n')
+            outfile.write(cmdresult.returncode)
             outfile.write('== Command output ======\n')
             outfile.write(cmdresult.stdout)
             outfile.write('== Command error, if any ======\n')
@@ -318,7 +320,6 @@ def do_pull_andor_command(config, hook_info):
             result['status'] = 'error'
             result['type'] = 'commanderror'
             result['message'] = cmdresult.stderr.strip()
-            # TODO: seperate logfiles per job? Filename then based on appkey_triggerkey_timestamp.log
             logger.error(
                 '[%s] commanderror with returncode %s: %s',
                 projectname,
