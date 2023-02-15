@@ -232,7 +232,7 @@ async def job_status(job_id):
             'log': log_contents,
         }
         if job.is_failed:
-            response['message'] = job.exc_info.strip().split('\n')[-1]
+            response['message'] = job.exc_info.strip().split('\n')
     return response
 
 
