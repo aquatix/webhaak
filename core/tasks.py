@@ -285,6 +285,7 @@ def do_pull_andor_command(config, hook_info):
         try:
             result['repo_result'] = update_repo(config)
             logger.info('[%s] result repo: %s', projectname, str(result['repo_result']))
+            result['status'] = 'OK'
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
             logger.error('[%s] giterror: %s', projectname, str(e))
