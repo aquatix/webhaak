@@ -302,7 +302,7 @@ def do_pull_andor_command(config, hook_info):
     if 'command' in config[1]:
         cmdresult = run_command(config, hook_info)
 
-        with open(f'{settings.LOG_DIR}/jobs/{this_job.id}.log', 'a', encoding='utf-8') as outfile:
+        with open(os.path.join(settings.LOG_DIR, 'jobs', f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
             outfile.write(f'== Command returncode: {cmdresult.returncode} ======\n')
             outfile.write('== Command output ======\n')

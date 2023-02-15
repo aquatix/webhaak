@@ -20,6 +20,7 @@ print(f"SECRETKEY: {SECRETKEY}")
 # Get log output dir for payloads from environment; default is current working dir
 LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
 EVENTLOG_DIR = os.getenv('EVENTLOG_DIR', os.getcwd())
+JOBSLOG_DIR = os.path.join(LOG_DIR, 'jobs')
 
 logger = logging.getLogger('webhaak')
 if DEBUG.lower() in ('true'):
@@ -195,7 +196,9 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
 
-    with open(f'{LOG_DIR}/jobs/{job.id}.log', 'w', encoding='utf-8') as outfile:
+    if not os.path.isdir(JOBSLOG_DIR):
+        os.makedirs(JOBSLOG_DIR)
+    with open(os.path.join(JOBSLOG_DIR, f'{job.id}.log'), 'w', encoding='utf-8') as outfile:
         outfile.write(event_info)
 
     server_url = request.base_url
@@ -222,7 +225,7 @@ async def job_status(job_id):
         response = {'status': 'unknown'}
     else:
         log_contents = ''
-        job_logfile_name = f'{LOG_DIR}/jobs/{job_id}.log'
+        job_logfile_name = os.path.join(JOBSLOG_DIR, f'{job_id}.log')
         if os.path.isfile(job_logfile_name):
             with open(job_logfile_name, 'r', encoding='utf-8') as infile:
                 log_contents = infile.readlines()
