@@ -269,7 +269,6 @@ def run_command(config, hook_info):
     command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
     logger.info('[%s] Executing `%s`', projectname, command)
 
-    # TODO: capture_output is new in Python 3.7, replaces stdout and stderr
     result = subprocess.run(command, capture_output=True, check=True, shell=True, universal_newlines=True)
     return result
 
@@ -305,7 +304,9 @@ def do_pull_andor_command(config, hook_info):
         with open(f'{settings.LOG_DIR}/jobs/{this_job.id}.log', 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
             outfile.write('== Command output ======\n')
-            outfile.write(cmdresult)
+            outfile.write(cmdresult.stdout)
+            outfile.write('== Command error, if any ======\n')
+            outfile.write(cmdresult.stderr)
 
         if cmdresult and cmdresult.returncode == 0:
             logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
