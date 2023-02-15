@@ -222,7 +222,7 @@ async def job_status(job_id):
         response = {'status': 'unknown'}
     else:
         log_contents = ''
-        job_logfile_name = f'{EVENTLOG_DIR}/{job_id}.log'
+        job_logfile_name = f'{LOG_DIR}/jobs/{job_id}.log'
         if os.path.isfile(job_logfile_name):
             with open(job_logfile_name, 'r', encoding='utf-8') as infile:
                 log_contents = infile.readlines()
