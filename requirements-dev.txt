@@ -6,7 +6,7 @@
 #
 -e git+https://github.com/ImNtReal/python-pushover.git#egg=python-pushover
     # via -r requirements.in
-astroid==2.14.1
+astroid==2.14.2
     # via pylint
 bandit==1.7.4
     # via -r requirements-dev.in
@@ -20,7 +20,7 @@ dill==0.3.6
     # via pylint
 flake8==6.0.0
     # via -r requirements-dev.in
-flask==2.2.2
+flask==2.2.3
     # via -r requirements.in
 gitdb==4.0.10
     # via gitpython
@@ -48,13 +48,13 @@ mccabe==0.7.0
     #   pylint
 pbr==5.11.1
     # via stevedore
-platformdirs==2.6.2
+platformdirs==3.0.0
     # via pylint
 pycodestyle==2.10.0
     # via flake8
 pyflakes==3.0.1
     # via flake8
-pylint==2.16.1
+pylint==2.16.2
     # via -r requirements-dev.in
 python-dateutil==2.8.2
     # via strictyaml
@@ -68,7 +68,7 @@ six==1.16.0
     # via python-dateutil
 smmap==5.0.0
     # via gitdb
-stevedore==4.1.1
+stevedore==5.0.0
     # via bandit
 strictyaml==1.6.2
     # via -r requirements.in
@@ -76,11 +76,11 @@ tomli==2.0.1
     # via pylint
 tomlkit==0.11.6
     # via pylint
-typing-extensions==4.4.0
+typing-extensions==4.5.0
     # via astroid
 urllib3==1.26.14
     # via requests
-werkzeug==2.2.2
+werkzeug==2.2.3
     # via flask
 wrapt==1.14.1
     # via astroid
