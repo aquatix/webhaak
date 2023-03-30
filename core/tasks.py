@@ -15,9 +15,10 @@ import settings
 logger = logging.getLogger('worker')
 
 logger.setLevel(logging.DEBUG)
-# Log will rotate daily with a max history of LOG_BACKUP_COUNT
+LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
+JOBSLOG_DIR = os.path.join(LOG_DIR, 'jobs')
 fh = logging.FileHandler(
-    os.path.join(settings.LOG_DIR, 'webhaak.log')
+    os.path.join(LOG_DIR, 'webhaak.log')
 )
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -302,7 +303,7 @@ def do_pull_andor_command(config, hook_info):
     if 'command' in config[1]:
         cmdresult = run_command(config, hook_info)
 
-        with open(os.path.join(settings.LOG_DIR, 'jobs', f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
+        with open(os.path.join(JOBSLOG_DIR, f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
             outfile.write(f'== Command returncode: {cmdresult.returncode} ======\n')
             outfile.write('== Command output ======\n')

@@ -19,8 +19,11 @@ print(f"SECRETKEY: {SECRETKEY}")
 
 # Get log output dir for payloads from environment; default is current working dir
 LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
+print(f"LOG_DIR: {LOG_DIR}")
 EVENTLOG_DIR = os.getenv('EVENTLOG_DIR', os.getcwd())
+print(f"EVENTLOG_DIR: {EVENTLOG_DIR}")
 JOBSLOG_DIR = os.path.join(LOG_DIR, 'jobs')
+print(f"JOBSLOG_DIR: {JOBSLOG_DIR}")
 
 logger = logging.getLogger('webhaak')
 if DEBUG.lower() in ('true'):
