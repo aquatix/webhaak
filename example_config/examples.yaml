@@ -28,6 +28,15 @@ aquariusoft.org:
       notify: false
       command: /srv/scripts/sentry_to_telegram.sh "PROJECT_NAME" "CULPRIT" "URL" "TITLE" "STACKTRACE"
 
+flaskwebapp:
+  appkey: 175cc847f608840815d741070d114f3aac35243b4f7e501c
+  triggers:
+    update:
+      triggerkey: bde96f31cf248fd980ce3878942e8df66ae775a9da378c6d
+      repo: git@github.com:YOU/yourflaskwebapp.git
+      repoparent: /srv/www/flaskwebapp.example.com
+      command: /srv/www/hook.example.com/scripts/update_flask.sh flaskwebapp REPODIR
+
 paragoo:
   appkey: 6fa726e09524c41e5ff0751a811d34f5dac81cf23d6b5fb4
   triggers:
@@ -61,7 +70,7 @@ webhaak:
       notify: false
       repo: git@bitbucket.org:aquatix/webhaak.git
       repoparent: /srv/www/_tests
-      command: /srv/www/hook.example.com/flake8diff.sh /srv/www/hook.example.com/venvtests/bin/activate webhaak "REPODIR" "EMAIL" COMMIT_BEFORE COMMIT_AFTER "COMPARE_URL"
+      command: /srv/www/hook.example.com/scripts/flake8diff.sh /srv/www/hook.example.com/venvtests/bin/activate webhaak "REPODIR" "EMAIL" COMMIT_BEFORE COMMIT_AFTER "COMPARE_URL"
       authors:
         aquatix: itsme@example.com
         another: mario@example.com
