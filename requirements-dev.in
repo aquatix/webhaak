@@ -1,5 +1,6 @@
 -r requirements.in
 
+autopep8
 bandit
 flake8
 pylint
