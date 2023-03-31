@@ -247,19 +247,12 @@ async def job_status(job_id):
 @app.get('/monitor')
 async def monitor():
     """Monitoring ping"""
-    result = 'OK'
-    return result
+    return 'OK'
 
 
 def generatekey():
     """Generate a random ascii string to be used as identifier"""
     return binascii.hexlify(os.urandom(24))
-
-
-#  @app.cli.command()
-#  def printappkey():
-#      """Generate new appkey"""
-#      print(generatekey())
 
 
 @app.get('/getappkey')

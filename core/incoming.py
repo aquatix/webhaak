@@ -29,8 +29,11 @@ def handle_bitbucket_push(payload, hook_info):
     else:
         hook_info['compare_url'] = ''
 
+    # Whether branch was closed; most likely after a merge
+    hook_info['closed'] = payload['push']['changes'][0].get('closed', False)
     hook_info['commits'] = []
-    for commit in payload['push']['changes'][0]['commits']:
+    commits = payload['push']['changes'][0].get('commits', [])
+    for commit in commits:
         commit_info = {'hash': commit['hash']}
         if 'user' in commit['author']:
             if 'username' in commit['author']['user']:

@@ -67,6 +67,9 @@ local_settings.py
 projects.yaml
 settings.py
 
+# IDE
+.idea
+
 # vim
 *.swp
 *.swo
