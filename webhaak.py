@@ -51,12 +51,12 @@ async def indexpage():
     }
 
 
-@app.get('/admin/{secretkey}/list')
-async def listtriggers(secretkey: str, request: Request):
+@app.get('/admin/{secret_key}/list')
+async def list_triggers(secret_key: str, request: Request):
     """List the appkeys and triggerkeys available"""
     logger.debug('Trigger list requested')
     try:
-        if secretkey != SECRETKEY:
+        if secret_key != SECRETKEY:
             logger.debug('Secret key incorrect trying to list triggers')
             raise HTTPException(status_code=404, detail="Secret key not found")
     except AttributeError as exc:
@@ -86,7 +86,7 @@ async def listtriggers(secretkey: str, request: Request):
 @app.get('/app/{appkey}/{triggerkey}')
 @app.options('/app/{appkey}/{triggerkey}')
 @app.post('/app/{appkey}/{triggerkey}')
-async def apptrigger(appkey: str, triggerkey: str, request: Request):
+async def app_trigger(appkey: str, triggerkey: str, request: Request):
     """Fire the trigger described by the configuration under `triggerkey`
 
     :param str appkey: application key part of the url
@@ -136,10 +136,10 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
         url = ''
         if payload:
             # Debug: dump payload to disk
-            eventdate = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
-            with open(f'{EVENTLOG_DIR}/{eventdate}_event.json', 'w', encoding='utf-8') as outfile:
+            event_date = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+            with open(f'{EVENTLOG_DIR}/{event_date}_event.json', 'w', encoding='utf-8') as outfile:
                 json.dump(payload, outfile)
-            with open(f'{EVENTLOG_DIR}/{eventdate}_headers.json', 'w', encoding='utf-8') as outfile:
+            with open(f'{EVENTLOG_DIR}/{event_date}_headers.json', 'w', encoding='utf-8') as outfile:
                 json.dump(dict(request.headers.items()), outfile)
 
             if 'repository' in payload:
@@ -250,6 +250,6 @@ def generatekey():
 
 
 @app.get('/getappkey')
-async def getappkey():
+async def get_appkey():
     """Generate new appkey"""
     return {'key': generatekey().decode('utf-8')}

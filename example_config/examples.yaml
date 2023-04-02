@@ -1,75 +1,75 @@
 example1:
-  appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
+  app_key: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
   triggers:
     trigger1:
-      triggerkey: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
+      trigger_key: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
       repo: git@github.com:aquatix/webhaak.git
       command: sudo supervisorctl restart webhaak
     trigger2:
-      triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
+      trigger_key: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
       repo: ...
       command: bash /home/myuser/bin/update_all_the_things.sh
 
 aquariusoft.org:
-  appkey: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
+  app_key: c202217f7bba73a73cce17794f79be6672d89450a3b7895d
   triggers:
     trigger1:
-      triggerkey: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
+      trigger_key: c633c360800fb7e0126fd123ecaed1500c125d29625e5896
       repo: git@github.com:aquatix/aquariusoft.org.git
       command: update_aquariusoft.sh
     trigger2:
-      triggerkey: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
+      trigger_key: 33b3506bc8496bdcd1b155756b7e9a01acc76f6e83e3c60f
       repo: git@github.com:aquatix/paragoo.git
       branch: develop
       command: |
           bash /home/myuser/bin/update_all_the_things.sh REPOVERSION
     sentry:
-      triggerkey: 7c6bd635948eea920fc15df87400a45b056c9779f4305bf0
+      trigger_key: 7c6bd635948eea920fc15df87400a45b056c9779f4305bf0
       notify: false
       command: /srv/scripts/sentry_to_telegram.sh "PROJECT_NAME" "CULPRIT" "URL" "TITLE" "STACKTRACE"
 
-flaskwebapp:
-  appkey: 175cc847f608840815d741070d114f3aac35243b4f7e501c
+flask_webapp:
+  app_key: 175cc847f608840815d741070d114f3aac35243b4f7e501c
   triggers:
     update:
-      triggerkey: bde96f31cf248fd980ce3878942e8df66ae775a9da378c6d
+      trigger_key: bde96f31cf248fd980ce3878942e8df66ae775a9da378c6d
       repo: git@github.com:YOU/yourflaskwebapp.git
-      repoparent: /srv/www/flaskwebapp.example.com
+      repo_parent: /srv/www/flaskwebapp.example.com
       command: /srv/www/hook.example.com/scripts/update_flask.sh flaskwebapp REPODIR
 
 paragoo:
-  appkey: 6fa726e09524c41e5ff0751a811d34f5dac81cf23d6b5fb4
+  app_key: 6fa726e09524c41e5ff0751a811d34f5dac81cf23d6b5fb4
   triggers:
     update:
-      triggerkey: 613b285e72f654b7b7957e5562f5728fbb9049b3d7c58d7d
+      trigger_key: 613b285e72f654b7b7957e5562f5728fbb9049b3d7c58d7d
       repo: git@github.com:aquatix/paragoo.git
       command: |
           bash /home/myuser/bin/update_all_the_things.sh
-    updatetheme:
-      triggerkey: 67a729b6cbfaa78075925631552f4eec29938f7a5a19f908
+    update_theme:
+      trigger_key: 67a729b6cbfaa78075925631552f4eec29938f7a5a19f908
       repo: git@github.com:aquatix/paragoo-theme-material.git
       command: python REPODIR/generate_variants.py
     flake8:
-      triggerkey: 181bd69f610e8544ffa4092b487658636388f7444cb4238f
+      trigger_key: 181bd69f610e8544ffa4092b487658636388f7444cb4238f
       command: /srv/www/hook.example.com/scripts/flake8diff.sh /srv/www/hook.example.com/venvtests/bin/activate paragoo "REPODIR" "EMAIL" COMMIT_BEFORE COMMIT_AFTER "COMPARE_URL"
 
 webhaak:
-  appkey: bdbff089697cb6d07f12498a905a76454ba5467f8b2d5197
+  app_key: bdbff089697cb6d07f12498a905a76454ba5467f8b2d5197
   triggers:
     update:
-      triggerkey: 9bc193c48b8927d97e35ed7f85181c8305f2f5bb3011c3a8
+      trigger_key: 9bc193c48b8927d97e35ed7f85181c8305f2f5bb3011c3a8
       repo: git@github.com:aquatix/webhaak.git
-      repoparent: /srv/www/hook.example.com
+      repo_parent: /srv/www/hook.example.com
       command: /srv/www/hook.example.com/scripts/update_webapp.sh webhaak REPODIR /srv/www/hook.example.com/venvs/webhaak
     flake8:
-      triggerkey: 92a78e26514dc3089b95b49bcc0865fefb7d14dd43c51542
+      trigger_key: 92a78e26514dc3089b95b49bcc0865fefb7d14dd43c51542
       notify: false
       command: /srv/www/hook.example.com/scripts/flake8diff.sh /srv/www/hook.example.com/venvtests/bin/activate webhaak /srv/www/hook.example.com/webhaak "EMAIL" COMMIT_BEFORE COMMIT_AFTER "COMPARE_URL"
     bitbucket:
-      triggerkey: 0865fefb7d14dd43c515420865fefb7d14dd43c51542bdea
+      trigger_key: 0865fefb7d14dd43c515420865fefb7d14dd43c51542bdea
       notify: false
       repo: git@bitbucket.org:aquatix/webhaak.git
-      repoparent: /srv/www/_tests
+      repo_parent: /srv/www/_tests
       command: /srv/www/hook.example.com/scripts/flake8diff.sh /srv/www/hook.example.com/venvtests/bin/activate webhaak "REPODIR" "EMAIL" COMMIT_BEFORE COMMIT_AFTER "COMPARE_URL"
       authors:
         aquatix: itsme@example.com

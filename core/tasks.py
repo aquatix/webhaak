@@ -30,19 +30,19 @@ schema = MapPattern(
     Str(),
     Map(
         {
-            "appkey": Str(),
+            "app_key": Str(),
             "triggers": MapPattern(Str(), Map({
-                "triggerkey": Str(),
+                "trigger_key": Str(),
                 Optional("notify"): Bool(),
                 Optional("notify_on_error"): Bool(),
                 Optional("repo"): Str(),
-                Optional("repoparent"): Str(),
+                Optional("repo_parent"): Str(),
                 Optional("branch"): Str(),
                 Optional("command"): Str(),
                 # Git author username -> friendly name mapping
                 Optional("authors"): MapPattern(Str(), Str()),
                 # Telegram
-                Optional("telegram_chatid"): Str(),
+                Optional("telegram_chat_id"): Str(),
                 Optional("telegram_token"): Str(),
                 # Sentry
                 Optional("ignore"): Seq(Str()),
@@ -110,12 +110,12 @@ def notify_user(result, config):
       message
     """
     try:
-        triggerconfig = config[1]
-        projectname = f'{config[0]}>{triggerconfig["title"]}'
+        trigger_config = config[1]
+        projectname = f'{config[0]}>{trigger_config["title"]}'
         title = ''
-        branch = triggerconfig.get('branch', 'master')
-        command = triggerconfig.get('command', 'n/a')
-        repo = triggerconfig.get('repo', 'n/a')
+        branch = trigger_config.get('branch', 'master')
+        command = trigger_config.get('command', 'n/a')
+        repo = trigger_config.get('repo', 'n/a')
         message = f'repo: {repo}\nbranch: {branch}\ncommand: {command}\nruntime: {result.get("runtime")}'
         if result.get('status') == 'OK':
             title = f'Hook for {projectname} ran successfully'
@@ -124,14 +124,15 @@ def notify_user(result, config):
             message = f'{message}\n\n{result.get("message")}'
         logging.debug(message)
         logging.info('Sending notification...')
-        if triggerconfig.get('telegram_chatid') and triggerconfig.get('telegram_token'):
-            telegram_chatid = triggerconfig['telegram_chatid']
-            telegram_token = triggerconfig['telegram_token']
+        if trigger_config.get('telegram_chat_id') and trigger_config.get('telegram_token'):
+            telegram_chat_id = trigger_config['telegram_chat_id']
+            telegram_token = trigger_config['telegram_token']
             # Send to Telegram chat
             msg = urllib.parse.quote_plus(make_sentry_message(result))
-            urllib.request.urlopen(
-                f"https://api.telegram.org/bot{telegram_token}/sendMessage?chat_id={telegram_chatid}&text={msg}"
-            )
+            with urllib.request.urlopen(
+                f"https://api.telegram.org/bot{telegram_token}/sendMessage?chat_id={telegram_chat_id}&text={msg}"
+            ) as response:
+                logging.info('Telegram notification sent, result was %s', str(response.status))
         else:
             # Use the Pushover default
             client = pushover.Pushover(settings.PUSHOVER_APPTOKEN)
@@ -198,12 +199,12 @@ def fetchinfo_to_str(fetchinfo):
 def update_repo(config):
     """Update (pull) the Git repo"""
     projectname = config[0]
-    triggerconfig = config[1]
+    trigger_config = config[1]
 
-    repo_url = triggerconfig['repo']
+    repo_url = trigger_config['repo']
     repo_parent = settings.REPOS_CACHE_DIR
-    if 'repoparent' in triggerconfig and triggerconfig['repoparent']:
-        repo_parent = triggerconfig['repoparent']
+    if 'repoparent' in trigger_config and trigger_config['repoparent']:
+        repo_parent = trigger_config['repoparent']
 
     logger.info('[%s] Updating %s', projectname, repo_url)
     logger.info('[%s] Repo parent %s', projectname, repo_parent)
@@ -219,23 +220,23 @@ def update_repo(config):
         # Repo already exists locally, do a pull
         logger.info('[%s] Repo exists, pull', projectname)
 
-        apprepo = git.Repo(repo_dir)
-        origin = apprepo.remote('origin')
+        app_repo = git.Repo(repo_dir)
+        origin = app_repo.remote('origin')
         result = fetchinfo_to_str(origin.fetch())  # assure we actually have data. fetch() returns useful information
         logger.info('[%s] Fetch result: %s', projectname, result)
     else:
         # Repo needs to be cloned
         logger.info('[%s] Repo does not exist yet, clone', projectname)
-        apprepo = git.Repo.init(repo_dir)
-        origin = apprepo.create_remote('origin', repo_url)
+        app_repo = git.Repo.init(repo_dir)
+        origin = app_repo.create_remote('origin', repo_url)
         origin.fetch()                  # assure we actually have data. fetch() returns useful information
-        # Setup a local tracking branch of a remote branch
-        apprepo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
+        # Set up a local tracking branch of a remote branch
+        app_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
     branch = 'master'
-    if 'branch' in triggerconfig:
-        branch = triggerconfig['branch']
+    if 'branch' in trigger_config:
+        branch = trigger_config['branch']
     logger.info('[%s] checkout() branch \'%s\'', projectname, branch)
-    result = str(apprepo.git.checkout(branch))
+    result = str(app_repo.git.checkout(branch))
     # pull (so really update) the checked out branch to latest commit
     origin.pull()
     logger.info('[%s] Done pulling branch \'%s\'', projectname, branch)
@@ -245,18 +246,18 @@ def update_repo(config):
 def run_command(config, hook_info):
     """Run the command(s) defined for this trigger"""
     projectname = config[0]
-    triggerconfig = config[1]
-    if 'command' not in triggerconfig:
+    trigger_config = config[1]
+    if 'command' not in trigger_config:
         # No command to execute, return
         logger.info('[%s] No command to execute', projectname)
         return None
-    command = triggerconfig['command']
+    command = trigger_config['command']
     # Replace some placeholders to be used in executing scripts from one of the repos
     repo_parent = settings.REPOS_CACHE_DIR
-    if 'repoparent' in triggerconfig and triggerconfig['repoparent']:
-        repo_parent = triggerconfig['repoparent']
-    if 'repo' in triggerconfig:
-        repo_url = triggerconfig['repo']
+    if 'repoparent' in trigger_config and trigger_config['repoparent']:
+        repo_parent = trigger_config['repoparent']
+    if 'repo' in trigger_config:
+        repo_url = trigger_config['repo']
         command = command.replace('REPODIR', os.path.join(repo_parent, get_repo_basename(repo_url)))
     command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
     if 'REPOVERSION' in command:
@@ -279,9 +280,8 @@ def do_pull_andor_command(config, hook_info):
     this_job = get_current_job()
 
     projectname = config[0]
-    starttime = datetime.now()
-    result = {'application': projectname, 'result': 'unknown'}
-    result['trigger'] = config[1]
+    start_time = datetime.now()
+    result = {'application': projectname, 'result': 'unknown', 'trigger': config[1]}
     if 'repo' in config[1]:
         try:
             result['repo_result'] = update_repo(config)
@@ -290,47 +290,47 @@ def do_pull_andor_command(config, hook_info):
         except git.GitCommandError as e:
             result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
             logger.error('[%s] giterror: %s', projectname, str(e))
-            result['runtime'] = datetime.now() - starttime
+            result['runtime'] = datetime.now() - start_time
             notify_user(result, config)
             return
         except (OSError, KeyError) as e:
             result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
             logger.error('[%s] oserror: %s', projectname, str(e))
-            result['runtime'] = datetime.now() - starttime
+            result['runtime'] = datetime.now() - start_time
             notify_user(result, config)
             return
 
     if 'command' in config[1]:
-        cmdresult = run_command(config, hook_info)
+        cmd_result = run_command(config, hook_info)
 
         with open(os.path.join(JOBSLOG_DIR, f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
-            outfile.write(f'== Command returncode: {cmdresult.returncode} ======\n')
+            outfile.write(f'== Command returncode: {cmd_result.returncode} ======\n')
             outfile.write('== Command output ======\n')
-            outfile.write(cmdresult.stdout)
+            outfile.write(cmd_result.stdout)
             outfile.write('== Command error, if any ======\n')
-            outfile.write(cmdresult.stderr)
+            outfile.write(cmd_result.stderr)
 
-        if cmdresult and cmdresult.returncode == 0:
-            logger.info('[%s] success for command: %s', projectname, str(cmdresult.stdout))
+        if cmd_result and cmd_result.returncode == 0:
+            logger.info('[%s] success for command: %s', projectname, str(cmd_result.stdout))
             result['status'] = 'OK'
-        elif not cmdresult:
+        elif not cmd_result:
             logger.info('[%s] no command configured', projectname)
             result['status'] = 'OK'
         else:
             result['status'] = 'error'
             result['type'] = 'commanderror'
-            result['message'] = cmdresult.stderr.strip()
+            result['message'] = cmd_result.stderr.strip()
             logger.error(
                 '[%s] commanderror with returncode %s: %s',
                 projectname,
-                str(cmdresult.returncode),
-                cmdresult.stderr
+                str(cmd_result.returncode),
+                cmd_result.stderr
             )
-            logger.error('[%s] stdout: %s', projectname, cmdresult.stdout)
-            logger.error('[%s] stderr: %s', projectname, cmdresult.stderr)
+            logger.error('[%s] stdout: %s', projectname, cmd_result.stdout)
+            logger.error('[%s] stderr: %s', projectname, cmd_result.stderr)
 
-    result['runtime'] = datetime.now() - starttime
+    result['runtime'] = datetime.now() - start_time
 
     if (
         ('notify' not in config[1] or config[1]['notify'])
