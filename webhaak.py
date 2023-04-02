@@ -43,6 +43,7 @@ app.add_middleware(
 
 @app.get('/')
 async def indexpage():
+    """Index page, just link to the project repo"""
     logger.debug('Root page requested')
     return {
         'message': 'Welcome to Webhaak. See the documentation how to setup and use webhooks: '
@@ -52,7 +53,7 @@ async def indexpage():
 
 @app.get('/admin/{secretkey}/list')
 async def listtriggers(secretkey: str, request: Request):
-    """List the appkeys and triggerkeys"""
+    """List the appkeys and triggerkeys available"""
     logger.debug('Trigger list requested')
     try:
         if secretkey != SECRETKEY:
@@ -100,8 +101,7 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
         raise HTTPException(status_code=404, detail="Error")
 
     event_info = ''
-    hook_info = {}
-    hook_info['event_type'] = 'push'
+    hook_info = {'event_type': 'push'}
     sentry_message = False
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
@@ -157,10 +157,10 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
             )
             return json.dumps({'msg': 'Hi!'})
         if (
-                request.headers.get('X-GitHub-Event') == "push"
-                or request.headers.get('X-Gitea-Event') == "push"
-                or request.headers.get('X-Gogs-Event') == "push"
-                or request.headers.get('X-Event-Key') == "repo:push"
+            request.headers.get('X-GitHub-Event') == "push"
+            or request.headers.get('X-Gitea-Event') == "push"
+            or request.headers.get('X-Gogs-Event') == "push"
+            or request.headers.get('X-Event-Key') == "repo:push"
         ):
             event_info = f'received push from {vcs_source} for '
         elif sentry_message:
@@ -180,13 +180,6 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
                 str(event_info),
                 vcs_source
             )
-
-        # Debug: dump payload to disk
-        # eventdate = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
-        # with open(f'log/webhaak_events/{eventdate}_event.json', 'w') as outfile:
-        #    json.dump(payload, outfile)
-        # with open(f'log/webhaak_events/{eventdate}_headers.json', 'w') as outfile:
-        #    json.dump({k:v for k, v in request.headers.items()}, outfile)
 
         event_info = incoming.determine_task(config, payload, hook_info, event_info)
         # Write event_info to task log

@@ -101,7 +101,7 @@ def make_sentry_message(result):
 
 def notify_user(result, config):
     """Send a PushOver message if configured, after git operation and command have run.
-    Optionally send a message to the configured Telegram chat.
+    Optionally send a message to the configured Telegram chat instead.
 
     result is a dictionary with fields:
       command_result
@@ -190,7 +190,7 @@ def get_repo_version(repo_dir):
 
 
 def fetchinfo_to_str(fetchinfo):
-    """git.remote.FetchInfo to human readable representation"""
+    """git.remote.FetchInfo to human-readable representation"""
     result = fetchinfo[0].note
     return result
 
