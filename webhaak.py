@@ -22,8 +22,8 @@ LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
 print(f"LOG_DIR: {LOG_DIR}")
 EVENTLOG_DIR = os.getenv('EVENTLOG_DIR', os.getcwd())
 print(f"EVENTLOG_DIR: {EVENTLOG_DIR}")
-JOBSLOG_DIR = os.path.join(LOG_DIR, 'jobs')
-print(f"JOBSLOG_DIR: {JOBSLOG_DIR}")
+JOBS_LOG_DIR = os.path.join(LOG_DIR, 'jobs')
+print(f"JOBS_LOG_DIR: {JOBS_LOG_DIR}")
 
 logger = logging.getLogger('webhaak')
 if DEBUG.lower() == 'true':
@@ -77,7 +77,8 @@ async def list_triggers(secret_key: str, request: Request):
                 {
                     'title': trigger,
                     'trigger_key': project_info['triggers'][trigger]['trigger_key'],
-                    'url': f"{server_url}app/{project_info['app_key']}/{project_info['triggers'][trigger]['trigger_key']}"
+                    'url':
+                        f"{server_url}app/{project_info['app_key']}/{project_info['triggers'][trigger]['trigger_key']}"
                 }
             )
     return {'projects': result}
@@ -193,9 +194,9 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
 
-    if not os.path.isdir(JOBSLOG_DIR):
-        os.makedirs(JOBSLOG_DIR)
-    with open(os.path.join(JOBSLOG_DIR, f'{job.id}.log'), 'w', encoding='utf-8') as outfile:
+    if not os.path.isdir(JOBS_LOG_DIR):
+        os.makedirs(JOBS_LOG_DIR)
+    with open(os.path.join(JOBS_LOG_DIR, f'{job.id}.log'), 'w', encoding='utf-8') as outfile:
         outfile.write(event_info)
 
     server_url = request.base_url
@@ -222,7 +223,7 @@ async def job_status(job_id):
         response = {'status': 'unknown'}
     else:
         log_contents = ''
-        job_logfile_name = os.path.join(JOBSLOG_DIR, f'{job_id}.log')
+        job_logfile_name = os.path.join(JOBS_LOG_DIR, f'{job_id}.log')
         if os.path.isfile(job_logfile_name):
             with open(job_logfile_name, 'r', encoding='utf-8') as infile:
                 log_contents = infile.readlines()
@@ -244,12 +245,12 @@ async def monitor():
     return 'OK'
 
 
-def generatekey():
+def generate_key():
     """Generate a random ascii string to be used as identifier"""
     return binascii.hexlify(os.urandom(24))
 
 
-@app.get('/getappkey')
+@app.get('/get_app_key')
 async def get_app_key():
     """Generate new app_key"""
-    return {'key': generatekey().decode('utf-8')}
+    return {'key': generate_key().decode('utf-8')}

@@ -16,7 +16,7 @@ logger = logging.getLogger('worker')
 
 logger.setLevel(logging.DEBUG)
 LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
-JOBSLOG_DIR = os.path.join(LOG_DIR, 'jobs')
+JOBS_LOG_DIR = os.path.join(LOG_DIR, 'jobs')
 fh = logging.FileHandler(
     os.path.join(LOG_DIR, 'webhaak.log')
 )
@@ -275,7 +275,7 @@ def run_command(config, hook_info):
         if isinstance(hook_info[key], str):
             command = command.replace(key.upper(), hook_info[key].replace('"', '\\"'))
 
-    command = command.strip()  # ensure no weird linefeeds and superfluous whitespace are there
+    command = command.strip()  # ensure no weird line feeds and superfluous whitespace are there
     logger.info('[%s] Executing `%s`', projectname, command)
 
     result = subprocess.run(command, capture_output=True, check=True, shell=True, universal_newlines=True)
@@ -310,7 +310,7 @@ def do_pull_andor_command(config, hook_info):
     if 'command' in config[1]:
         cmd_result = run_command(config, hook_info)
 
-        with open(os.path.join(JOBSLOG_DIR, f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
+        with open(os.path.join(JOBS_LOG_DIR, f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
             outfile.write(f'== Command returncode: {cmd_result.returncode} ======\n')
             outfile.write('== Command output ======\n')
