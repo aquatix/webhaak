@@ -107,7 +107,7 @@ uvloop==0.17.0
     # via uvicorn
 watchfiles==0.19.0
     # via uvicorn
-websockets==10.4
+websockets==11.0
     # via uvicorn
 
 # The following packages are considered to be unsafe in a requirements file:
