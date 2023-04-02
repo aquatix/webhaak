@@ -1,13 +1,13 @@
 import logging
 import os
 import subprocess
-import urllib
 from datetime import datetime
 
 import git
 import pushover
-from rq import get_current_job
+import requests
 import strictyaml
+from rq import get_current_job
 from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
 
 import settings
@@ -128,11 +128,12 @@ def notify_user(result, config):
             telegram_chat_id = trigger_config['telegram_chat_id']
             telegram_token = trigger_config['telegram_token']
             # Send to Telegram chat
-            msg = urllib.parse.quote_plus(make_sentry_message(result))
-            with urllib.request.urlopen(
-                f"https://api.telegram.org/bot{telegram_token}/sendMessage?chat_id={telegram_chat_id}&text={msg}"
+            msg = requests.utils.quote(make_sentry_message(result), safe='')
+            with requests.get(
+                f"https://api.telegram.org/bot{telegram_token}/sendMessage?chat_id={telegram_chat_id}&text={msg}",
+                timeout=30
             ) as response:
-                logging.info('Telegram notification sent, result was %s', str(response.status))
+                logging.info('Telegram notification sent, result was %s', str(response.status_code))
         else:
             # Use the Pushover default
             client = pushover.Pushover(settings.PUSHOVER_APPTOKEN)
