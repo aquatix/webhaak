@@ -142,20 +142,20 @@ def notify_user(result, config):
         logging.warning('Notification through PushOver failed because of missing configuration')
 
 
-def get_trigger_settings(appkey, triggerkey):
+def get_trigger_settings(app_key, trigger_key):
     """Look up the trigger and return the repo and command to be updated and fired
 
-    :param appkey: application key part of the url
-    :param triggerkey: trigger key part of the url, sub part of the config
+    :param app_key: application key part of the url
+    :param trigger_key: trigger key part of the url, sub part of the config
     :return: tuple with project info and the trigger config
     """
     for project in projects:
-        if projects[project]['appkey'] == appkey:
+        if projects[project]['app_key'] == app_key:
             for trigger in projects[project]['triggers']:
-                if projects[project]['triggers'][trigger]['triggerkey'] == triggerkey:
-                    triggerconfig = projects[project]['triggers'][trigger]
-                    triggerconfig['title'] = trigger
-                    return (project, triggerconfig)
+                if projects[project]['triggers'][trigger]['trigger_key'] == trigger_key:
+                    trigger_config = projects[project]['triggers'][trigger]
+                    trigger_config['title'] = trigger
+                    return project, trigger_config
     return None
 
 
@@ -203,8 +203,8 @@ def update_repo(config):
 
     repo_url = trigger_config['repo']
     repo_parent = settings.REPOS_CACHE_DIR
-    if 'repoparent' in trigger_config and trigger_config['repoparent']:
-        repo_parent = trigger_config['repoparent']
+    if 'repo_parent' in trigger_config and trigger_config['repo_parent']:
+        repo_parent = trigger_config['repo_parent']
 
     logger.info('[%s] Updating %s', projectname, repo_url)
     logger.info('[%s] Repo parent %s', projectname, repo_parent)
@@ -254,8 +254,8 @@ def run_command(config, hook_info):
     command = trigger_config['command']
     # Replace some placeholders to be used in executing scripts from one of the repos
     repo_parent = settings.REPOS_CACHE_DIR
-    if 'repoparent' in trigger_config and trigger_config['repoparent']:
-        repo_parent = trigger_config['repoparent']
+    if 'repo_parent' in trigger_config and trigger_config['repo_parent']:
+        repo_parent = trigger_config['repo_parent']
     if 'repo' in trigger_config:
         repo_url = trigger_config['repo']
         command = command.replace('REPODIR', os.path.join(repo_parent, get_repo_basename(repo_url)))

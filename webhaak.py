@@ -53,7 +53,7 @@ async def indexpage():
 
 @app.get('/admin/{secret_key}/list')
 async def list_triggers(secret_key: str, request: Request):
-    """List the appkeys and triggerkeys available"""
+    """List the app_keys and trigger_keys available"""
     logger.debug('Trigger list requested')
     try:
         if secret_key != SECRETKEY:
@@ -69,35 +69,35 @@ async def list_triggers(secret_key: str, request: Request):
     for project, project_info in tasks.projects.items():
         result[project] = {
             'title': project,
-            'appkey': project_info['appkey'],
+            'app_key': project_info['app_key'],
             'triggers': [],
         }
         for trigger in project_info['triggers']:
             result[project]['triggers'].append(
                 {
                     'title': trigger,
-                    'triggerkey': project_info['triggers'][trigger]['triggerkey'],
-                    'url': f"{server_url}app/{project_info['appkey']}/{project_info['triggers'][trigger]['triggerkey']}"
+                    'trigger_key': project_info['triggers'][trigger]['trigger_key'],
+                    'url': f"{server_url}app/{project_info['app_key']}/{project_info['triggers'][trigger]['trigger_key']}"
                 }
             )
     return {'projects': result}
 
 
-@app.get('/app/{appkey}/{triggerkey}')
-@app.options('/app/{appkey}/{triggerkey}')
-@app.post('/app/{appkey}/{triggerkey}')
-async def app_trigger(appkey: str, triggerkey: str, request: Request):
-    """Fire the trigger described by the configuration under `triggerkey`
+@app.get('/app/{app_key}/{trigger_key}')
+@app.options('/app/{app_key}/{trigger_key}')
+@app.post('/app/{app_key}/{trigger_key}')
+async def app_trigger(app_key: str, trigger_key: str, request: Request):
+    """Fire the trigger described by the configuration under `trigger_key`
 
-    :param str appkey: application key part of the url
-    :param str triggerkey: trigger key part of the url, sub part of the config
+    :param str app_key: application key part of the url
+    :param str trigger_key: trigger key part of the url, sub part of the config
     :param Request request: fastAPI Request object to get headers from
     :return: json Response
     """
-    logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
-    config = tasks.get_trigger_settings(appkey, triggerkey)
+    logger.info('%s on app_key: %s trigger_key: %s', request.method, app_key, trigger_key)
+    config = tasks.get_trigger_settings(app_key, trigger_key)
     if config is None:
-        logger.error('appkey/triggerkey combo not found')
+        logger.error('app_key/trigger_key combo not found')
         # return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
         raise HTTPException(status_code=404, detail="Error")
 
@@ -250,6 +250,6 @@ def generatekey():
 
 
 @app.get('/getappkey')
-async def get_appkey():
-    """Generate new appkey"""
+async def get_app_key():
+    """Generate new app_key"""
     return {'key': generatekey().decode('utf-8')}
