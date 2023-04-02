@@ -26,7 +26,7 @@ JOBSLOG_DIR = os.path.join(LOG_DIR, 'jobs')
 print(f"JOBSLOG_DIR: {JOBSLOG_DIR}")
 
 logger = logging.getLogger('webhaak')
-if DEBUG.lower() in ('true'):
+if DEBUG.lower() == 'true':
     logger.setLevel(logging.DEBUG)
 
 # CORS configuration
@@ -89,8 +89,9 @@ async def listtriggers(secretkey: str, request: Request):
 async def apptrigger(appkey: str, triggerkey: str, request: Request):
     """Fire the trigger described by the configuration under `triggerkey`
 
-    :param appkey: application key part of the url
-    :param triggerkey: trigger key part of the url, sub part of the config
+    :param str appkey: application key part of the url
+    :param str triggerkey: trigger key part of the url, sub part of the config
+    :param Request request: fastAPI Request object to get headers from
     :return: json Response
     """
     logger.info('%s on appkey: %s triggerkey: %s', request.method, appkey, triggerkey)
@@ -139,7 +140,7 @@ async def apptrigger(appkey: str, triggerkey: str, request: Request):
             with open(f'{EVENTLOG_DIR}/{eventdate}_event.json', 'w', encoding='utf-8') as outfile:
                 json.dump(payload, outfile)
             with open(f'{EVENTLOG_DIR}/{eventdate}_headers.json', 'w', encoding='utf-8') as outfile:
-                json.dump({k: v for k, v in request.headers.items()}, outfile)
+                json.dump(dict(request.headers.items()), outfile)
 
             if 'repository' in payload:
                 if 'html_url' in payload['repository']:
