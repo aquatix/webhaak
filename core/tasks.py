@@ -191,9 +191,9 @@ def get_repo_version(repo_dir):
     return version
 
 
-def fetchinfo_to_str(fetchinfo):
+def fetch_info_to_str(fetch_info):
     """git.remote.FetchInfo to human-readable representation"""
-    result = fetchinfo[0].note
+    result = fetch_info[0].note
     return result
 
 
@@ -223,7 +223,7 @@ def update_repo(config):
 
         app_repo = git.Repo(repo_dir)
         origin = app_repo.remote('origin')
-        result = fetchinfo_to_str(origin.fetch())  # assure we actually have data. fetch() returns useful information
+        result = fetch_info_to_str(origin.fetch())  # assure we actually have data. fetch() returns useful information
         logger.info('[%s] Fetch result: %s', projectname, result)
     else:
         # Repo needs to be cloned
