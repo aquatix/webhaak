@@ -106,7 +106,7 @@ def notify_user(result, config):
     result is a dictionary with fields:
       command_result
       status: 'OK' | 'error'
-      type: 'commanderror'
+      type: 'command_error'
       message
     """
     try:
@@ -288,14 +288,14 @@ def do_pull_andor_command(config, hook_info):
             logger.info('[%s] result repo: %s', projectname, str(result['repo_result']))
             result['status'] = 'OK'
         except git.GitCommandError as e:
-            result = {'status': 'error', 'type': 'giterror', 'message': str(e)}
-            logger.error('[%s] giterror: %s', projectname, str(e))
+            result = {'status': 'error', 'type': 'git_error', 'message': str(e)}
+            logger.error('[%s] git_error: %s', projectname, str(e))
             result['runtime'] = datetime.now() - start_time
             notify_user(result, config)
             return
         except (OSError, KeyError) as e:
-            result = {'status': 'error', 'type': 'oserror', 'message': str(e)}
-            logger.error('[%s] oserror: %s', projectname, str(e))
+            result = {'status': 'error', 'type': 'os_error', 'message': str(e)}
+            logger.error('[%s] os_error: %s', projectname, str(e))
             result['runtime'] = datetime.now() - start_time
             notify_user(result, config)
             return
@@ -319,10 +319,10 @@ def do_pull_andor_command(config, hook_info):
             result['status'] = 'OK'
         else:
             result['status'] = 'error'
-            result['type'] = 'commanderror'
+            result['type'] = 'command_error'
             result['message'] = cmd_result.stderr.strip()
             logger.error(
-                '[%s] commanderror with returncode %s: %s',
+                '[%s] command_error with returncode %s: %s',
                 projectname,
                 str(cmd_result.returncode),
                 cmd_result.stderr
