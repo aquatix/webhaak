@@ -30,14 +30,20 @@ schema = MapPattern(
     Str(),
     Map(
         {
+            # Key for a group of triggers
             "app_key": Str(),
             "triggers": MapPattern(Str(), Map({
+                # Key for a specific trigger
                 "trigger_key": Str(),
                 Optional("notify"): Bool(),
                 Optional("notify_on_error"): Bool(),
+                # Git repository URI
                 Optional("repo"): Str(),
+                # Parent directory for repository to clone to; defaults to REPOS_CACHE_DIR
                 Optional("repo_parent"): Str(),
+                # Only act when incoming call is about this specific branch; if unspecified, trigger will always fire
                 Optional("branch"): Str(),
+                # Execute this command (after Git pull if repo specified)
                 Optional("command"): Str(),
                 # Git author username -> friendly name mapping
                 Optional("authors"): MapPattern(Str(), Str()),
