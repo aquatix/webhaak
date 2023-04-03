@@ -81,8 +81,8 @@ dir, but in a subdirectory of the directory configured in ``repoparent``, so
 Server configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-* `supervisord RQ worker`_
-* `systemd for webhaak API`_
+* `supervisord RQ worker`_ which uses the `RQ config`_
+* `systemd for webhaak API`_ which uses the `gunicorn config`_
 * `nginx for webhaak API`_
 * `more config`_
 
@@ -111,7 +111,9 @@ See the `Changelog`_.
 .. _vhost for Apache2.4: https://github.com/aquatix/webhaak/blob/master/example_config/apache_vhost.conf
 .. _uwsgi.ini: https://github.com/aquatix/webhaak/blob/master/example_config/uwsgi.ini
 .. _supervisord RQ worker: https://github.com/aquatix/webhaak/blob/master/example_config/supervisord/webhaak_rq_worker.conf
+.. _RQ config: https://github.com/aquatix/webhaak/blob/master/example_config/rq_settings.example.py
 .. _systemd for webhaak API: https://github.com/aquatix/webhaak/blob/master/example_config/systemd/webhaak.service
+.. _gunicorn config: https://github.com/aquatix/webhaak/blob/master/example_config/gunicorn_webhaak_conf.py
 .. _more config: https://github.com/aquatix/webhaak/tree/master/example_config
 .. _nginx for webhaak API: https://github.com/aquatix/webhaak/blob/master/example_config/nginx/hook.example.com.conf
 .. _Changelog: https://github.com/aquatix/webhaak/blob/master/CHANGELOG.md
