@@ -242,7 +242,8 @@ async def job_status(job_id: str):
             response['message'] = job_result.return_value
         else:
             response['message'] = job_result.exc_string
-        response['message'] = response['message'].strip().split('\n')
+        if response['message']:
+            response['message'] = response['message'].strip().split('\n')
     return response
 
 
