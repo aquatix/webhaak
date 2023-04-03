@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "webhaak"
+authors = [
+    {name = "Michiel Scholten", email = "michiel@diginaut.net"},
+]
+description= "Simple webhook service to update and deploy sites and do other maintenance and automatic tasks"
+readme = "README.rst"
+requires-python = ">=3.7"
+keywords = ["webhook", "api", "automation", "CI/CD"]
+license = {text = "Apache"}
+classifiers = [
+    "Framework :: FastAPI",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    'importlib-metadata; python_version<"3.8"',
+    "fastapi[all]",
+    "requests",
+    "strictyaml",
+    "gitpython",
+    "--editable=git+https://github.com/ImNtReal/python-pushover.git#egg=python-pushover",
+    "rq"
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+pdf = ["ReportLab>=1.2", "RXP"]
+rest = ["docutils>=0.3", "pack ==1.1, ==1.3"]
+
+[project.scripts]
+my-script = "webhaak"
