@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [unreleased]
 
 ### Added
+- Background worker through RQ (Redis Queue) for asynchronous running of jobs
+
+### Changed
+- API backend changed from Flask to FastAPI; big refactor
+
+### Removed
+
+### Fixed
+- A crash could occur when a branch was merged, as `commits` property of payload is empty (BitBucket)
+
+
+## [0.4.0] - 2023-02-16
+
+### Added
 - Optional endpoint to list all projects (apps) and their triggers. Enable by setting a SECRETKEY in settings.py
   The endpoint is located at /admin/<secretkey>/list and [webhaak-ui](https://github.com/aquatix/webhaak-ui) is an example client.
 - Possibility to remotely use the endpoints (e.g., through jsonp)
