@@ -80,3 +80,4 @@ TAGS
 
 # settings
 settings.py
+rq_settings.py
