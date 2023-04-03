@@ -43,10 +43,10 @@ async def verify_key(secret_key: str):
     """Verify whether this endpoint contains the secret part in its URL"""
     try:
         if secret_key != SECRETKEY:
-            logger.debug('Secret key incorrect trying to list triggers')
+            logger.warning('Secret key incorrect trying to list triggers')
             raise HTTPException(status_code=404, detail="Secret key not found")
     except AttributeError as exc:
-        logger.debug('Secret key not found trying to list triggers')
+        logger.warning('Secret key not found trying to list triggers')
         raise HTTPException(status_code=404, detail="Secret key not found") from exc
 
 
@@ -55,7 +55,7 @@ async def verify_key(secret_key: str):
 @app.get('/')
 async def indexpage():
     """Index page, just link to the project repo"""
-    logger.debug('Root page requested')
+    logger.info('Root page requested')
     return {
         'message': 'Welcome to Webhaak. See the documentation how to setup and use webhooks: '
         'https://github.com/aquatix/webhaak'
@@ -65,7 +65,7 @@ async def indexpage():
 @app.get('/admin/{secret_key}/list', dependencies=[Depends(verify_key)])
 async def list_triggers(request: Request):
     """List the app_keys and trigger_keys available"""
-    logger.debug('Trigger list requested')
+    logger.info('Trigger list requested')
 
     server_url = request.base_url
 
@@ -213,13 +213,14 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
 
 @app.get('/status/{job_id}')
-async def job_status(job_id):
+async def job_status(job_id: str):
     """Show the status of job `job_id`
 
     :param str job_id:
     :return: dictionary with a task `status` and a `result`, including a relevant `message` on failure
     :rtype: json
     """
+    logger.info('Status requested for job %s', job_id)
     redis_conn = Redis()
     q = Queue(connection=redis_conn)  # no args implies the default queue
     job = q.fetch_job(job_id)
@@ -261,4 +262,5 @@ def generate_key():
 @app.get('/admin/{secret_key}/get_app_key', dependencies=[Depends(verify_key)])
 async def get_app_key():
     """Generate new app_key"""
+    logger.info('New key requested through get_app_key')
     return {'key': generate_key().decode('utf-8')}
