@@ -4,7 +4,7 @@ import logging
 import os
 from datetime import datetime
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from redis import Redis
 from rq import Queue
@@ -39,6 +39,17 @@ app.add_middleware(
 )
 
 
+async def verify_key(secret_key: str):
+    """Verify whether this endpoint contains the secret part in its URL"""
+    try:
+        if secret_key != SECRETKEY:
+            logger.debug('Secret key incorrect trying to list triggers')
+            raise HTTPException(status_code=404, detail="Secret key not found")
+    except AttributeError as exc:
+        logger.debug('Secret key not found trying to list triggers')
+        raise HTTPException(status_code=404, detail="Secret key not found") from exc
+
+
 # == Web app endpoints ======
 
 @app.get('/')
@@ -51,17 +62,10 @@ async def indexpage():
     }
 
 
-@app.get('/admin/{secret_key}/list')
-async def list_triggers(secret_key: str, request: Request):
+@app.get('/admin/{secret_key}/list', dependencies=[Depends(verify_key)])
+async def list_triggers(request: Request):
     """List the app_keys and trigger_keys available"""
     logger.debug('Trigger list requested')
-    try:
-        if secret_key != SECRETKEY:
-            logger.debug('Secret key incorrect trying to list triggers')
-            raise HTTPException(status_code=404, detail="Secret key not found")
-    except AttributeError as exc:
-        logger.debug('Secret key not found trying to list triggers')
-        raise HTTPException(status_code=404, detail="Secret key not found") from exc
 
     server_url = request.base_url
 
@@ -254,7 +258,7 @@ def generate_key():
     return binascii.hexlify(os.urandom(24))
 
 
-@app.get('/get_app_key')
+@app.get('/admin/{secret_key}/get_app_key', dependencies=[Depends(verify_key)])
 async def get_app_key():
     """Generate new app_key"""
     return {'key': generate_key().decode('utf-8')}
