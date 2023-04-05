@@ -10,4 +10,4 @@ worker_class = 'uvicorn.workers.UvicornWorker'
 # Logging Options
 loglevel = 'debug'
 accesslog = '/var/log/webhaak/access_log'
-errorlog =  '/var/log/webhaak/error_log'
+errorlog = '/var/log/webhaak/error_log'
