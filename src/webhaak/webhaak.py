@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from redis import Redis
 from rq import Queue
 
-from core import incoming, tasks
+from src.webhaak import incoming, tasks
 
 app = FastAPI()
 DEBUG = os.getenv("DEBUG", "False")
