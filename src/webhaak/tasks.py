@@ -293,7 +293,7 @@ def run_command(config, hook_info):
     if 'repo' in trigger_config:
         repo_url = trigger_config['repo']
         command = command.replace('REPODIR', os.path.join(repo_parent, get_repo_basename(repo_url)))
-    command = command.replace('CACHEDIR', settings.repos_cache_dir)
+    command = command.replace('CACHEDIR', str(settings.repos_cache_dir))
     if 'REPOVERSION' in command:
         version = get_repo_version(os.path.join(repo_parent, projectname))
         command = command.replace('REPOVERSION', version)
