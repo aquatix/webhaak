@@ -188,9 +188,9 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
 
-    if not os.path.isdir(JOBS_LOG_DIR):
-        os.makedirs(JOBS_LOG_DIR)
-    with open(os.path.join(JOBS_LOG_DIR, f'{job.id}.log'), 'w', encoding='utf-8') as outfile:
+    if not os.path.isdir(settings.jobs_log_dir):
+        os.makedirs(settings.jobs_log_dir)
+    with open(os.path.join(settings.jobs_log_dir, f'{job.id}.log'), 'w', encoding='utf-8') as outfile:
         outfile.write(event_info)
 
     server_url = request.base_url
@@ -218,7 +218,7 @@ async def job_status(job_id: str):
         response = {'status': 'unknown'}
     else:
         log_contents = ''
-        job_logfile_name = os.path.join(JOBS_LOG_DIR, f'{job_id}.log')
+        job_logfile_name = os.path.join(settings.jobs_log_dir, f'{job_id}.log')
         if os.path.isfile(job_logfile_name):
             with open(job_logfile_name, 'r', encoding='utf-8') as infile:
                 log_contents = infile.readlines()
