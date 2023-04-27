@@ -233,9 +233,12 @@ async def job_status(job_id: str):
             with open(job_logfile_name, 'r', encoding='utf-8') as infile:
                 log_contents = infile.readlines()
         job_result = job.latest_result()
+        job_result_response = 'unknown, might still be running/waiting'
+        if job_result:
+            job_result_response = job_result.type.name
         response = {
             'status': job.get_status(),
-            'result': job_result.type.name,
+            'result': job_result_response,
             'log': log_contents,
         }
         if job_result == job_result.Type.SUCCESSFUL:
