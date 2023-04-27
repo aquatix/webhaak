@@ -11,22 +11,12 @@ from rq import Queue
 
 from webhaak import incoming, tasks
 
-app = FastAPI()
-DEBUG = os.getenv("DEBUG", "False")
-# SECRETKEY should be set, it is mandatory. Please set it as env var
-SECRETKEY = os.environ['SECRETKEY']
-print(f"SECRETKEY: {SECRETKEY}")
+settings = tasks.settings
 
-# Get log output dir for payloads from environment; default is current working dir
-LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
-print(f"LOG_DIR: {LOG_DIR}")
-EVENTLOG_DIR = os.getenv('EVENTLOG_DIR', os.getcwd())
-print(f"EVENTLOG_DIR: {EVENTLOG_DIR}")
-JOBS_LOG_DIR = os.path.join(LOG_DIR, 'jobs')
-print(f"JOBS_LOG_DIR: {JOBS_LOG_DIR}")
+app = FastAPI()
 
 logger = logging.getLogger('webhaak')
-if DEBUG.lower() == 'true':
+if settings.debug:
     logger.setLevel(logging.DEBUG)
 
 # CORS configuration
@@ -42,7 +32,7 @@ app.add_middleware(
 async def verify_key(secret_key: str):
     """Verify whether this endpoint contains the secret part in its URL"""
     try:
-        if secret_key != SECRETKEY:
+        if secret_key != settings.secretkey:
             logger.warning('Secret key incorrect trying to list triggers')
             raise HTTPException(status_code=404, detail="Secret key not found")
     except AttributeError as exc:
@@ -142,9 +132,9 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
         if payload:
             # Debug: dump payload to disk
             event_date = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
-            with open(f'{EVENTLOG_DIR}/{event_date}_event.json', 'w', encoding='utf-8') as outfile:
+            with open(f'{settings.eventlog_dir}/{event_date}_event.json', 'w', encoding='utf-8') as outfile:
                 json.dump(payload, outfile)
-            with open(f'{EVENTLOG_DIR}/{event_date}_headers.json', 'w', encoding='utf-8') as outfile:
+            with open(f'{settings.eventlog_dir}/{event_date}_headers.json', 'w', encoding='utf-8') as outfile:
                 json.dump(dict(request.headers.items()), outfile)
 
             if 'repository' in payload:

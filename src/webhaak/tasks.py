@@ -7,18 +7,49 @@ import git
 import pushover
 import requests
 import strictyaml
+from pydantic import BaseSettings, DirectoryPath, FilePath, validator
 from rq import get_current_job
 from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
 
-import settings
+
+class Settings(BaseSettings):
+    """
+    Configuration needed for webhaak to do its tasks, using environment variables
+    """
+    secretkey: str
+    log_dir: DirectoryPath
+    jobs_log_dir: DirectoryPath = 'jobs'
+    eventlog_dir: DirectoryPath
+    projects_file: FilePath
+
+    repos_cache_dir: DirectoryPath
+
+    pushover_userkey: str
+    pushover_apptoken: str
+
+    debug: bool = False
+
+    @validator('jobs_log_dir', pre=True)
+    def apply_root(cls, v, values):
+        """
+        Create the actual value for jobs_log_dir, through its validator
+        """
+        if log_dir := values.get('log_dir'):
+            # jobs_log_dir is a subdirectory of log_dir
+            return log_dir / v
+        # should only happen when there was an error with log_dir
+        return v
+
+
+# Read the settings from the environment, based on the above configuration
+settings = Settings()
+print(settings.dict())
 
 logger = logging.getLogger('worker')
 
 logger.setLevel(logging.DEBUG)
-LOG_DIR = os.getenv('LOG_DIR', os.getcwd())
-JOBS_LOG_DIR = os.path.join(LOG_DIR, 'jobs')
 fh = logging.FileHandler(
-    os.path.join(LOG_DIR, 'webhaak.log')
+    os.path.join(settings.log_dir, 'webhaak.log')
 )
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -58,12 +89,8 @@ schema = MapPattern(
 )
 
 # Load the configuration of the various projects/hooks
-PROJECTS_FILE = os.getenv("PROJECTS_FILE", "projects.yaml")
-print(f"PROJECTS_FILE: {PROJECTS_FILE}")
-with open(PROJECTS_FILE, 'r', encoding='utf-8') as pf:
+with open(settings.projects_file, 'r', encoding='utf-8') as pf:
     projects = strictyaml.load(pf.read(), schema).data
-
-print(projects)
 
 
 def make_sentry_message(result):
@@ -142,8 +169,8 @@ def notify_user(result, config):
                 logging.info('Telegram notification sent, result was %s', str(response.status_code))
         else:
             # Use the Pushover default
-            client = pushover.Pushover(settings.PUSHOVER_APPTOKEN)
-            client.message(settings.PUSHOVER_USERKEY, message, title=title)
+            client = pushover.Pushover(settings.pushover_apptoken)
+            client.message(settings.pushover_userkey, message, title=title)
         logging.info('Notification sent')
     except AttributeError:
         logging.warning('Notification through PushOver failed because of missing configuration')
@@ -209,7 +236,7 @@ def update_repo(config):
     trigger_config = config[1]
 
     repo_url = trigger_config['repo']
-    repo_parent = settings.REPOS_CACHE_DIR
+    repo_parent = settings.repos_cache_dir
     if 'repo_parent' in trigger_config and trigger_config['repo_parent']:
         repo_parent = trigger_config['repo_parent']
 
@@ -260,13 +287,13 @@ def run_command(config, hook_info):
         return None
     command = trigger_config['command']
     # Replace some placeholders to be used in executing scripts from one of the repos
-    repo_parent = settings.REPOS_CACHE_DIR
+    repo_parent = settings.repos_cache_dir
     if 'repo_parent' in trigger_config and trigger_config['repo_parent']:
         repo_parent = trigger_config['repo_parent']
     if 'repo' in trigger_config:
         repo_url = trigger_config['repo']
         command = command.replace('REPODIR', os.path.join(repo_parent, get_repo_basename(repo_url)))
-    command = command.replace('CACHEDIR', settings.REPOS_CACHE_DIR)
+    command = command.replace('CACHEDIR', settings.repos_cache_dir)
     if 'REPOVERSION' in command:
         version = get_repo_version(os.path.join(repo_parent, projectname))
         command = command.replace('REPOVERSION', version)
@@ -314,7 +341,7 @@ def do_pull_andor_command(config, hook_info):
         except subprocess.CalledProcessError as e:
             logger.error('[%s] Error while executing command: %s', projectname, str(e))
 
-        with open(os.path.join(JOBS_LOG_DIR, f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
+        with open(os.path.join(settings.jobs_log_dir, f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
             if cmd_result:
                 outfile.write(f'== Command returncode: {cmd_result.returncode} ======\n')
