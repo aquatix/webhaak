@@ -5,14 +5,14 @@ After=network.target
 [Service]
 User=change_into_the_correct_username
 Group=change_into_the_correct_username
-WorkingDirectory=/srv/www/hook.example.com/webhaak
+WorkingDirectory=/srv/www/hook.example.com/webhaak/src/webhaak
 
 Environment="SECRETKEY=ABCDEFG"
 Environment="LOG_DIR=/var/log/webhaak"
 Environment="EVENTLOG_DIR=/var/log/webhaak/events"
 Environment="PROJECTS_FILE=/srv/www/hook.example.com/projects.yaml"
 
-ExecStart=/srv/www/hook.example.com/venv/bin/gunicorn -c gunicorn_webhaak_conf.py webhaak:app
+ExecStart=/srv/www/hook.example.com/venv/bin/gunicorn -c /srv/www/hook.example.com/gunicorn_webhaak_conf.py webhaak:app
 
 [Install]
 WantedBy=multi-user.target
