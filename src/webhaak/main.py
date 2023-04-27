@@ -241,7 +241,9 @@ async def job_status(job_id: str):
             'result': job_result_response,
             'log': log_contents,
         }
-        if job_result == job_result.Type.SUCCESSFUL:
+        if not job_result:
+            response['message'] = ''
+        elif job_result == job_result.Type.SUCCESSFUL:
             response['message'] = job_result.return_value
         else:
             response['message'] = job_result.exc_string
