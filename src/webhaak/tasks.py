@@ -336,38 +336,48 @@ def do_pull_andor_command(config, hook_info):
 
     if 'command' in config[1]:
         cmd_result = None
+        cmd_error = None
         try:
             cmd_result = run_command(config, hook_info)
         except subprocess.CalledProcessError as e:
             logger.error('[%s] Error while executing command: %s', projectname, str(e))
+            cmd_error = str(e)
 
         with open(os.path.join(settings.jobs_log_dir, f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
             if cmd_result:
                 outfile.write(f'== Command returncode: {cmd_result.returncode} ======\n')
-            outfile.write('== Command output ======\n')
-            outfile.write(cmd_result.stdout)
-            outfile.write('== Command error, if any ======\n')
-            outfile.write(cmd_result.stderr)
+                outfile.write('== Command output ======\n')
+                outfile.write(cmd_result.stdout)
+                outfile.write('== Command error, if any ======\n')
+                outfile.write(cmd_result.stderr)
+            else:
+                outfile.write('== Command error ======\n')
+                outfile.write(cmd_error)
 
         if cmd_result and cmd_result.returncode == 0:
             logger.info('[%s] success for command: %s', projectname, str(cmd_result.stdout))
             result['status'] = 'OK'
-        elif not cmd_result:
+        elif not cmd_result and not cmd_error:
             logger.info('[%s] no command configured', projectname)
             result['status'] = 'OK'
         else:
             result['status'] = 'error'
             result['type'] = 'command_error'
-            result['message'] = cmd_result.stderr.strip()
-            logger.error(
-                '[%s] command_error with returncode %s: %s',
-                projectname,
-                str(cmd_result.returncode),
-                cmd_result.stderr
-            )
-            logger.error('[%s] stdout: %s', projectname, cmd_result.stdout)
-            logger.error('[%s] stderr: %s', projectname, cmd_result.stderr)
+            if cmd_result:
+                result['message'] = cmd_result.stderr.strip()
+                logger.error(
+                    '[%s] command_error with returncode %s: %s',
+                    projectname,
+                    str(cmd_result.returncode),
+                    cmd_result.stderr
+                )
+                logger.error('[%s] stdout: %s', projectname, cmd_result.stdout)
+                logger.error('[%s] stderr: %s', projectname, cmd_result.stderr)
+            elif cmd_error:
+                result['message'] = cmd_error.strip()
+            else:
+                result['message'] = 'Unknown error'
 
     result['runtime'] = datetime.now() - start_time
 
