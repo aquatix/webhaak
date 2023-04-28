@@ -11,6 +11,11 @@ Environment="SECRETKEY=ABCDEFG"
 Environment="LOG_DIR=/var/log/webhaak"
 Environment="EVENTLOG_DIR=/var/log/webhaak/events"
 Environment="PROJECTS_FILE=/srv/www/hook.example.com/projects.yaml"
+#Environment="REPOS_CACHE_DIR=/srv/www/hook.example.com/_cache"
+# Like in the supervisord config, but make sure it's writable for the user webhaak is running as:
+Environment="REPOS_CACHE_DIR=/var/cache/webhaak"
+Environment="PUSHOVER_USERKEY=your_user_key_here"
+Environment="PUSHOVER_APPTOKEN=your_app_token_here"
 
 ExecStart=/srv/www/hook.example.com/venv/bin/gunicorn -c /srv/www/hook.example.com/gunicorn_webhaak_conf.py webhaak.main:app
 

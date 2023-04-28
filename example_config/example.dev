@@ -1,0 +1,9 @@
+SECRETKEY=abc123
+LOG_DIR=/var/log/webhaak
+EVENTLOG_DIR=/var/log/webhaak/events
+PROJECTS_FILE=/srv/www/hook.example.com/projects.yaml
+
+REPOS_CACHE_DIR=/srv/www/hook.example.com/_cache
+
+PUSHOVER_USERKEY=your_user_key_here
+PUSHOVER_APPTOKEN=your_app_token_here
