@@ -7,6 +7,6 @@ pylint
 
 build
 
-#sphinx
-#sphinx_rtd_theme
-#recommonmark
+sphinx
+sphinx_rtd_theme
+recommonmark
