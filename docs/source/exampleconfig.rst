@@ -14,10 +14,16 @@ This file includes the configration of which hooks are available.
    :linenos:
 
 
-SystemD unit file for webhaak webservice
+systemd unit file for webhaak webservice
 ----------------------------------------
 
 .. literalinclude:: ../../example_config/systemd/webhaak.service
+   :language: ini
+   :linenos:
+
+This uses a Gunicorn configuration file:
+
+.. literalinclude:: ../../example_config/gunicorn_webhaak_conf.py
    :language: ini
    :linenos:
 
@@ -26,6 +32,16 @@ Supervisord for RQ worker
 -------------------------
 
 .. literalinclude:: ../../example_config/supervisord/webhaak_rq_worker.conf
+   :language: ini
+   :linenos:
+
+
+nginx vhost
+-----------
+
+nxing configuration to serve the web application with; the application itself runs under systemd for example
+
+.. literalinclude:: ../../example_config/nginx/hook.example.com.conf
    :language: ini
    :linenos:
 
