@@ -1,36 +1,34 @@
 #!/bin/bash
 
+MAIL_FROM="CHANGEME@example.com"
+
 VENVDIR="${1}"
 PROJECTNAME="${2}"
 REPODIR="${3}"
 EMAIL="${4}"
-COMMIT_BEFORE="${5}"
-COMMIT_AFTER="${6}"
-COMPARE_URL="${7}"
+COMMIT="${5}"
 
-# Activate venv with flake8
 source "${VENVDIR}"
 
-# Go to the project to test
 cd "${REPODIR}"
 
 echo
 echo "== flake8 ======"
 echo "Checking changes for ${PROJECTNAME}"
 echo "Changes by ${EMAIL}"
-echo "${COMMIT_BEFORE}"
-echo "${COMMIT_AFTER}"
-echo "${COMPARE_URL}"
+echo "${COMMIT}"
 echo
 
-RESULT=$(git diff -u "${COMMIT_BEFORE}" "${COMMIT_AFTER}" | flake8 --diff)
+FLAKE8RESULT=$(git -c advice.detachedHead=false checkout "${COMMIT}" && flake8 --config tox.ini)
 
-echo "${RESULT}"
+echo "${FLAKE8RESULT}"
 
-if [ ! -z "${RESULT}" ]; then
+ISORTRESULT=$(isort -c . | grep -v Skipped)
+
+if [ ! -z "${FLAKE8RESULT}${ISORTRESULT}" ]; then
     echo "Sending email"
-    TEXT="Changes by ${EMAIL}\nDetails: ${COMPARE_URL}\n\nResults:\n\n${RESULT}"
-    echo -e "${TEXT}" | /usr/bin/mail -s "flake8 results for ${PROJECTNAME}" ${EMAIL}
+    TEXT="Changes by ${EMAIL}\nDetails: ${COMMIT}\n\nflake8:\n\n${FLAKE8RESULT}\n\nisort:\n\n${ISORTRESULT}"
+    echo -e "${TEXT}" | /usr/bin/mail -s "flake8 and isort results for ${PROJECTNAME}" -a "From: ${MAIL_FROM}" ${EMAIL}
 else
     echo "Nothing to mail"
 fi
