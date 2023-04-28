@@ -7,7 +7,7 @@ SPHINXAPIDOC  = sphinx-apidoc
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
-CODEDIR       = ..
+CODEDIR       = ../src/webhaak
 
 # Put it first so that "make" without argument is like "make help".
 help:

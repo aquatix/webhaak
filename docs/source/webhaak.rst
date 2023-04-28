@@ -4,35 +4,34 @@ webhaak package
 Submodules
 ----------
 
-webhaak.setup module
---------------------
+webhaak.incoming module
+-----------------------
 
-.. automodule:: webhaak.setup
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: webhaak.incoming
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-webhaak.webhaak module
-----------------------
-
-.. automodule:: webhaak.webhaak
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-webhaak.wsgi module
+webhaak.main module
 -------------------
 
-.. automodule:: webhaak.wsgi
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodule:: webhaak.main
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
+webhaak.tasks module
+--------------------
+
+.. automodule:: webhaak.tasks
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: webhaak
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
