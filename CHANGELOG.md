@@ -8,20 +8,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## TODO
 
 - Ensure unique repo directories
+- Pull request status update messages (through Telegram)
 
 
 ## [unreleased]
 
 ### Added
 - Background worker through RQ (Redis Queue) for asynchronous running of jobs
+- Status endpoint for a submitted job, which shows status of the (background) job, and process output
+- Configuration through environment variables, including sanity checks on the values (e.g., existing paths and such); if webhaak is crashing on startup, check the last line of the stacktrace as that will likely tell what's wrong
 
 ### Changed
 - API backend changed from Flask to FastAPI; big refactor
+- `get_app_key` endpoint is now located behind the secret key to prevent abuse
 
 ### Removed
+- settings.py file; configuration is handled through environment variables completely now; project/hook configuration is still in the yaml file
 
 ### Fixed
 - A crash could occur when a branch was merged, as `commits` property of payload is empty (BitBucket)
+- Job results when commands were failing or when a job was still running
+- Lots of other small crashes and edge-cases
 
 
 ## [0.4.0] - 2023-02-16
