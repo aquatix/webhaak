@@ -66,12 +66,12 @@ Example configuration
 See the example `hook settings`_ for syntax of how to configure
 repositories, commands and directories.
 
-Call webhaak on its endpoint ``/getappkey`` to generate a random new key for
-usage in the projects yaml file (so, for example https://hook.example.com/getappkey)
+Call webhaak on its endpoint ``/admin/SECRETKEY/get_app_key`` to generate a random new key for
+usage in the projects yaml file (so, for example https://hook.example.com/admin/abc123/get_app_key)
 
 By default, webhaak clones projects in a directory under its
 ``REPOS_CACHE_DIR`` directory, but there is support for a per-repo parent dir
-settings with ``repoparent``.
+settings with ``repoparent`` in the yaml.
 
 This means that webhaak then doesn't clone this repo into its default cache
 dir, but in a subdirectory of the directory configured in ``repoparent``, so
