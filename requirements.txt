@@ -13,7 +13,7 @@ anyio==3.6.2
     #   watchfiles
 async-timeout==4.0.2
     # via redis
-certifi==2022.12.7
+certifi==2023.5.7
     # via
     #   httpcore
     #   httpx
@@ -56,7 +56,7 @@ jinja2==3.1.2
     # via fastapi
 markupsafe==2.1.2
     # via jinja2
-orjson==3.8.10
+orjson==3.8.12
     # via fastapi
 pydantic==1.10.7
     # via fastapi
@@ -70,13 +70,13 @@ pyyaml==6.0
     # via
     #   fastapi
     #   uvicorn
-redis==4.5.4
+redis==4.5.5
     # via rq
-requests==2.29.0
+requests==2.30.0
     # via
     #   -r requirements.in
     #   python-pushover
-rq==1.13.0
+rq==1.14.1
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
@@ -95,13 +95,13 @@ typing-extensions==4.5.0
     # via pydantic
 ujson==5.7.0
     # via fastapi
-urllib3==1.26.15
+urllib3==2.0.2
     # via requests
-uvicorn[standard]==0.21.1
+uvicorn[standard]==0.22.0
     # via fastapi
 uvloop==0.17.0
     # via uvicorn
 watchfiles==0.19.0
     # via uvicorn
-websockets==11.0.2
+websockets==11.0.3
     # via uvicorn
