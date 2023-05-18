@@ -13,7 +13,7 @@ anyio==3.6.2
     #   httpcore
     #   starlette
     #   watchfiles
-astroid==2.15.4
+astroid==2.15.5
     # via pylint
 async-timeout==4.0.2
     # via redis
@@ -50,7 +50,7 @@ docutils==0.18.1
     #   sphinx-rtd-theme
 email-validator==2.0.0.post2
     # via fastapi
-fastapi[all]==0.95.1
+fastapi[all]==0.95.2
     # via -r requirements.in
 flake8==6.0.0
     # via -r requirements-dev.in
@@ -64,7 +64,7 @@ h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
-httpcore==0.17.0
+httpcore==0.17.1
     # via httpx
 httptools==0.5.0
     # via uvicorn
@@ -111,7 +111,7 @@ pathspec==0.11.1
     # via black
 pbr==5.11.1
     # via stevedore
-platformdirs==3.5.0
+platformdirs==3.5.1
     # via
     #   black
     #   pylint
@@ -186,9 +186,9 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-starlette==0.26.1
+starlette==0.27.0
     # via fastapi
-stevedore==5.0.0
+stevedore==5.1.0
     # via bandit
 strictyaml==1.7.3
     # via -r requirements.in
