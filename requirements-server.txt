@@ -6,7 +6,7 @@
 #
 -e git+https://github.com/ImNtReal/python-pushover.git#egg=python-pushover
     # via -r requirements.in
-anyio==3.6.2
+anyio==3.7.0
     # via
     #   httpcore
     #   starlette
@@ -58,7 +58,7 @@ jinja2==3.1.2
     # via fastapi
 markupsafe==2.1.2
     # via jinja2
-orjson==3.8.13
+orjson==3.8.14
     # via fastapi
 pydantic==1.10.8
     # via fastapi
@@ -78,7 +78,7 @@ requests==2.31.0
     # via
     #   -r requirements.in
     #   python-pushover
-rq==1.14.1
+rq==1.15.0
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
@@ -93,7 +93,7 @@ starlette==0.27.0
     # via fastapi
 strictyaml==1.7.3
     # via -r requirements.in
-typing-extensions==4.6.1
+typing-extensions==4.6.2
     # via pydantic
 ujson==5.7.0
     # via fastapi
