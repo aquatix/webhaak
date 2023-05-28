@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - API backend changed from Flask to FastAPI; big refactor
 - `get_app_key` endpoint is now located behind the secret key to prevent abuse
+- All configuration is done through environment variables, see [Example configuration](https://github.com/aquatix/webhaak#example-configuration) and [the configuration examples](https://github.com/aquatix/webhaak/tree/master/example_config)
+- Various linting, CI and code quality improvements
 
 ### Removed
 - settings.py file; configuration is handled through environment variables completely now; project/hook configuration is still in the yaml file
