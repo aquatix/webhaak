@@ -14,6 +14,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [unreleased]
 
 ### Added
+
+### Changed
+
+### Removed
+
+### Fixed
+
+
+## [0.5.0] - 2023-06-06 (FastAPI, RQ)
+
+### Added
 - Background worker through RQ (Redis Queue) for asynchronous running of jobs
 - Status endpoint for a submitted job, which shows status of the (background) job, and process output
 - Configuration through environment variables, including sanity checks on the values (e.g., existing paths and such); if webhaak is crashing on startup, check the last line of the stacktrace as that will likely tell what's wrong
