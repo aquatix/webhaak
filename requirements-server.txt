@@ -4,8 +4,6 @@
 #
 #    pip-compile requirements-server.in
 #
--e git+https://github.com/ImNtReal/python-pushover.git#egg=python-pushover
-    # via -r requirements.in
 anyio==3.7.0
     # via
     #   httpcore
@@ -75,9 +73,7 @@ pyyaml==6.0
 redis==4.5.5
     # via rq
 requests==2.31.0
-    # via
-    #   -r requirements.in
-    #   python-pushover
+    # via -r requirements.in
 rq==1.15.0
     # via -r requirements.in
 six==1.16.0

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "webhaak"
-version = "0.5.0"
+version = "0.5.1"
 authors = [
     {name = "Michiel Scholten", email = "michiel@diginaut.net"},
 ]
@@ -24,7 +24,6 @@ dependencies = [
     "requests",
     "strictyaml",
     "gitpython",
-    "python-pushover @ git+https://github.com/ImNtReal/python-pushover.git",
     "rq"
 ]
 # dynamic = ["version"]

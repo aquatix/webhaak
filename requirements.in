@@ -6,8 +6,5 @@ requests
 strictyaml
 # Git
 gitpython
-# Notifications
-# python-pushover
---editable=git+https://github.com/ImNtReal/python-pushover.git#egg=python-pushover
 # Worker
 rq
