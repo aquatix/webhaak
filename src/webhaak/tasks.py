@@ -93,7 +93,7 @@ with open(settings.projects_file, 'r', encoding='utf-8') as pf:
     projects = strictyaml.load(pf.read(), schema).data
 
 
-def send_pushover_message(user, api_key, text, **kwargs):
+def send_pushover_message(userkey, apptoken, text, **kwargs):
     """
     Send a message through PushOver
 
@@ -105,8 +105,8 @@ def send_pushover_message(user, api_key, text, **kwargs):
     For convenience, you can simply set ``timestamp=True`` to set the
     timestamp to the current timestamp.
 
-    :param str user: user key in PushOver
-    :param str api_key: app token for PushOver
+    :param str userkey: user key in PushOver
+    :param str apptoken: app token for PushOver
     :param str text: message to send
     """
     message_keywords = [
@@ -123,7 +123,7 @@ def send_pushover_message(user, api_key, text, **kwargs):
         "html",
         "attachment",
     ]
-    payload = {"message": text, "user": user, "token": api_key}
+    payload = {"message": text, "user": userkey, "token": apptoken}
     for key, value in kwargs.items():
         if key not in message_keywords:
             raise ValueError("{0}: invalid message parameter".format(key))
@@ -216,7 +216,7 @@ def notify_user(result, config):
                 logging.info('Telegram notification sent, result was %s', str(response.status_code))
         else:
             # Use the Pushover default
-            r = send_pushover_message(settings.pushover_userkey, settings.pushover_userkey, message, title=title)
+            r = send_pushover_message(settings.pushover_userkey, settings.pushover_apptoken, message, title=title)
             if not r.status_code == 200:
                 logging.error(r.text)
         logging.info('Notification sent')
