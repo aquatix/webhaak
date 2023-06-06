@@ -6,6 +6,7 @@ flake8
 pylint
 
 build
+twine
 
 sphinx
 sphinx_rtd_theme
