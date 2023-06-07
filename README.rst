@@ -40,9 +40,8 @@ necessary packages:
 Usage
 -----
 
-Copy ``settings.py`` from example_config to the parent directory and
-configure to your needs. Create a yaml file with the projects to serve (see
-next section) and refer to this file from the settings.py.
+Copy ``example.yaml`` from example_config to a directory you will use for configuration and
+configure to your needs. This is a yaml file with the projects to serve (see next section).
 
 Run webhaak as a service under nginx or apache and call the appropriate
 url's when wanted (e.g., on push to repository).
@@ -91,6 +90,12 @@ What's new?
 -----------
 
 See the `Changelog`_.
+
+
+Developing
+----------
+
+Running in PyCharm: tbd :)
 
 
 .. _webhaak: https://github.com/aquatix/webhaak
