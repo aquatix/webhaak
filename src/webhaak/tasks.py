@@ -126,18 +126,18 @@ def send_pushover_message(userkey, apptoken, text, **kwargs):
     payload = {"message": text, "user": userkey, "token": apptoken}
     for key, value in kwargs.items():
         if key not in message_keywords:
-            raise ValueError("{0}: invalid message parameter".format(key))
+            raise ValueError(f'{key}: invalid message parameter')
         if key == "timestamp" and value is True:
             payload[key] = int(time.time())
         else:
             payload[key] = value
-    r = requests.post(
+    response = requests.post(
         'https://api.pushover.net/1/messages.json',
         data=payload,
         headers={'User-Agent': 'Python'},
         timeout=60
     )
-    return r
+    return response
 
 
 def make_sentry_message(result):
@@ -216,9 +216,14 @@ def notify_user(result, config):
                 logging.info('Telegram notification sent, result was %s', str(response.status_code))
         else:
             # Use the Pushover default
-            r = send_pushover_message(settings.pushover_userkey, settings.pushover_apptoken, message, title=title)
-            if not r.status_code == 200:
-                logging.error(r.text)
+            response = send_pushover_message(
+                settings.pushover_userkey,
+                settings.pushover_apptoken,
+                message,
+                title=title
+            )
+            if not response.status_code == 200:
+                logging.error(response.text)
         logging.info('Notification sent')
     except AttributeError:
         logging.warning('Notification through PushOver failed because of missing configuration')
