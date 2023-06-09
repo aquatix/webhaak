@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 
+## [0.5.2] - 2023-06-09
+
+### Fixed
+- Minor error in new PushOver send function causing pushes not to be sent
+- Better variable names
+
+
 ## [0.5.1] - 2023-06-06
 
 ### Removed
