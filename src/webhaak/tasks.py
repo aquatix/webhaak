@@ -30,15 +30,15 @@ class Settings(BaseSettings):
     debug: bool = False
 
     @validator('jobs_log_dir', pre=True)
-    def apply_root(cls, v, values):
+    def apply_root(cls, value, values):
         """
         Create the actual value for jobs_log_dir, through its validator
         """
         if log_dir := values.get('log_dir'):
             # jobs_log_dir is a subdirectory of log_dir
-            return log_dir / v
+            return log_dir / value
         # should only happen when there was an error with log_dir
-        return v
+        return value
 
 
 # Read the settings from the environment, based on the above configuration
