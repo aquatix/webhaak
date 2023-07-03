@@ -177,7 +177,10 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
                 vcs_source
             )
 
-        event_info = incoming.determine_task(config, payload, hook_info, event_info)
+        if sentry_message:
+            event_info = incoming.handle_sentry_message(payload, hook_info, event_info)
+        else:
+            event_info = incoming.determine_task(config, payload, hook_info, event_info)
         # Write event_info to task log
 
     # Create RQ job (task) for this request

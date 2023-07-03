@@ -169,8 +169,6 @@ def determine_task(config, payload, hook_info, event_info):
     :param dict hook_info: dictionary containing the webhook configuration
     :param str event_info: message containing information about the event, to be used to log and as feedback to user
     """
-    sentry_message = False
-
     if 'push' in payload:
         # BitBucket, which has a completely different format
         handle_bitbucket_push(payload, hook_info)
@@ -210,8 +208,6 @@ def determine_task(config, payload, hook_info, event_info):
     if 'commits' in payload:
         # Gather info on the commits included in this push
         get_commits_info(payload, hook_info)
-    if sentry_message:
-        event_info = handle_sentry_message(payload, hook_info, event_info)
 
     logger.debug(hook_info)
     logger.info(event_info)
