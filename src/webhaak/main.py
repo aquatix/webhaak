@@ -185,7 +185,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
     # Create RQ job (task) for this request
     redis_conn = Redis()
-    q = Queue(connection=redis_conn)  # no args implies the default queue
+    q = Queue(connection=redis_conn, queue='webhaak')  # use named queue to prevent clashes with other RQ workers
 
     # Delay execution of count_words_at_url('http://nvie.com')
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
@@ -215,7 +215,7 @@ async def job_status(job_id: str):
     """
     logger.info('Status requested for job %s', job_id)
     redis_conn = Redis()
-    q = Queue(connection=redis_conn)  # no args implies the default queue
+    q = Queue(connection=redis_conn, queue='webhaak')  # use named queue to prevent clashes with other RQ workers
     job = q.fetch_job(job_id)
     if job is None:
         response = {'status': 'unknown'}

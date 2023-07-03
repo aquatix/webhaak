@@ -7,7 +7,7 @@ REDIS_URL = 'redis://localhost:6379/0'
 # REDIS_PASSWORD = 'very secret'
 
 # Queues to listen on
-QUEUES = ['default']
+QUEUES = ['webhaak']
 
 # If you're using Sentry to collect your runtime exceptions, you can use this
 # to configure RQ for it in a single step
