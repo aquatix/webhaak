@@ -34,3 +34,27 @@ my-script = "webhaak"
 [project.urls]
 "Homepage" = "https://github.com/aquatix/webhaak"
 "Bug Tracker" = "https://github.com/aquatix/webhaak/issues"
+
+[tool.ruff]
+exclude = [
+    ".git",
+    "__pycache__",
+    "docs/source/conf.py",
+    "build",
+    "dist",
+    "example_config/gunicorn_webhaak_conf.py",
+    "example_config/rq_settings.example.py",
+    "example_config/settings.py",
+]
+ignore = ["D203"]
+line-length = 120
+select = [
+    "C9",
+    "D",
+    "E",
+    "F",
+    "W",
+]
+
+[tool.ruff.mccabe]
+max-complexity = 10

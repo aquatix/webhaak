@@ -188,6 +188,8 @@ rich==13.4.2
     #   twine
 rq==1.15.1
     # via -r requirements.in
+ruff==0.0.276
+    # via -r requirements-dev.in
 secretstorage==3.3.3
     # via keyring
 six==1.16.0
