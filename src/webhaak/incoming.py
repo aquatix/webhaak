@@ -22,9 +22,13 @@ def handle_bitbucket_push(payload, hook_info):
         # Likely a 'None' merge commit, so get the info from the branch that is getting merged
         hook_info['commit_after'] = payload['push']['changes'][0]['old']['target']['hash']
 
-    if 'links' in payload['push']['changes'][0]:
+    if 'links' in payload['push']['changes'][0] and 'html' in payload['push']['changes'][0]['links']:
         hook_info['compare_url'] = payload['push']['changes'][0]['links']['html']['href']
-    elif payload['push']['changes'][0]['old'] and 'links' in payload['push']['changes'][0]['old']:
+    elif (
+        payload['push']['changes'][0]['old']
+        and 'links' in payload['push']['changes'][0]['old']
+        and 'html' in payload['push']['changes'][0]['old']['links']
+    ):
         hook_info['compare_url'] = payload['push']['changes'][0]['old']['links']['html']['href']
     else:
         hook_info['compare_url'] = ''

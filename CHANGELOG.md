@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 
 ### Fixed
+- Crash when links were available in a BitBucket push, but not html link info for the branch
 
 
 ## [0.5.2] - 2023-06-09
