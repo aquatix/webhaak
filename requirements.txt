@@ -11,7 +11,7 @@ anyio==3.7.0
     #   watchfiles
 async-timeout==4.0.2
     # via redis
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   httpcore
     #   httpx
