@@ -6,12 +6,14 @@
 #
 alabaster==0.7.13
     # via sphinx
-anyio==3.7.0
+annotated-types==0.5.0
+    # via pydantic
+anyio==3.7.1
     # via
     #   httpcore
     #   starlette
     #   watchfiles
-astroid==2.15.5
+astroid==2.15.6
     # via pylint
 async-timeout==4.0.2
     # via redis
@@ -19,33 +21,33 @@ babel==2.12.1
     # via sphinx
 bandit==1.7.5
     # via -r requirements-dev.in
-black==23.3.0
+black==23.7.0
     # via -r requirements-dev.in
 bleach==6.0.0
     # via readme-renderer
 build==0.10.0
     # via -r requirements-dev.in
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   httpcore
     #   httpx
     #   requests
 cffi==1.15.1
     # via cryptography
-charset-normalizer==3.1.0
+charset-normalizer==3.2.0
     # via requests
-click==8.1.3
+click==8.1.6
     # via
     #   black
     #   rq
     #   uvicorn
 commonmark==0.9.1
     # via recommonmark
-cryptography==41.0.1
+cryptography==41.0.2
     # via secretstorage
-dill==0.3.6
+dill==0.3.7
     # via pylint
-dnspython==2.3.0
+dnspython==2.4.1
     # via email-validator
 docutils==0.18.1
     # via
@@ -57,13 +59,13 @@ email-validator==2.0.0.post2
     # via fastapi
 exceptiongroup==1.1.2
     # via anyio
-fastapi[all]==0.99.1
+fastapi[all]==0.100.0
     # via -r requirements.in
 flake8==6.0.0
     # via -r requirements-dev.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.31
+gitpython==3.1.32
     # via
     #   -r requirements.in
     #   bandit
@@ -71,9 +73,9 @@ h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
-httpcore==0.17.2
+httpcore==0.17.3
     # via httpx
-httptools==0.5.0
+httptools==0.6.0
     # via uvicorn
 httpx==0.24.1
     # via fastapi
@@ -85,7 +87,7 @@ idna==3.4
     #   requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.7.0
+importlib-metadata==6.8.0
     # via
     #   keyring
     #   twine
@@ -93,7 +95,7 @@ isort==5.12.0
     # via pylint
 itsdangerous==2.1.2
     # via fastapi
-jaraco-classes==3.2.3
+jaraco-classes==3.3.0
     # via keyring
 jeepney==0.8.0
     # via
@@ -117,11 +119,11 @@ mccabe==0.7.0
     #   pylint
 mdurl==0.1.2
     # via markdown-it-py
-more-itertools==9.1.0
+more-itertools==10.0.0
     # via jaraco-classes
 mypy-extensions==1.0.0
     # via black
-orjson==3.9.1
+orjson==3.9.2
     # via fastapi
 packaging==23.1
     # via
@@ -134,7 +136,7 @@ pbr==5.11.1
     # via stevedore
 pkginfo==1.9.6
     # via twine
-platformdirs==3.8.0
+platformdirs==3.9.1
     # via
     #   black
     #   pylint
@@ -142,7 +144,16 @@ pycodestyle==2.10.0
     # via flake8
 pycparser==2.21
     # via cffi
-pydantic==1.10.10
+pydantic==2.1.1
+    # via
+    #   fastapi
+    #   pydantic-extra-types
+    #   pydantic-settings
+pydantic-core==2.4.0
+    # via pydantic
+pydantic-extra-types==2.0.0
+    # via fastapi
+pydantic-settings==2.0.2
     # via fastapi
 pyflakes==3.0.1
     # via flake8
@@ -151,17 +162,19 @@ pygments==2.15.1
     #   readme-renderer
     #   rich
     #   sphinx
-pylint==2.17.4
+pylint==2.17.5
     # via -r requirements-dev.in
 pyproject-hooks==1.0.0
     # via build
 python-dateutil==2.8.2
     # via strictyaml
 python-dotenv==1.0.0
-    # via uvicorn
+    # via
+    #   pydantic-settings
+    #   uvicorn
 python-multipart==0.0.6
     # via fastapi
-pyyaml==6.0
+pyyaml==6.0.1
     # via
     #   bandit
     #   fastapi
@@ -188,7 +201,7 @@ rich==13.4.2
     #   twine
 rq==1.15.1
     # via -r requirements.in
-ruff==0.0.276
+ruff==0.0.280
     # via -r requirements-dev.in
 secretstorage==3.3.3
     # via keyring
@@ -248,13 +261,15 @@ typing-extensions==4.7.1
     #   astroid
     #   fastapi
     #   pydantic
+    #   pydantic-core
+    #   uvicorn
 ujson==5.8.0
     # via fastapi
-urllib3==2.0.3
+urllib3==2.0.4
     # via
     #   requests
     #   twine
-uvicorn[standard]==0.22.0
+uvicorn[standard]==0.23.1
     # via fastapi
 uvloop==0.17.0
     # via uvicorn
@@ -266,5 +281,5 @@ websockets==11.0.3
     # via uvicorn
 wrapt==1.15.0
     # via astroid
-zipp==3.15.0
+zipp==3.16.2
     # via importlib-metadata
