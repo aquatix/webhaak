@@ -30,7 +30,7 @@ dependencies = [
 # dynamic = ["version"]
 
 [project.scripts]
-my-script = "webhaak"
+my-script = "webhaak:app"
 
 [project.urls]
 "Homepage" = "https://github.com/aquatix/webhaak"
