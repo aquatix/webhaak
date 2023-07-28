@@ -1,3 +1,4 @@
+"""Main Webhaak application (runtime)."""
 import binascii
 import json
 import logging
@@ -249,7 +250,7 @@ async def job_status(job_id: str):
 @app.get('/monitor/')
 @app.get('/monitor')
 async def monitor():
-    """Monitoring ping."""
+    """Respond to monitoring ping."""
     return 'OK'
 
 

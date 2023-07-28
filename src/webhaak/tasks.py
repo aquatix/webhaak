@@ -1,3 +1,4 @@
+"""Execute that tasks initiated by the webhooks."""
 import logging
 import os
 import subprocess
@@ -179,6 +180,7 @@ def make_sentry_message(result):
 
 def notify_user(result, config):
     """Send a PushOver message if configured, after git operation and command have run.
+
     Optionally send a message to the configured Telegram chat instead.
 
     result is a dictionary with fields:
@@ -255,7 +257,7 @@ def get_repo_basename(repo_url):
 
 
 def get_repo_version(repo_dir):
-    """Gets version of Git repo, based on latest tag, number of commits since, and latest commit hash.
+    """Get version of Git repo, based on latest tag, number of commits since, and latest commit hash.
 
     :param repo_dir: path to the Git repository
     :return: string with version

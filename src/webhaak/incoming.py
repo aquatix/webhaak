@@ -1,3 +1,4 @@
+"""Make sense of the incoming webhook requests."""
 import logging
 
 logger = logging.getLogger('webhaak')
