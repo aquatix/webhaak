@@ -30,7 +30,7 @@ app.add_middleware(
 
 
 async def verify_key(secret_key: str):
-    """Verify whether this endpoint contains the secret part in its URL"""
+    """Verify whether this endpoint contains the secret part in its URL."""
     try:
         if secret_key != settings.secretkey:
             logger.warning('Secret key incorrect trying to list triggers')
@@ -44,7 +44,7 @@ async def verify_key(secret_key: str):
 
 @app.get('/')
 async def indexpage():
-    """Index page, just link to the project repo"""
+    """Index page, just link to the project repo."""
     logger.info('Root page requested')
     return {
         'message': 'Welcome to Webhaak. See the documentation how to setup and use webhooks: '
@@ -54,7 +54,7 @@ async def indexpage():
 
 @app.get('/admin/{secret_key}/list', dependencies=[Depends(verify_key)])
 async def list_triggers(request: Request):
-    """List the app_keys and trigger_keys available"""
+    """List the app_keys and trigger_keys available."""
     logger.info('Trigger list requested')
 
     server_url = request.base_url
@@ -82,7 +82,7 @@ async def list_triggers(request: Request):
 @app.options('/app/{app_key}/{trigger_key}')
 @app.post('/app/{app_key}/{trigger_key}')
 async def app_trigger(app_key: str, trigger_key: str, request: Request):
-    """Fire the trigger described by the configuration under `trigger_key`
+    """Fire the trigger described by the configuration under `trigger_key`.
 
     :param str app_key: application key part of the url
     :param str trigger_key: trigger key part of the url, sub part of the config
@@ -207,7 +207,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
 @app.get('/status/{job_id}')
 async def job_status(job_id: str):
-    """Show the status of job `job_id`
+    """Show the status of job `job_id`.
 
     :param str job_id:
     :return: dictionary with a task `status` and a `result`, including a relevant `message` on failure
@@ -249,17 +249,17 @@ async def job_status(job_id: str):
 @app.get('/monitor/')
 @app.get('/monitor')
 async def monitor():
-    """Monitoring ping"""
+    """Monitoring ping."""
     return 'OK'
 
 
 def generate_key():
-    """Generate a random ascii string to be used as identifier"""
+    """Generate a random ascii string to be used as identifier."""
     return binascii.hexlify(os.urandom(24))
 
 
 @app.get('/admin/{secret_key}/get_app_key', dependencies=[Depends(verify_key)])
 async def get_app_key():
-    """Generate new app_key"""
+    """Generate new app_key."""
     logger.info('New key requested through get_app_key')
     return {'key': generate_key().decode('utf-8')}

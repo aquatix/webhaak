@@ -4,7 +4,7 @@ logger = logging.getLogger('webhaak')
 
 
 def handle_bitbucket_push(payload, hook_info):
-    """Handle an incoming Git push hook from BitBucket
+    """Handle an incoming Git push hook from BitBucket.
 
     :param dict payload: dictionary containing the incoming webhook payload
     :param dict hook_info: dictionary containing the webhook configuration
@@ -49,7 +49,7 @@ def handle_bitbucket_push(payload, hook_info):
 
 
 def handle_bitbucket_pullrequest(payload, hook_info):
-    """Handle an incoming pull request hook from BitBucket
+    """Handle an incoming pull request hook from BitBucket.
 
     :param dict payload: dictionary containing the incoming webhook payload
     :param dict hook_info: dictionary containing the webhook configuration
@@ -68,7 +68,7 @@ def handle_bitbucket_pullrequest(payload, hook_info):
 
 
 def handle_bitbucket_actor(payload, hook_info, event_info, config):
-    """Assemble information about the author of this action
+    """Assemble information about the author of this action.
 
     :param dict payload: dictionary containing the incoming webhook payload
     :param dict hook_info: dictionary containing the webhook configuration
@@ -91,7 +91,7 @@ def handle_bitbucket_actor(payload, hook_info, event_info, config):
 
 
 def handle_git_actor(payload, hook_info, event_info):
-    """Assemble information about the author of this action
+    """Assemble information about the author of this action.
 
     :param dict payload: dictionary containing the incoming webhook payload
     :param dict hook_info: dictionary containing the webhook configuration
@@ -109,7 +109,7 @@ def handle_git_actor(payload, hook_info, event_info):
 
 
 def handle_sentry_message(payload, hook_info, event_info):
-    """Assemble information about the event that Sentry sent so an appropriate notification can be sent later
+    """Assemble information about the event that Sentry sent so an appropriate notification can be sent later.
 
     :param dict payload: dictionary containing the incoming webhook payload
     :param dict hook_info: dictionary containing the webhook configuration
@@ -143,7 +143,7 @@ def handle_sentry_message(payload, hook_info, event_info):
 
 
 def get_commits_info(payload, hook_info):
-    """Assemble extra information about the commits
+    """Assemble extra information about the commits.
 
     :param dict payload: dictionary containing the incoming webhook payload
     :param dict hook_info: dictionary containing the webhook configuration
@@ -162,7 +162,7 @@ def get_commits_info(payload, hook_info):
 
 
 def determine_task(config, payload, hook_info, event_info):
-    """Parse the incoming webhook information and assemble the hook_info
+    """Parse the incoming webhook information and assemble the hook_info.
 
     :param dict config: the projects configuration
     :param dict payload: dictionary containing the incoming webhook payload
