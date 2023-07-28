@@ -7,7 +7,8 @@ from datetime import datetime
 import git
 import requests
 import strictyaml
-from pydantic import BaseSettings, DirectoryPath, FilePath, validator
+from pydantic import DirectoryPath, FilePath, validator
+from pydantic_settings import BaseSettings
 from rq import get_current_job
 from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
 

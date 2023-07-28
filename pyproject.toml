@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "webhaak"
-version = "0.5.2"
+version = "0.5.3"
 authors = [
     {name = "Michiel Scholten", email = "michiel@diginaut.net"},
 ]
@@ -21,6 +21,7 @@ classifiers = [
 dependencies = [
     "importlib-metadata; python_version<'3.8'",
     "fastapi[all]",
+    "pydantic>2.0",
     "requests",
     "strictyaml",
     "gitpython",

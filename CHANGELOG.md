@@ -14,13 +14,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [unreleased]
 
 ### Added
+- Native Sentry message support
 
 ### Changed
 
 ### Removed
 
 ### Fixed
+
+
+## [0.5.3] - 2023-07-28
+
+### Changed
+- Pydantic settings is its own package since Pydantic 2
+
+### Fixed
 - Crash when links were available in a BitBucket push, but not html link info for the branch
+- Sentry pushes didn't get handled correctly
 
 
 ## [0.5.2] - 2023-06-09
