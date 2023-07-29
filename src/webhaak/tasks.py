@@ -1,3 +1,4 @@
+"""Execute that tasks initiated by the webhooks."""
 import logging
 import os
 import subprocess
@@ -7,15 +8,15 @@ from datetime import datetime
 import git
 import requests
 import strictyaml
-from pydantic import BaseSettings, DirectoryPath, FilePath, validator
+from pydantic import DirectoryPath, FilePath, validator
+from pydantic_settings import BaseSettings
 from rq import get_current_job
 from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
 
 
 class Settings(BaseSettings):
-    """
-    Configuration needed for webhaak to do its tasks, using environment variables
-    """
+    """Configuration needed for webhaak to do its tasks, using environment variables."""
+
     secretkey: str
     log_dir: DirectoryPath
     jobs_log_dir: DirectoryPath = 'jobs'
@@ -31,9 +32,7 @@ class Settings(BaseSettings):
 
     @validator('jobs_log_dir', pre=True)
     def apply_root(cls, value, values):
-        """
-        Create the actual value for jobs_log_dir, through its validator
-        """
+        """Create the actual value for jobs_log_dir, through its validator."""
         if log_dir := values.get('log_dir'):
             # jobs_log_dir is a subdirectory of log_dir
             return log_dir / value
@@ -94,8 +93,7 @@ with open(settings.projects_file, 'r', encoding='utf-8') as pf:
 
 
 def send_pushover_message(userkey, apptoken, text, **kwargs):
-    """
-    Send a message through PushOver
+    """Send a message through PushOver.
 
     It is possible to specify additional properties of the message by passing keyword
     arguments. The list of valid keywords is ``title, priority, sound,
@@ -141,8 +139,9 @@ def send_pushover_message(userkey, apptoken, text, **kwargs):
 
 
 def make_sentry_message(result):
-    """
-    # Filter away known things
+    """Create Sentry push message.
+
+    Filter away known things
     if [[ $MESSAGE == *"Het ElementTree object kon niet"* ||
           $MESSAGE == *"The ElementTree object could"* ||
           $MESSAGE == *"Meerdere resultaten gevonden in de wachtrij"* ||
@@ -181,6 +180,7 @@ def make_sentry_message(result):
 
 def notify_user(result, config):
     """Send a PushOver message if configured, after git operation and command have run.
+
     Optionally send a message to the configured Telegram chat instead.
 
     result is a dictionary with fields:
@@ -230,7 +230,7 @@ def notify_user(result, config):
 
 
 def get_trigger_settings(app_key, trigger_key):
-    """Look up the trigger and return the repo and command to be updated and fired
+    """Look up the trigger and return the repo and command to be updated and fired.
 
     :param app_key: application key part of the url
     :param trigger_key: trigger key part of the url, sub part of the config
@@ -247,7 +247,7 @@ def get_trigger_settings(app_key, trigger_key):
 
 
 def get_repo_basename(repo_url):
-    """Extract repository basename from its url, as that will be the name of directory it will be cloned into"""
+    """Extract repository basename from its url, as that will be the name of directory it will be cloned into."""
     result = os.path.basename(repo_url)
     filename, file_extension = os.path.splitext(result)
     if file_extension == '.git':
@@ -257,7 +257,7 @@ def get_repo_basename(repo_url):
 
 
 def get_repo_version(repo_dir):
-    """Gets version of Git repo, based on latest tag, number of commits since, and latest commit hash
+    """Get version of Git repo, based on latest tag, number of commits since, and latest commit hash.
 
     :param repo_dir: path to the Git repository
     :return: string with version
@@ -278,13 +278,13 @@ def get_repo_version(repo_dir):
 
 
 def fetch_info_to_str(fetch_info):
-    """git.remote.FetchInfo to human-readable representation"""
+    """git.remote.FetchInfo to human-readable representation."""
     result = fetch_info[0].note
     return result
 
 
 def update_repo(config):
-    """Update (pull) the Git repo"""
+    """Update (pull) the Git repo."""
     projectname = config[0]
     trigger_config = config[1]
 
@@ -331,7 +331,7 @@ def update_repo(config):
 
 
 def run_command(config, hook_info):
-    """Run the command(s) defined for this trigger"""
+    """Run the command(s) defined for this trigger."""
     projectname = config[0]
     trigger_config = config[1]
     if 'command' not in trigger_config:
@@ -363,7 +363,7 @@ def run_command(config, hook_info):
 
 
 def do_pull_andor_command(config, hook_info):
-    """Asynchronous task, performing the git pulling and the specified scripting inside a Process"""
+    """Asynchronous task, performing the git pulling and the specified scripting inside a Process."""
     this_job = get_current_job()
 
     projectname = config[0]
