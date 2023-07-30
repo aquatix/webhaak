@@ -42,7 +42,7 @@ class Settings(BaseSettings):
 
 # Read the settings from the environment, based on the above configuration
 settings = Settings()
-print(settings.dict())
+print(settings.model_dump())
 
 logger = logging.getLogger('worker')
 
