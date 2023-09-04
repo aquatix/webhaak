@@ -188,7 +188,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
     redis_conn = Redis()
     q = Queue(connection=redis_conn, queue='webhaak')  # use named queue to prevent clashes with other RQ workers
 
-    # Delay execution of count_words_at_url('http://nvie.com')
+    # Delay execution task, so it can run as its own process under RQ, synchronously
     job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
 
