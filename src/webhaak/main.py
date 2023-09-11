@@ -226,7 +226,7 @@ async def job_status(job_id: str):
     """
     logger.info('Status requested for job %s', job_id)
     redis_conn = Redis()
-    q = Queue(connection=redis_conn, queue='webhaak')  # use named queue to prevent clashes with other RQ workers
+    q = Queue(connection=redis_conn, name='webhaak')  # use named queue to prevent clashes with other RQ workers
     job = q.fetch_job(job_id)
     if job is None:
         response = {'status': 'unknown'}
