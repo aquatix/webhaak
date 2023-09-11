@@ -186,13 +186,13 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
         if sentry_message:
             event_info = incoming.handle_sentry_message(payload, hook_info, event_info)
         elif rss_message:
-            event_info = incoming.handle_inoreader_rss_message(payload, hook_info, event_info)
+            event_info = incoming.handle_inoreader_rss_item(payload, hook_info, event_info)
         else:
             event_info = incoming.determine_task(config, payload, hook_info, event_info)
 
     # Create RQ job (task) for this request
     redis_conn = Redis()
-    q = Queue(connection=redis_conn, queue='webhaak')  # use named queue to prevent clashes with other RQ workers
+    q = Queue(connection=redis_conn, name='webhaak')  # use named queue to prevent clashes with other RQ workers
 
     # Delay execution task, so it can run as its own process under RQ, synchronously
     if rss_message:
