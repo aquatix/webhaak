@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Native Sentry message support
+- Support for (Inoreader filter) RSS news item notification
 
 ### Changed
 

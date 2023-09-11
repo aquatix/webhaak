@@ -363,7 +363,11 @@ def run_command(config, hook_info):
 
 
 def do_pull_andor_command(config, hook_info):
-    """Asynchronous task, performing the git pulling and the specified scripting inside a Process."""
+    """Asynchronous RQ task, performing the git pulling and the specified scripting inside a subprocess.
+
+    :param dict config:
+    :param dict hook_info:
+    """
     this_job = get_current_job()
 
     projectname = config[0]
@@ -439,3 +443,7 @@ def do_pull_andor_command(config, hook_info):
         or (result['status'] == 'error' and ('notify_on_error' in config[1] and config[1]['notify_on_error']))
     ):
         notify_user(result, config)
+
+
+def do_handle_inoreader_rss_message(config, hook_info):
+    print('Not implemented yet')

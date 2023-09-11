@@ -100,6 +100,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
     event_info = ''
     hook_info = {'event_type': 'push'}
     sentry_message = False
+    rss_message = False
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
             vcs_source = 'Gitea'
@@ -144,6 +145,8 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
                 elif 'links' in payload['repository']:
                     # BitBucket
                     url = payload['repository']['links']['html']['href']
+            elif payload.get('items') and payload['items'][0].get('canonical'):
+                rss_message = True
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
             logger.info(
@@ -162,6 +165,8 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             event_info = f'received push from {vcs_source} for '
         elif sentry_message:
             event_info = 'received push from Sentry for '
+        elif rss_message:
+            event_info = 'received RSS item for '
         else:
             logger.info(
                 'received wrong event type from %s for %s hook: %s',
@@ -180,21 +185,26 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
         if sentry_message:
             event_info = incoming.handle_sentry_message(payload, hook_info, event_info)
+        elif rss_message:
+            event_info = incoming.handle_inoreader_rss_message(payload, hook_info, event_info)
         else:
             event_info = incoming.determine_task(config, payload, hook_info, event_info)
-        # Write event_info to task log
 
     # Create RQ job (task) for this request
     redis_conn = Redis()
     q = Queue(connection=redis_conn, queue='webhaak')  # use named queue to prevent clashes with other RQ workers
 
     # Delay execution task, so it can run as its own process under RQ, synchronously
-    job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
+    if rss_message:
+        job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
+    else:
+        job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
 
     if not os.path.isdir(settings.jobs_log_dir):
         os.makedirs(settings.jobs_log_dir)
     with open(os.path.join(settings.jobs_log_dir, f'{job.id}.log'), 'w', encoding='utf-8') as outfile:
+        # Write event_info to task log
         outfile.write(event_info)
 
     server_url = request.base_url

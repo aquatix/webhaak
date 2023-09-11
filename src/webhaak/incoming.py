@@ -143,6 +143,11 @@ def handle_sentry_message(payload, hook_info, event_info):
     return event_info
 
 
+def handle_inoreader_rss_item(payload, hook_info, event_info):
+    hook_info['']
+    return event_info
+
+
 def get_commits_info(payload, hook_info):
     """Assemble extra information about the commits.
 
