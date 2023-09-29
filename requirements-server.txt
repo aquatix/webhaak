@@ -61,7 +61,7 @@ orjson==3.9.7
     # via fastapi
 packaging==23.1
     # via gunicorn
-pydantic==2.3.0
+pydantic==2.4.0
     # via
     #   fastapi
     #   pydantic-extra-types
