@@ -110,7 +110,7 @@ typing-extensions==4.8.0
     #   pydantic-core
 ujson==5.8.0
     # via fastapi
-urllib3==2.0.6
+urllib3==2.0.7
     # via requests
 uvicorn[standard]==0.23.2
     # via fastapi
