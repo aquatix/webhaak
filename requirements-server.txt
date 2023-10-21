@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-server.in
 #
-annotated-types==0.5.0
+annotated-types==0.6.0
     # via pydantic
 anyio==3.7.1
     # via
@@ -27,11 +27,11 @@ dnspython==2.4.2
     # via email-validator
 email-validator==2.0.0.post2
     # via fastapi
-fastapi[all]==0.103.2
+fastapi[all]==0.104.0
     # via -r requirements.in
-gitdb==4.0.10
+gitdb==4.0.11
     # via gitpython
-gitpython==3.1.37
+gitpython==3.1.40
     # via -r requirements.in
 gunicorn==21.2.0
     # via -r requirements-server.in
@@ -41,7 +41,7 @@ h11==0.14.0
     #   uvicorn
 httpcore==0.18.0
     # via httpx
-httptools==0.6.0
+httptools==0.6.1
     # via uvicorn
 httpx==0.25.0
     # via fastapi
@@ -57,7 +57,7 @@ jinja2==3.1.2
     # via fastapi
 markupsafe==2.1.3
     # via jinja2
-orjson==3.9.7
+orjson==3.9.9
     # via fastapi
 packaging==23.2
     # via gunicorn
@@ -110,13 +110,15 @@ typing-extensions==4.8.0
     #   pydantic-core
 ujson==5.8.0
     # via fastapi
-urllib3==2.0.6
+urllib3==2.0.7
     # via requests
 uvicorn[standard]==0.23.2
-    # via fastapi
-uvloop==0.17.0
+    # via
+    #   fastapi
+    #   uvicorn
+uvloop==0.18.0
     # via uvicorn
-watchfiles==0.20.0
+watchfiles==0.21.0
     # via uvicorn
-websockets==11.0.3
+websockets==12.0
     # via uvicorn
