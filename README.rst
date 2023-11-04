@@ -52,7 +52,7 @@ Be sure to export/set the ``SECRETKEY`` environment variable before running, it'
 
 Run ``gunicorn -k uvicorn.workers.UvicornWorker`` for production. For an example of how to set up a server `see this article <https://www.slingacademy.com/article/deploying-fastapi-on-ubuntu-with-nginx-and-lets-encrypt/>`_ with configuration for nginx, uvicorn, systemd, security and such.
 
-The RQ background worker can be run from the command line: ``rq worker --with-scheduler``
+The RQ background worker can be run from the command line: ``rq worker --with-scheduler webhaak``
 
 Url's are of the form https://hook.example.com/app/<appkey>/<triggerkey>
 
