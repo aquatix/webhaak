@@ -29,6 +29,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Default job runtime
+DEFAULT_TIMEOUT = 10 * 60
+
 
 async def verify_key(secret_key: str):
     """Verify whether this endpoint contains the secret part in its URL."""
@@ -192,7 +195,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
     # Create RQ job (task) for this request
     redis_conn = Redis()
-    q = Queue(connection=redis_conn, name='webhaak')  # use named queue to prevent clashes with other RQ workers
+    q = Queue(connection=redis_conn, name='webhaak', default_timeout=DEFAULT_TIMEOUT)  # use named queue to prevent clashes with other RQ workers
 
     # Delay execution task, so it can run as its own process under RQ, synchronously
     if rss_message:
