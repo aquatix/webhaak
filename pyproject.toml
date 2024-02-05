@@ -47,9 +47,15 @@ exclude = [
     "example_config/rq_settings.example.py",
     "example_config/settings.py",
 ]
-lint.ignore = ["D203"]
 line-length = 120
-lint.select = [
+
+[tool.ruff.format]
+# Use single quotes for non-triple-quoted strings.
+quote-style = "single"
+
+[tool.ruff.lint]
+ignore = ["D203", "D213"]
+select = [
     "C9",
     "D",
     "E",
