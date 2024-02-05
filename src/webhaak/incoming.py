@@ -144,6 +144,12 @@ def handle_sentry_message(payload, hook_info, event_info):
 
 
 def handle_inoreader_rss_item(payload, hook_info, event_info):
+    """Assemble information about the RSS item that was pushed.
+
+    :param dict payload: dictionary containing the incoming webhook payload
+    :param dict hook_info: dictionary containing the webhook configuration
+    :param str event_info: message containing information about the event, to be used to log and as feedback to user
+    """
     hook_info['']
     return event_info
 

@@ -195,7 +195,8 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
     # Create RQ job (task) for this request
     redis_conn = Redis()
-    q = Queue(connection=redis_conn, name='webhaak', default_timeout=DEFAULT_TIMEOUT)  # use named queue to prevent clashes with other RQ workers
+    # use named queue to prevent clashes with other RQ workers
+    q = Queue(connection=redis_conn, name='webhaak', default_timeout=DEFAULT_TIMEOUT)
 
     # Delay execution task, so it can run as its own process under RQ, synchronously
     if rss_message:

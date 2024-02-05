@@ -139,7 +139,7 @@ def send_pushover_message(userkey, apptoken, text, **kwargs):
 
 
 def make_sentry_message(result):
-    """Create Sentry push message.
+    r"""Create Sentry push message.
 
     Filter away known things
     if [[ $MESSAGE == *"Het ElementTree object kon niet"* ||
@@ -365,8 +365,8 @@ def run_command(config, hook_info):
 def do_pull_andor_command(config, hook_info):
     """Asynchronous RQ task, performing the git pulling and the specified scripting inside a subprocess.
 
-    :param dict config:
-    :param dict hook_info:
+    :param list config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
     """
     this_job = get_current_job()
 
@@ -446,4 +446,9 @@ def do_pull_andor_command(config, hook_info):
 
 
 def do_handle_inoreader_rss_message(config, hook_info):
+    """Assemble information about the RSS item that was pushed.
+
+    :param list config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
+    """
     print('Not implemented yet')
