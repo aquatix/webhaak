@@ -47,9 +47,9 @@ exclude = [
     "example_config/rq_settings.example.py",
     "example_config/settings.py",
 ]
-ignore = ["D203"]
+lint.ignore = ["D203"]
 line-length = 120
-select = [
+lint.select = [
     "C9",
     "D",
     "E",
@@ -57,5 +57,5 @@ select = [
     "W",
 ]
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 10
