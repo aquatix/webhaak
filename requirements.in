@@ -1,7 +1,5 @@
 # Running the webapp
 fastapi[all]
-# Downloading content from the web
-requests
 # Toolkit for interacting with files, formatting and more
 strictyaml
 # Git

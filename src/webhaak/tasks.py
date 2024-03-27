@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 
 import git
-import requests
+import httpx
 import strictyaml
 from pydantic import DirectoryPath, FilePath, validator
 from pydantic_settings import BaseSettings
@@ -92,7 +92,7 @@ with open(settings.projects_file, 'r', encoding='utf-8') as pf:
     projects = strictyaml.load(pf.read(), schema).data
 
 
-def send_pushover_message(userkey, apptoken, text, **kwargs):
+def format_and_send_pushover_message(userkey, apptoken, text, **kwargs):
     """Send a message through PushOver.
 
     It is possible to specify additional properties of the message by passing keyword
@@ -129,7 +129,15 @@ def send_pushover_message(userkey, apptoken, text, **kwargs):
             payload[key] = int(time.time())
         else:
             payload[key] = value
-    response = requests.post(
+    send_pushover_message(payload)
+
+
+def send_pushover_message(payload):
+    """Send a message through PushOver.
+
+    :param dict payload: key, token and message to send
+    """
+    response = httpx.post(
         'https://api.pushover.net/1/messages.json',
         data=payload,
         headers={'User-Agent': 'Python'},
@@ -208,15 +216,16 @@ def notify_user(result, config):
             telegram_chat_id = trigger_config['telegram_chat_id']
             telegram_token = trigger_config['telegram_token']
             # Send to Telegram chat
-            msg = requests.utils.quote(make_sentry_message(result), safe='')
-            with requests.get(
-                f"https://api.telegram.org/bot{telegram_token}/sendMessage?chat_id={telegram_chat_id}&text={msg}",
+            params = {'chat_id': telegram_chat_id, 'text': make_sentry_message(result)}
+            with httpx.get(
+                f'https://api.telegram.org/bot{telegram_token}/sendMessage',
+                params=params,
                 timeout=30
             ) as response:
                 logging.info('Telegram notification sent, result was %s', str(response.status_code))
         else:
             # Use the Pushover default
-            response = send_pushover_message(
+            response = format_and_send_pushover_message(
                 settings.pushover_userkey,
                 settings.pushover_apptoken,
                 message,

@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "webhaak"
-version = "0.5.4"
+version = "0.6.0-pre"
 authors = [
     {name = "Michiel Scholten", email = "michiel@diginaut.net"},
 ]
 description= "Simple webhook service to update and deploy sites and do other maintenance and automatic tasks"
 readme = "README.rst"
 requires-python = ">=3.7"
-keywords = ["webhook", "api", "automation", "CI/CD"]
+keywords = ["webhook", "api", "automation", "CI/CD", "Git"]
 license = {text = "Apache"}
 classifiers = [
     "Framework :: FastAPI",
@@ -22,7 +22,6 @@ dependencies = [
     "importlib-metadata; python_version<'3.8'",
     "fastapi[all]",
     "pydantic>2.0",
-    "requests",
     "strictyaml",
     "gitpython",
     "rq"

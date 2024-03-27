@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath('../../src'))
 # -- Project information -----------------------------------------------------
 
 project = 'webhaak'
-copyright = '2016-2023, Michiel Scholten'
+copyright = '2016-2024, Michiel Scholten'
 author = 'Michiel Scholten'
 
 # The short X.Y version

@@ -1,10 +1,12 @@
 """Main Webhaak application (runtime)."""
 import binascii
+import httpx
 import json
 import logging
 import os
 from datetime import datetime
 
+from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from redis import Redis
@@ -14,7 +16,15 @@ from webhaak import incoming, tasks
 
 settings = tasks.settings
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(the_app: FastAPI):
+    """Upon start, initialise an AsyncClient and assign it to an attribute named requests_client on the app object"""
+    the_app.requests_client = httpx.AsyncClient()
+    yield
+    await the_app.requests_client.aclose()
+
+app = FastAPI(lifespan=lifespan)
 
 logger = logging.getLogger('webhaak')
 if settings.debug:
