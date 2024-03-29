@@ -68,7 +68,12 @@ async def indexpage():
 
 @app.get('/admin/{secret_key}/list', dependencies=[Depends(verify_key)])
 async def list_triggers(request: Request):
-    """List the app_keys and trigger_keys available."""
+    """List the app_keys and trigger_keys available.
+
+    :param Request request: fastAPI Request object to get headers from
+    :return: json Response
+    :rtype: dict
+    """
     logger.info('Trigger list requested')
 
     server_url = request.base_url
@@ -102,6 +107,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
     :param str trigger_key: trigger key part of the url, sub part of the config
     :param Request request: fastAPI Request object to get headers from
     :return: json Response
+    :rtype: dict
     """
     logger.info('%s on app_key: %s trigger_key: %s', request.method, app_key, trigger_key)
     config = tasks.get_trigger_settings(app_key, trigger_key)
@@ -109,6 +115,15 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
         logger.error('app_key/trigger_key combo not found')
         # return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
         raise HTTPException(status_code=404, detail="Error")
+
+    if 'call_url' in config[1]:
+        # Event type is 'call another URL'
+        status, response = await tasks.call_url(request, config)
+        return {
+            'status': status,
+            'message': 'Command accepted and was passed on',
+            'response': response,
+        }
 
     event_info = ''
     hook_info = {'event_type': 'push'}

@@ -8,6 +8,7 @@ from datetime import datetime
 import git
 import httpx
 import strictyaml
+from fastapi import Request
 from pydantic import DirectoryPath, FilePath, validator
 from pydantic_settings import BaseSettings
 from rq import get_current_job
@@ -77,6 +78,14 @@ schema = MapPattern(
                 Optional("command"): Str(),
                 # Git author username -> friendly name mapping
                 Optional("authors"): MapPattern(Str(), Str()),
+                # Call a remote endpoint
+                Optional('call_url'): Map({
+                    'url': Str(),
+                    # Contains json payload
+                    Optional('json', default=False): Bool(),
+                    # Should POST instead of GET
+                    Optional('post', default=False): Bool(),
+                }),
                 # Telegram
                 Optional("telegram_chat_id"): Str(),
                 Optional("telegram_token"): Str(),
@@ -90,6 +99,33 @@ schema = MapPattern(
 # Load the configuration of the various projects/hooks
 with open(settings.projects_file, 'r', encoding='utf-8') as pf:
     projects = strictyaml.load(pf.read(), schema).data
+
+
+async def call_url(request: Request, config):
+    """Call a URL with a payload.
+
+    :param Request request: request object from FastAPI call
+    :param tuple config: configuration for this webhook
+    :return:
+    """
+    requests_client = request.app.requests_client
+    url = config[1]['call_url']['url']
+    logger.info(f'Calling URL {url}')
+    if config[1]['call_url']['json']:
+        payload = await request.json()
+    else:
+        payload = await request.body()
+    try:
+        if config[1]['call_url']['post']:
+            response = await requests_client.post(url, data=payload)
+        else:
+            response = await requests_client.get(url)
+    except (httpx.ConnectError, httpx.ReadTimeout) as e:
+        return 'ERROR', {'error': e}
+    result = 'OK'
+    if response.status_code > 200:
+        result = 'ERROR'
+    return result, response.json()
 
 
 def format_and_send_pushover_message(user_key, app_token, text, **kwargs):
@@ -292,7 +328,12 @@ def fetch_info_to_str(fetch_info):
 
 
 def update_repo(config):
-    """Update (pull) the Git repo."""
+    """Update (pull) the Git repo.
+
+    :param tuple config: configuration for this webhook
+    :return: result of the repo update
+    :rtype: str
+    """
     projectname = config[0]
     trigger_config = config[1]
 
@@ -339,7 +380,11 @@ def update_repo(config):
 
 
 def run_command(config, hook_info):
-    """Run the command(s) defined for this trigger."""
+    """Run the command(s) defined for this trigger.
+
+    :param tuple config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
+    """
     projectname = config[0]
     trigger_config = config[1]
     if 'command' not in trigger_config:
@@ -373,7 +418,7 @@ def run_command(config, hook_info):
 def do_pull_andor_command(config, hook_info):
     """Asynchronous RQ task, performing the git pulling and the specified scripting inside a subprocess.
 
-    :param list config: configuration for this webhook
+    :param tuple config: configuration for this webhook
     :param dict hook_info: information about the incoming webhook payload
     """
     this_job = get_current_job()
@@ -456,7 +501,7 @@ def do_pull_andor_command(config, hook_info):
 def do_handle_inoreader_rss_message(config, hook_info):
     """Assemble information about the RSS item that was pushed.
 
-    :param list config: configuration for this webhook
+    :param tuple config: configuration for this webhook
     :param dict hook_info: information about the incoming webhook payload
     """
     print('Not implemented yet')

@@ -70,11 +70,11 @@ usage in the projects yaml file (so, for example https://hook.example.com/admin/
 
 By default, webhaak clones projects in a directory under its
 ``REPOS_CACHE_DIR`` directory, but there is support for a per-repo parent dir
-settings with ``repoparent`` in the yaml.
+settings with ``repo_parent`` in the yaml.
 
 This means that webhaak then doesn't clone this repo into its default cache
-dir, but in a subdirectory of the directory configured in ``repoparent``, so
-<repoparent>/reponame (e.g., /srv/customparent/myproject).
+dir, but in a subdirectory of the directory configured in ``repo_parent``, so
+<repo_parent>/repo_name (e.g., /srv/custom_parent/myproject).
 
 
 Server configuration

@@ -15,24 +15,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [unreleased]
 
 ### Added
+- Call an other (external) URL/endpoint from a hook
 - Native Sentry message support
 - Support for (Inoreader filter) RSS news item notification
 
 ### Changed
+- Use ruff to lint and fix codebase
+- Jobs now may take 10 minutes instead of the previous maximum of 3
+- Switched to use `httpx` instead of `requests` for HTTP calls from webhaak to other services
 
 ### Removed
 
 ### Fixed
-- Actually use named `webhaak` queue for RQ worker
-
-
-## [0.6.0] - UNRELEASED
-
-### Changed
-- Use ruff to lint and fix codebase
-- RQ worker listens to queue `webhaak` instead of `default`
-- Jobs now may take 10 minutes instead of the previous maximum of 3
-- Switched to use `httpx` instead of `requests` for HTTP calls from webhaak to other services
+- Actually use named `webhaak` queue for RQ worker (instead of `default`)
 
 
 ## [0.5.4] - 2023-07-28

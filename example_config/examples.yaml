@@ -28,6 +28,22 @@ aquariusoft.org:
       notify: false
       command: /srv/scripts/sentry_to_telegram.sh "PROJECT_NAME" "CULPRIT" "URL" "TITLE" "STACKTRACE"
 
+endpoints:
+  app_key: 1deb727726c2ab010013d2413d628f5ba9b6218ff5fd23df
+  triggers:
+    do_get:
+      trigger_key: 1dce67412c4af2d5fdee102ed3d81914fa62c089fb021263
+      call_url:
+        url: http://localhost:9876/trigger/some/other/thing
+        json: false
+        post: false
+    do_post_with_json:
+      trigger_key: f4e29fa1e22ca0dc239570094c001e41b35cf614ac0d97c8
+      call_url:
+        url: http://localhost:8080/skill/mybotwebhook/echo
+        json: true
+        post: true
+
 flask_webapp:
   app_key: 175cc847f608840815d741070d114f3aac35243b4f7e501c
   triggers:
