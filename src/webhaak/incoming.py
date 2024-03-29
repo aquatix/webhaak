@@ -197,7 +197,7 @@ def determine_task(config, payload, hook_info, event_info):
             hook_info['tag'] = payload['ref'].replace('refs/tags/', '')
     if 'repository' in payload:
         event_info += payload['repository']['full_name']
-        hook_info['reponame'] = payload['repository']['full_name']
+        hook_info['repo_name'] = payload['repository']['full_name']
         if 'name' in payload['repository']:
             hook_info['project_name'] = payload['repository']['name']
     if 'actor' in payload:

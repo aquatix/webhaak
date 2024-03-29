@@ -92,7 +92,7 @@ with open(settings.projects_file, 'r', encoding='utf-8') as pf:
     projects = strictyaml.load(pf.read(), schema).data
 
 
-def format_and_send_pushover_message(userkey, apptoken, text, **kwargs):
+def format_and_send_pushover_message(user_key, app_token, text, **kwargs):
     """Send a message through PushOver.
 
     It is possible to specify additional properties of the message by passing keyword
@@ -103,8 +103,8 @@ def format_and_send_pushover_message(userkey, apptoken, text, **kwargs):
     For convenience, you can simply set ``timestamp=True`` to set the
     timestamp to the current timestamp.
 
-    :param str userkey: user key in PushOver
-    :param str apptoken: app token for PushOver
+    :param str user_key: user key in PushOver
+    :param str app_token: app token for PushOver
     :param str text: message to send
     """
     message_keywords = [
@@ -121,7 +121,7 @@ def format_and_send_pushover_message(userkey, apptoken, text, **kwargs):
         "html",
         "attachment",
     ]
-    payload = {"message": text, "user": userkey, "token": apptoken}
+    payload = {"message": text, "user": user_key, "token": app_token}
     for key, value in kwargs.items():
         if key not in message_keywords:
             raise ValueError(f'{key}: invalid message parameter')
@@ -200,7 +200,6 @@ def notify_user(result, config):
     try:
         trigger_config = config[1]
         projectname = f'{config[0]}>{trigger_config["title"]}'
-        title = ''
         branch = trigger_config.get('branch', 'master')
         command = trigger_config.get('command', 'n/a')
         repo = trigger_config.get('repo', 'n/a')
