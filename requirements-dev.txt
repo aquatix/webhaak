@@ -19,7 +19,7 @@ babel==2.14.0
     # via sphinx
 bandit==1.7.8
     # via -r requirements-dev.in
-build==1.1.1
+build==1.2.1
     # via -r requirements-dev.in
 certifi==2024.2.2
     # via
@@ -60,7 +60,7 @@ h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
-httpcore==1.0.4
+httpcore==1.0.5
     # via httpx
 httptools==0.6.1
     # via uvicorn
@@ -108,7 +108,7 @@ more-itertools==10.2.0
     #   jaraco-functools
 nh3==0.2.17
     # via readme-renderer
-orjson==3.9.15
+orjson==3.10.0
     # via fastapi
 packaging==24.0
     # via
