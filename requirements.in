@@ -6,3 +6,5 @@ strictyaml
 gitpython
 # Worker
 rq
+# Ensure Redis has async timeout (work-around?)
+async-timeout

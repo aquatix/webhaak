@@ -14,7 +14,9 @@ anyio==4.3.0
     #   starlette
     #   watchfiles
 async-timeout==4.0.3
-    # via redis
+    # via
+    #   -r requirements.in
+    #   redis
 babel==2.14.0
     # via sphinx
 bandit==1.7.8
