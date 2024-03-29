@@ -9,7 +9,7 @@ import git
 import httpx
 import strictyaml
 from fastapi import Request
-from pydantic import DirectoryPath, FilePath, validator
+from pydantic import DirectoryPath, FilePath, validator, json
 from pydantic_settings import BaseSettings
 from rq import get_current_job
 from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
@@ -106,7 +106,8 @@ async def call_url(request: Request, config):
 
     :param Request request: request object from FastAPI call
     :param tuple config: configuration for this webhook
-    :return:
+    :return: string with 'OK' or 'ERROR', and the response body in JSON or plaintext, depending on server answer
+    :rtype: str, dict/str
     """
     requests_client = request.app.requests_client
     url = config[1]['call_url']['url']
@@ -122,10 +123,15 @@ async def call_url(request: Request, config):
             response = await requests_client.get(url)
     except (httpx.ConnectError, httpx.ReadTimeout) as e:
         return 'ERROR', {'error': e}
+
     result = 'OK'
     if response.status_code > 200:
         result = 'ERROR'
-    return result, response.json()
+    try:
+        response_body = request.json()
+    except json.decoder.JSONDecodeError:
+        response_body = response.text()
+    return result, response_body
 
 
 def format_and_send_pushover_message(user_key, app_token, text, **kwargs):
