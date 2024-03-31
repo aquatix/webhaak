@@ -1,12 +1,12 @@
 """Main Webhaak application (runtime)."""
 import binascii
-import httpx
 import json
 import logging
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime
 
-from contextlib import asynccontextmanager
+import httpx
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from redis import Redis

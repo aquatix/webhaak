@@ -9,7 +9,7 @@ import git
 import httpx
 import strictyaml
 from fastapi import Request
-from pydantic import DirectoryPath, FilePath, validator, json
+from pydantic import DirectoryPath, FilePath, json, validator
 from pydantic_settings import BaseSettings
 from rq import get_current_job
 from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
