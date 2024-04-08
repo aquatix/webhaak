@@ -128,7 +128,39 @@ async def call_url(request: Request, config):
     if response.status_code > 200:
         result = 'ERROR'
     try:
-        response_body = request.json()
+        response_body = response.json()
+    except json.decoder.JSONDecodeError:
+        response_body = response.text()
+    return result, response_body
+
+
+def send_outgoing_webhook(config, payload):
+    """Send a message through POST or GET to an external URL.
+
+    :param tuple config: configuration for this webhook
+    :param dict payload: key, token and message to send
+    """
+    url = config[1]['call_url']['url']
+    logger.info(f'Calling URL {url}')
+    try:
+        if config[1]['call_url']['post']:
+            response = httpx.post(
+                url,
+                data=payload,
+                headers={'User-Agent': 'webhaak'},
+                timeout=60
+            )
+        else:
+            # This could be more useful with some URL-encoded content for example
+            response = httpx.get(url)
+    except (httpx.ConnectError, httpx.ReadTimeout) as e:
+        return 'ERROR', {'error': e}
+
+    result = 'OK'
+    if response.status_code > 200:
+        result = 'ERROR'
+    try:
+        response_body = response.json()
     except json.decoder.JSONDecodeError:
         response_body = response.text()
     return result, response_body
@@ -510,4 +542,4 @@ def do_handle_inoreader_rss_message(config, hook_info):
     :param tuple config: configuration for this webhook
     :param dict hook_info: information about the incoming webhook payload
     """
-    print('Not implemented yet')
+    send_outgoing_webhook(config, payload=hook_info)

@@ -22,12 +22,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Use ruff to lint and fix codebase
 - Jobs now may take 10 minutes instead of the previous maximum of 3
-- Switched to use `httpx` instead of `requests` for HTTP calls from webhaak to other services
+- Switched to use (async) `httpx` instead of `requests` for HTTP calls from webhaak to other services
 
 ### Removed
 
 ### Fixed
 - Actually use named `webhaak` queue for RQ worker (instead of `default`)
+- Guard against remote not returning a JSON response
+- Properly await async functions that handle incoming webhook calls
 
 
 ## [0.5.4] - 2023-07-28

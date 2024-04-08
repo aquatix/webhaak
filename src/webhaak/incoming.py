@@ -150,7 +150,12 @@ async def handle_inoreader_rss_item(payload, hook_info, event_info):
     :param dict hook_info: dictionary containing the webhook configuration
     :param str event_info: message containing information about the event, to be used to log and as feedback to user
     """
-    hook_info['']
+    items = payload.get('items', [])
+    # Actually, we only support one item anyway? TODO: support sending a list
+    for item in items:
+        hook_info['title'] = item.get('title', '[untitled]')
+        hook_info['url'] = item.get('canonical', [{}])[0].get('href', 'unknown')
+        hook_info['message'] = item.get('summary', {}).get('content', '[untitled]')
     return event_info
 
 

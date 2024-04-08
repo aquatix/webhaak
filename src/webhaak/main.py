@@ -116,15 +116,6 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
         # return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
         raise HTTPException(status_code=404, detail="Error")
 
-    if 'call_url' in config[1]:
-        # Event type is 'call another URL'
-        status, response = await tasks.call_url(request, config)
-        return {
-            'status': status,
-            'message': 'Command accepted and was passed on',
-            'response': response,
-        }
-
     event_info = ''
     hook_info = {'event_type': 'push'}
     sentry_message = False
@@ -156,7 +147,13 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             vcs_source = '<unknown>'
 
         hook_info['vcs_source'] = vcs_source
-        payload = await request.json()
+
+        try:
+            payload = await request.json()
+        except json.decoder.JSONDecodeError as error:
+            payload = {}
+            logger.error('JSON decode error: %s', error)
+
         logger.debug(payload)
         url = ''
         if payload:
@@ -174,6 +171,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
                     # BitBucket
                     url = payload['repository']['links']['html']['href']
             elif payload.get('items') and payload['items'][0].get('canonical'):
+                hook_info['event_type'] = 'news_item'
                 rss_message = True
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
@@ -199,10 +197,19 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             logger.info(
                 'received wrong event type from %s for %s hook: %s',
                 vcs_source,
-                payload['repository']['full_name'],
+                payload.get('repository', {}).get('full_name', 'not available'),
                 url
             )
             return {'error': "wrong event type"}
+
+        if not sentry_message and not rss_message and 'call_url' in config[1]:
+            # Event type is 'call another URL'
+            status, response = await tasks.call_url(request, config)
+            return {
+                'status': status,
+                'message': 'Command accepted and was passed on',
+                'response': response,
+            }
 
         if not payload:
             logger.error(
@@ -225,7 +232,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
     # Delay execution task, so it can run as its own process under RQ, synchronously
     if rss_message:
-        job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
+        job = q.enqueue(tasks.do_handle_inoreader_rss_message, args=(config, hook_info,))
     else:
         job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
     logger.info('Enqueued job with id: %s', job.id)
