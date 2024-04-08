@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger('webhaak')
 
 
-def handle_bitbucket_push(payload, hook_info):
+async def handle_bitbucket_push(payload, hook_info):
     """Handle an incoming Git push hook from BitBucket.
 
     :param dict payload: dictionary containing the incoming webhook payload
@@ -49,7 +49,7 @@ def handle_bitbucket_push(payload, hook_info):
         hook_info['commits'].append(commit_info)
 
 
-def handle_bitbucket_pullrequest(payload, hook_info):
+async def handle_bitbucket_pullrequest(payload, hook_info):
     """Handle an incoming pull request hook from BitBucket.
 
     :param dict payload: dictionary containing the incoming webhook payload
@@ -68,7 +68,7 @@ def handle_bitbucket_pullrequest(payload, hook_info):
         hook_info['pullrequest_url'] = payload['pullrequest']['links']['html']
 
 
-def handle_bitbucket_actor(payload, hook_info, event_info, config):
+async def handle_bitbucket_actor(payload, hook_info, event_info, config):
     """Assemble information about the author of this action.
 
     :param dict payload: dictionary containing the incoming webhook payload
@@ -91,7 +91,7 @@ def handle_bitbucket_actor(payload, hook_info, event_info, config):
     return event_info
 
 
-def handle_git_actor(payload, hook_info, event_info):
+async def handle_git_actor(payload, hook_info, event_info):
     """Assemble information about the author of this action.
 
     :param dict payload: dictionary containing the incoming webhook payload
@@ -109,7 +109,7 @@ def handle_git_actor(payload, hook_info, event_info):
     return event_info
 
 
-def handle_sentry_message(payload, hook_info, event_info):
+async def handle_sentry_message(payload, hook_info, event_info):
     """Assemble information about the event that Sentry sent so an appropriate notification can be sent later.
 
     :param dict payload: dictionary containing the incoming webhook payload
@@ -143,7 +143,7 @@ def handle_sentry_message(payload, hook_info, event_info):
     return event_info
 
 
-def handle_inoreader_rss_item(payload, hook_info, event_info):
+async def handle_inoreader_rss_item(payload, hook_info, event_info):
     """Assemble information about the RSS item that was pushed.
 
     :param dict payload: dictionary containing the incoming webhook payload
@@ -154,7 +154,7 @@ def handle_inoreader_rss_item(payload, hook_info, event_info):
     return event_info
 
 
-def get_commits_info(payload, hook_info):
+async def get_commits_info(payload, hook_info):
     """Assemble extra information about the commits.
 
     :param dict payload: dictionary containing the incoming webhook payload
@@ -173,7 +173,7 @@ def get_commits_info(payload, hook_info):
         hook_info['commits'].append(commit_info)
 
 
-def determine_task(config, payload, hook_info, event_info):
+async def determine_task(config, payload, hook_info, event_info):
     """Parse the incoming webhook information and assemble the hook_info.
 
     :param dict config: the projects configuration
@@ -183,11 +183,11 @@ def determine_task(config, payload, hook_info, event_info):
     """
     if 'push' in payload:
         # BitBucket, which has a completely different format
-        handle_bitbucket_push(payload, hook_info)
+        await handle_bitbucket_push(payload, hook_info)
 
     if 'pullrequest' in payload:
         # BitBucket pullrequest event
-        handle_bitbucket_pullrequest(payload, hook_info)
+        await handle_bitbucket_pullrequest(payload, hook_info)
 
     if 'ref' in payload:
         hook_info['ref'] = payload['ref']
@@ -202,10 +202,10 @@ def determine_task(config, payload, hook_info, event_info):
             hook_info['project_name'] = payload['repository']['name']
     if 'actor' in payload:
         # BitBucket pusher; no email address known here though
-        event_info = handle_bitbucket_actor(payload, hook_info, event_info, config)
+        event_info = await handle_bitbucket_actor(payload, hook_info, event_info, config)
     if 'pusher' in payload:
         # GitHub, gitea, gogs
-        event_info = handle_git_actor(payload, hook_info, event_info)
+        event_info = await handle_git_actor(payload, hook_info, event_info)
     if 'compare' in payload:
         event_info += ', compare: ' + payload['compare']
         hook_info['compare_url'] = payload['compare']
@@ -219,7 +219,7 @@ def determine_task(config, payload, hook_info, event_info):
         hook_info['commit_after'] = payload['after']
     if 'commits' in payload:
         # Gather info on the commits included in this push
-        get_commits_info(payload, hook_info)
+        await get_commits_info(payload, hook_info)
 
     logger.debug(hook_info)
     logger.info(event_info)

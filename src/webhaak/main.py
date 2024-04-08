@@ -212,11 +212,11 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             )
 
         if sentry_message:
-            event_info = incoming.handle_sentry_message(payload, hook_info, event_info)
+            event_info = await incoming.handle_sentry_message(payload, hook_info, event_info)
         elif rss_message:
-            event_info = incoming.handle_inoreader_rss_item(payload, hook_info, event_info)
+            event_info = await incoming.handle_inoreader_rss_item(payload, hook_info, event_info)
         else:
-            event_info = incoming.determine_task(config, payload, hook_info, event_info)
+            event_info = await incoming.determine_task(config, payload, hook_info, event_info)
 
     # Create RQ job (task) for this request
     redis_conn = Redis()
