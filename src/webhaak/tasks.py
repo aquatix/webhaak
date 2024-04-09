@@ -221,41 +221,12 @@ def send_pushover_message(payload):
 
 
 def make_sentry_message(config, hook_info):
-    r"""Create Sentry push message.
+    """Format Sentry message based on incoming hook info.
 
-    Filter away known things
-    if [[ $MESSAGE == *"Het ElementTree object kon niet"* ||
-          $MESSAGE == *"The ElementTree object could"* ||
-          $MESSAGE == *"Meerdere resultaten gevonden in de wachtrij"* ||
-          $MESSAGE == *"Found multiple results in"* ||
-          $MESSAGE == *"Openen video is mislukt voor"* ||
-          $MESSAGE == *"SAML login mislukt voor organisatie"* ||
-          $MESSAGE == *"Cannot read property 'mData' of undefined"* ||
-          $MESSAGE == *"Cannot find tmlo for id"* ]];
-    then
-        exit
-    fi
-
-    URL=${URL//?referrer=webhooks_plugin/}
-
-    # Include stacktrace when available
-    if [ "$STACKTRACE" != "Not available" ]; then
-        TRACETEXT="
-    ${STACKTRACE}
-
-    "
-
-    # Replace literal \n with end of lines
-    TRACETEXT=${TRACETEXT//\\n/
-    }
-    fi
-
-    # Create the message to send
-    REPORT="[${PROJECTNAME}] ${MESSAGE}
-
-    in *${CULPRIT}*
-    ${TRACETEXT}
-    ${URL}"
+    :param tuple config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
+    :return: Markdown formatted message with the details of the Sentry issue
+    :rtype: str
     """
     filter_items = config[1].get('ignore', [])
     for filter_item in filter_items:
@@ -569,12 +540,11 @@ def do_handle_inoreader_rss_message(config, hook_info):
     return send_outgoing_webhook(config, payload=hook_info)
 
 
-def do_handle_sentry_message(config, hook_info, event_info):
+def do_handle_sentry_message(config, hook_info):
     """Assemble information about the RSS item that was pushed.
 
     :param tuple config: configuration for this webhook
     :param dict hook_info: information about the incoming webhook payload
-    :param str event_info: information about the event
     :return: result and response of the call
     :rtype: str, dict
     """
