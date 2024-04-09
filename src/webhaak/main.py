@@ -19,7 +19,7 @@ settings = tasks.settings
 
 @asynccontextmanager
 async def lifespan(the_app: FastAPI):
-    """Upon start, initialise an AsyncClient and assign it to an attribute named requests_client on the app object"""
+    """Upon start, initialise an AsyncClient and assign it to an attribute named requests_client on the app object."""
     the_app.requests_client = httpx.AsyncClient()
     yield
     await the_app.requests_client.aclose()

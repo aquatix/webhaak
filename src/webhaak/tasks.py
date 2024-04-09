@@ -9,7 +9,7 @@ import git
 import httpx
 import strictyaml
 from fastapi import Request
-from pydantic import DirectoryPath, FilePath, json, validator
+from pydantic import DirectoryPath, FilePath, field_validator, json
 from pydantic_settings import BaseSettings
 from rq import get_current_job
 from strictyaml import Bool, Map, MapPattern, Optional, Seq, Str
@@ -31,10 +31,10 @@ class Settings(BaseSettings):
 
     debug: bool = False
 
-    @validator('jobs_log_dir', pre=True)
+    @field_validator('jobs_log_dir', mode='before')
     def apply_root(cls, value, values):
         """Create the actual value for jobs_log_dir, through its validator."""
-        if log_dir := values.get('log_dir'):
+        if log_dir := values.data.get('log_dir'):
             # jobs_log_dir is a subdirectory of log_dir
             return log_dir / value
         # should only happen when there was an error with log_dir
