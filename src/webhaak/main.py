@@ -120,6 +120,8 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
     hook_info = {'event_type': 'push'}
     sentry_message = False
     rss_message = False
+    call_external_url = False
+
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
             vcs_source = 'Gitea'
@@ -193,6 +195,9 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             event_info = 'received push from Sentry for '
         elif rss_message:
             event_info = 'received RSS item for '
+        elif 'call_url' in config[1]:
+            call_external_url = True
+            event_info = 'received external URL for '
         else:
             logger.info(
                 'received wrong event type from %s for %s hook: %s',
@@ -202,7 +207,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             )
             return {'error': "wrong event type"}
 
-        if not sentry_message and not rss_message and 'call_url' in config[1]:
+        if call_external_url:
             # Event type is 'call another URL'
             status, response = await tasks.call_url(request, config)
             return {
