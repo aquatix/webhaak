@@ -225,6 +225,12 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
         if sentry_message:
             event_info = await incoming.handle_sentry_message(payload, hook_info, event_info)
+            status, response = tasks.do_handle_sentry_message(config, hook_info, event_info)
+            return {
+                'status': status,
+                'message': 'Command accepted and was passed on',
+                'response': response,
+            }
         elif rss_message:
             event_info = await incoming.handle_inoreader_rss_item(payload, hook_info, event_info)
         else:

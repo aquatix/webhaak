@@ -138,7 +138,7 @@ def send_outgoing_webhook(config, payload):
     """Send a message through POST or GET to an external URL.
 
     :param tuple config: configuration for this webhook
-    :param dict payload: key, token and message to send
+    :param dict|str payload: message to send, in json (Python dict) or string
     """
     url = config[1]['call_url']['url']
     logger.info(f'Calling URL {url}')
@@ -220,7 +220,7 @@ def send_pushover_message(payload):
     return response
 
 
-def make_sentry_message(result):
+def make_sentry_message(config, hook_info):
     r"""Create Sentry push message.
 
     Filter away known things
@@ -257,7 +257,28 @@ def make_sentry_message(result):
     ${TRACETEXT}
     ${URL}"
     """
-    return ''
+    filter_items = config[1].get('ignore', [])
+    for filter_item in filter_items:
+        if hook_info['title'] in filter_item:
+            # We can skip this one
+            return
+
+    title = f'💣 [{hook_info["project_name"]}] {hook_info["title"]}'
+    url = hook_info['url'].replace('?referrer=webhooks_plugin', '')
+
+    message = f'in `{hook_info["culprit"]}`'
+
+    if hook_info.get('message'):
+        message = f'{message}\n\n{hook_info["message"]}'
+
+    if hook_info.get('stacktrace') and hook_info.get('stacktrace') != 'Not available':
+        # stacktrace = hook_info['stacktrace'].replace('\\n', '\n')
+        stacktrace = hook_info['stacktrace']
+        message = f'{message}\n\n```python\n{stacktrace}\n```'
+
+    message = f'{title}\n\n{message}\n\n[{url}]({url})'
+
+    return message
 
 
 def notify_user(result, config):
@@ -289,7 +310,8 @@ def notify_user(result, config):
             telegram_chat_id = trigger_config['telegram_chat_id']
             telegram_token = trigger_config['telegram_token']
             # Send to Telegram chat
-            params = {'chat_id': telegram_chat_id, 'text': make_sentry_message(result)}
+            # params = {'chat_id': telegram_chat_id, 'text': make_sentry_message(config)}
+            params = {'chat_id': telegram_chat_id, 'text': 'Imagine a Sentry message here. Not implemented, sorry'}
             with httpx.get(
                 f'https://api.telegram.org/bot{telegram_token}/sendMessage',
                 params=params,
@@ -537,9 +559,32 @@ def do_pull_andor_command(config, hook_info):
 
 
 def do_handle_inoreader_rss_message(config, hook_info):
+    """Send the RSS item that was pushed on through an outgoing URL call.
+
+    :param tuple config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
+    :return: result and response of the call
+    :rtype: str, dict
+    """
+    return send_outgoing_webhook(config, payload=hook_info)
+
+
+def do_handle_sentry_message(config, hook_info, event_info):
     """Assemble information about the RSS item that was pushed.
 
     :param tuple config: configuration for this webhook
     :param dict hook_info: information about the incoming webhook payload
+    :param str event_info: information about the event
+    :return: result and response of the call
+    :rtype: str, dict
     """
-    send_outgoing_webhook(config, payload=hook_info)
+    message = make_sentry_message(config, hook_info)
+    if not message:
+        # We can skip this one
+        return
+    if config[1].get('call_url'):
+        # send through webhook (outgoing URL call)
+        return send_outgoing_webhook(config, payload=message)
+    elif config[1].get('telegram_chat_id'):
+        # send Telegram message
+        pass
