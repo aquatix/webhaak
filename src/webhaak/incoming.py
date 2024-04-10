@@ -16,9 +16,11 @@ async def handle_bitbucket_push(payload, hook_info):
     if payload['push']['changes'][0]['old']:
         # Info on the previous commit is available (so not a new branch)
         hook_info['commit_before'] = payload['push']['changes'][0]['old']['target']['hash']
+        hook_info['branch_before'] = payload['push']['changes'][0]['old']['name']
     if payload['push']['changes'][0]['new']:
         # Info about the (merge) commit is known
         hook_info['commit_after'] = payload['push']['changes'][0]['new']['target']['hash']
+        hook_info['branch'] = payload['push']['changes'][0]['new']['name']
     else:
         # Likely a 'None' merge commit, so get the info from the branch that is getting merged
         hook_info['commit_after'] = payload['push']['changes'][0]['old']['target']['hash']

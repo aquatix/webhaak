@@ -458,6 +458,16 @@ def do_pull_andor_command(config, hook_info):
     start_time = datetime.now()
     result = {'application': projectname, 'result': 'unknown', 'trigger': config[1]}
     if 'repo' in config[1]:
+        if config[1].get('branch') and hook_info.get('branch') and config[1]['branch'] != hook_info['branch']:
+            # Push was not on the required branch, skipping execution
+            logger.info(
+                '[%s] skipped updating repo as push for trigger %s was on branch: %s (config wants: %s)',
+                projectname,
+                config[1]['title'],
+                hook_info['branch'],
+                config[1]['branch']
+            )
+            return
         try:
             result['repo_result'] = update_repo(config)
             logger.info('[%s] result repo: %s', projectname, str(result['repo_result']))
