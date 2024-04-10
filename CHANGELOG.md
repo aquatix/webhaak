@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Use ruff to lint and fix codebase
 - Jobs now may take 10 minutes instead of the previous maximum of 3
 - Switched to use (async) `httpx` instead of `requests` for HTTP calls from webhaak to other services
+- Only update repository and run command when the push was on the configured branch (use `branch: <name>`)
 
 ### Removed
 
