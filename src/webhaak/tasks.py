@@ -118,7 +118,7 @@ async def call_url(request: Request, config):
         payload = await request.body()
     try:
         if config[1]['call_url']['post']:
-            response = await requests_client.post(url, data=payload)
+            response = await requests_client.post(url, data=payload, headers={'User-Agent': 'webhaak'})
         else:
             response = await requests_client.get(url)
     except (httpx.ConnectError, httpx.ReadTimeout) as e:
