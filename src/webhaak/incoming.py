@@ -129,7 +129,7 @@ async def handle_sentry_message(payload, hook_info, event_info):
         stacktrace = []
         if 'exception' in payload['event']:
             # Always take the last set
-            frames = payload['event']['exception']['values'][-1]['stacktrace']['frames']
+            frames = payload['event']['exception']['values'][-1].get('stacktrace', {}).get('frames', [])
             for frame in frames:
                 frame_message = f'{frame["filename"]} in {frame["function"]} at line {frame["lineno"]}'
                 stacktrace.append(frame_message)
