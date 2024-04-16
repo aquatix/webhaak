@@ -35,7 +35,7 @@ httptools==0.6.1
     # via uvicorn
 httpx==0.27.0
     # via fastapi
-idna==3.6
+idna==3.7
     # via
     #   anyio
     #   email-validator
@@ -50,12 +50,12 @@ orjson==3.10.0
     # via fastapi
 packaging==24.0
     # via gunicorn
-pydantic==2.6.4
+pydantic==2.7.0
     # via
     #   fastapi
     #   pydantic-extra-types
     #   pydantic-settings
-pydantic-core==2.16.3
+pydantic-core==2.18.1
     # via pydantic
 pydantic-extra-types==2.6.0
     # via fastapi

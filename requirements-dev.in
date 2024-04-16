@@ -6,9 +6,11 @@ bandit
 #pylint
 ruff
 
+# Publishing on PyPI
 build
 twine
 
+# Generating (Read the) Docs
 sphinx
 sphinx_rtd_theme
 recommonmark
