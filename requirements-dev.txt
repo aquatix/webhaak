@@ -13,7 +13,7 @@ async-timeout==4.0.3
     # via redis
 babel==2.14.0
     # via sphinx
-backports-tarfile==1.0.0
+backports-tarfile==1.1.0
     # via jaraco-context
 bandit==1.7.8
 build==1.2.1
@@ -72,7 +72,7 @@ importlib-metadata==7.1.0
     # via
     #   keyring
     #   twine
-itsdangerous==2.1.2
+itsdangerous==2.2.0
     # via fastapi
 jaraco-classes==3.4.0
     # via keyring
@@ -177,7 +177,7 @@ sniffio==1.3.1
     #   httpx
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.2.6
+sphinx==7.3.5
     # via
     #   recommonmark
     #   sphinx-rtd-theme
@@ -206,6 +206,7 @@ tomli==2.0.1
     # via
     #   build
     #   pyproject-hooks
+    #   sphinx
 twine==5.0.0
 typing-extensions==4.11.0
     # via
