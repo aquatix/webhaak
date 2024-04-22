@@ -155,14 +155,14 @@ async def handle_statuspage_update(payload, hook_info, event_info):
     :param dict hook_info: dictionary containing the webhook configuration
     :param str event_info: message containing information about the event, to be used to log and as feedback to user
     """
-    event_info += payload['name']
-    hook_info['title'] = payload['name']
-    hook_info['incident_updates'] = payload.get('incident_updates', [])
-    hook_info['created_at'] = payload['created_at']
-    hook_info['updated_at'] = payload['updated_at']
-    hook_info['impact'] = payload['impact']
-    hook_info['status'] = payload['status']
-    hook_info['url'] = payload['shortlink']
+    event_info += payload['incident']['name']
+    hook_info['title'] = payload['incident']['name']
+    hook_info['incident_updates'] = payload['incident'].get('incident_updates', [])
+    hook_info['created_at'] = payload['incident']['created_at']
+    hook_info['updated_at'] = payload['incident']['updated_at']
+    hook_info['impact'] = payload['incident']['impact']
+    hook_info['status'] = payload['incident']['status']
+    hook_info['url'] = payload['incident']['shortlink']
     return event_info
 
 
