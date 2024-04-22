@@ -203,7 +203,7 @@ def format_and_send_pushover_message(user_key, app_token, text, **kwargs):
             payload[key] = int(time.time())
         else:
             payload[key] = value
-    send_pushover_message(payload)
+    return send_pushover_message(payload)
 
 
 def send_pushover_message(payload):
@@ -611,6 +611,9 @@ def do_handle_statuspage_message(config, hook_info):
         message,
         title=title
     )
+    status = 'OK'
     if not response.status_code == 200:
+        status = 'ERROR'
         logging.error(response.text)
     logging.info('Notification sent')
+    return status, response.text
