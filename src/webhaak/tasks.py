@@ -263,14 +263,14 @@ def make_statuspage_message(config, hook_info):
     title = f'⚠️ {hook_info["title"]}'
     url = hook_info['url']
 
-    message = f'*Impact:* {hook_info["impact"]}'
-    message = f'{message}\n*Status:* `{hook_info["status"]}`'
-    message = f'{message}\n\n*Started:*{hook_info["created_at"]}, *Updated:*{hook_info["updated_at"]}'
+    message = f'Impact: {hook_info["impact"]}'
+    message = f'{message}\nStatus: {hook_info["status"]}'
+    message = f'{message}\n\nStarted: {hook_info["created_at"]}\nUpdated: {hook_info["updated_at"]}'
 
     for update in hook_info['incident_updates']:
-        message = f'{message}\n\n```\n{update}```'
+        message = f'{message}\n\nStatus: {update["status"]}\n{update["display_at"]}\n{update["body"]}'
 
-    message = f'{message}\n\n[{url}]({url})'
+    message = f'{message}\n\n{url}'
 
     return title, message
 
