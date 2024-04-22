@@ -252,6 +252,29 @@ def make_sentry_message(config, hook_info):
     return message
 
 
+def make_statuspage_message(config, hook_info):
+    """Format Statuspage message based on incoming hook info.
+
+    :param tuple config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
+    :return: Markdown formatted message with the details of the Sentry issue
+    :rtype: str
+    """
+    title = f'⚠️ {hook_info["title"]}'
+    url = hook_info['url']
+
+    message = f'*Impact:* {hook_info["impact"]}'
+    message = f'{message}\n*Status:* `{hook_info["status"]}`'
+    message = f'{message}\n\n*Started:*{hook_info["created_at"]}, *Updated:*{hook_info["updated_at"]}'
+
+    for update in hook_info['incident_updates']:
+        message = f'{message}\n\n```\n{update}```'
+
+    message = f'{message}\n\n[{url}]({url})'
+
+    return title, message
+
+
 def notify_user(result, config):
     """Send a PushOver message if configured, after git operation and command have run.
 
@@ -551,7 +574,7 @@ def do_handle_inoreader_rss_message(config, hook_info):
 
 
 def do_handle_sentry_message(config, hook_info):
-    """Assemble information about the RSS item that was pushed.
+    """Assemble information about the Sentry item that was pushed.
 
     :param tuple config: configuration for this webhook
     :param dict hook_info: information about the incoming webhook payload
@@ -568,3 +591,26 @@ def do_handle_sentry_message(config, hook_info):
     elif config[1].get('telegram_chat_id'):
         # send Telegram message
         pass
+
+
+def do_handle_statuspage_message(config, hook_info):
+    """Assemble information about the Statuspage item that was pushed.
+
+    :param tuple config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
+    :return: result and response of the call
+    :rtype: str, dict
+    """
+    title, message = make_statuspage_message(config, hook_info)
+    if not message:
+        # We can skip this one
+        return
+    response = format_and_send_pushover_message(
+        settings.pushover_userkey,
+        settings.pushover_apptoken,
+        message,
+        title=title
+    )
+    if not response.status_code == 200:
+        logging.error(response.text)
+    logging.info('Notification sent')

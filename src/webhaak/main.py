@@ -118,9 +118,11 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
     event_info = ''
     hook_info = {'event_type': 'push'}
-    sentry_message = False
-    rss_message = False
+
     call_external_url = False
+    rss_message = False
+    sentry_message = False
+    statuspage_message = False
 
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
@@ -175,6 +177,9 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             elif payload.get('items') and payload['items'][0].get('canonical'):
                 hook_info['event_type'] = 'news_item'
                 rss_message = True
+            elif payload.get('incident'):
+                hook_info['event_type'] = 'statuspage_update'
+                statuspage_message = True
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
             logger.info(
@@ -191,10 +196,12 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             or request.headers.get('X-Event-Key') == "repo:push"
         ):
             event_info = f'received push from {vcs_source} for '
-        elif sentry_message:
-            event_info = 'received push from Sentry for '
         elif rss_message:
             event_info = 'received RSS item for '
+        elif sentry_message:
+            event_info = 'received push from Sentry for '
+        elif statuspage_message:
+            event_info = 'received statuspage update for '
         elif 'call_url' in config[1]:
             call_external_url = True
             event_info = 'received external URL for '
@@ -223,7 +230,9 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
                 vcs_source
             )
 
-        if sentry_message:
+        if rss_message:
+            event_info = await incoming.handle_inoreader_rss_item(payload, hook_info, event_info)
+        elif sentry_message:
             await incoming.handle_sentry_message(payload, hook_info, event_info)
             status, response = tasks.do_handle_sentry_message(config, hook_info)
             return {
@@ -231,8 +240,14 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
                 'message': 'Command accepted and was passed on',
                 'response': response,
             }
-        elif rss_message:
-            event_info = await incoming.handle_inoreader_rss_item(payload, hook_info, event_info)
+        elif statuspage_message:
+            await incoming.handle_statuspage_update(payload, hook_info, event_info)
+            status, response = tasks.do_handle_statuspage_message(config, hook_info)
+            return {
+                'status': status,
+                'message': 'Command accepted and was passed on',
+                'response': response,
+            }
         else:
             event_info = await incoming.determine_task(config, payload, hook_info, event_info)
 

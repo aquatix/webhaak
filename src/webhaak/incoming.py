@@ -148,6 +148,24 @@ async def handle_sentry_message(payload, hook_info, event_info):
     return event_info
 
 
+async def handle_statuspage_update(payload, hook_info, event_info):
+    """Assemble information about the event that Statuspage sent so an appropriate notification can be sent later.
+
+    :param dict payload: dictionary containing the incoming webhook payload
+    :param dict hook_info: dictionary containing the webhook configuration
+    :param str event_info: message containing information about the event, to be used to log and as feedback to user
+    """
+    event_info += payload['name']
+    hook_info['title'] = payload['name']
+    hook_info['incident_updates'] = payload.get('incident_updates', [])
+    hook_info['created_at'] = payload['created_at']
+    hook_info['updated_at'] = payload['updated_at']
+    hook_info['impact'] = payload['impact']
+    hook_info['status'] = payload['status']
+    hook_info['url'] = payload['shortlink']
+    return event_info
+
+
 async def handle_inoreader_rss_item(payload, hook_info, event_info):
     """Assemble information about the RSS item that was pushed.
 
