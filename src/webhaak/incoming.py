@@ -149,6 +149,9 @@ async def handle_sentry_message(payload, hook_info, event_info):
 
         if not hook_info.get('message'):
             hook_info['message'] = payload['event']['metadata'].get('value', 'n/a')
+        if not hook_info.get('culprit'):
+            # Mention the URL it happened on instead, if available
+            hook_info['culprit'] = payload['event'].get('request', {}).get('url', 'n/a')
     return event_info
 
 
