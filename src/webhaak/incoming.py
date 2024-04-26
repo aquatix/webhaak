@@ -131,7 +131,11 @@ async def handle_sentry_message(payload, hook_info, event_info):
             # Always take the last set
             frames = payload['event']['exception']['values'][-1].get('stacktrace', {}).get('frames', [])
             for frame in frames:
-                frame_message = f'{frame["filename"]} in {frame["function"]} at line {frame["lineno"]}'
+                function_name = frame.get('function', 'unknown')
+                at_line = ''
+                if 'lineno' in frame:
+                    at_line = f' at line {frame["lineno"]}'
+                frame_message = f'{frame["filename"]} in {function_name}{at_line}'
                 stacktrace.append(frame_message)
             # Sentry puts the items of the trace from last to first in the json, so reverse the trace
             stacktrace.reverse()
