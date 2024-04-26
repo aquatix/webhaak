@@ -148,7 +148,7 @@ async def handle_sentry_message(payload, hook_info, event_info):
         hook_info['stacktrace'] = '\n'.join(stacktrace)
 
         if not hook_info.get('message'):
-            hook_info['message'] = payload['event']['metadata']['value']
+            hook_info['message'] = payload['event']['metadata'].get('value', 'n/a')
     return event_info
 
 
