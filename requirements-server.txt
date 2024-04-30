@@ -20,7 +20,7 @@ dnspython==2.6.1
     # via email-validator
 email-validator==2.1.1
     # via fastapi
-fastapi==0.110.2
+fastapi==0.110.3
 gitdb==4.0.11
     # via gitpython
 gitpython==3.1.43
@@ -50,14 +50,14 @@ orjson==3.10.1
     # via fastapi
 packaging==24.0
     # via gunicorn
-pydantic==2.7.0
+pydantic==2.7.1
     # via
     #   fastapi
     #   pydantic-extra-types
     #   pydantic-settings
-pydantic-core==2.18.1
+pydantic-core==2.18.2
     # via pydantic
-pydantic-extra-types==2.6.0
+pydantic-extra-types==2.7.0
     # via fastapi
 pydantic-settings==2.2.1
     # via fastapi
@@ -73,7 +73,7 @@ pyyaml==6.0.1
     # via
     #   fastapi
     #   uvicorn
-redis==5.0.3
+redis==5.0.4
     # via rq
 rq==1.16.1
 six==1.16.0
