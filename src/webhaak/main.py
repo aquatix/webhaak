@@ -123,6 +123,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
     rss_message = False
     sentry_message = False
     statuspage_message = False
+    freshping_monitor = False
 
     if request.method == 'POST':
         if request.headers.get('X-Gitea-Event'):
@@ -180,6 +181,9 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             elif payload.get('incident'):
                 hook_info['event_type'] = 'statuspage_update'
                 statuspage_message = True
+            elif payload.get('check_url'):
+                hook_info['event_type'] = 'freshping_monitor'
+                freshping_monitor = True
         # Likely some ping was sent, check if so
         if request.headers.get('X-GitHub-Event') == "ping":
             logger.info(
@@ -202,6 +206,8 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             event_info = 'received push from Sentry for '
         elif statuspage_message:
             event_info = 'received statuspage update for '
+        elif freshping_monitor:
+            event_info = 'received Freshping monitoring update for '
         elif 'call_url' in config[1]:
             call_external_url = True
             event_info = 'received external URL for '
@@ -243,6 +249,14 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
         elif statuspage_message:
             await incoming.handle_statuspage_update(payload, hook_info, event_info)
             status, response = tasks.do_handle_statuspage_message(config, hook_info)
+            return {
+                'status': status,
+                'message': 'Command accepted and was passed on',
+                'response': response,
+            }
+        elif freshping_monitor:
+            event_info, hook_info = await incoming.handle_freshping(payload, hook_info, event_info)
+            status, response = tasks.do_handle_freshping(config, hook_info)
             return {
                 'status': status,
                 'message': 'Command accepted and was passed on',

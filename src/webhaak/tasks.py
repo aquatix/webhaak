@@ -220,6 +220,27 @@ def send_pushover_message(payload):
     return response
 
 
+def make_freshping_message(config, hook_info):
+    """Format Freshping message based on incoming hook info.
+
+    :param tuple config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
+    :return: Markdown formatted message with the details of the Sentry issue
+    :rtype: str
+    """
+    if hook_info.get('response_summary') == 'Available':
+        state = '✅'
+    else:
+        state = '<span style="color: #F00">⚠️</span>'
+    title = f'{state} [{hook_info["check_name"]}]'
+
+    message = hook_info.get('text', '[unknown check]')
+    message = f'{message}\n{hook_info["response_summary"]}\n\n{hook_info["response_state"]}'
+    message = f'{message}\n\n{hook_info["check_url"]}'
+
+    return f'{title}\n\n{message}'
+
+
 def make_sentry_message(config, hook_info):
     """Format Sentry message based on incoming hook info.
 
@@ -560,6 +581,26 @@ def do_pull_andor_command(config, hook_info):
         or (result['status'] == 'error' and ('notify_on_error' in config[1] and config[1]['notify_on_error']))
     ):
         notify_user(result, config)
+
+
+def do_handle_freshping(config, hook_info):
+    """Assemble information about the Freshping monitoring item that was pushed.
+
+    :param tuple config: configuration for this webhook
+    :param dict hook_info: information about the incoming webhook payload
+    :return: result and response of the call
+    :rtype: str, dict
+    """
+    message = make_freshping_message(config, hook_info)
+    if not message:
+        # We can skip this one
+        return
+    if config[1].get('call_url'):
+        # send through webhook (outgoing URL call)
+        return send_outgoing_webhook(config, payload=message)
+    elif config[1].get('telegram_chat_id'):
+        # send Telegram message
+        pass
 
 
 def do_handle_inoreader_rss_message(config, hook_info):

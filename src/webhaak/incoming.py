@@ -1,4 +1,5 @@
 """Make sense of the incoming webhook requests."""
+import copy
 import logging
 
 logger = logging.getLogger('webhaak')
@@ -109,6 +110,19 @@ async def handle_git_actor(payload, hook_info, event_info):
         hook_info['username'] = payload['pusher']['name']
         hook_info['email'] = payload['pusher']['email']
     return event_info
+
+
+async def handle_freshping(payload, hook_info, event_info):
+    """Assemble information about the monitoring event that Freshping sent so an appropriate notification can be sent.
+
+    :param dict payload: dictionary containing the incoming webhook payload
+    :param dict hook_info: dictionary containing the webhook configuration
+    :param str event_info: message containing information about the event, to be used to log and as feedback to user
+    """
+    event_info += payload.get('check_name', 'unknown')
+    # payload contains all the info we want and need
+    hook_info = copy.deepcopy(payload)
+    return event_info, hook_info
 
 
 async def handle_sentry_message(payload, hook_info, event_info):
