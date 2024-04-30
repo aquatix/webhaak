@@ -43,6 +43,13 @@ endpoints:
         url: http://localhost:8080/skill/mybotwebhook/echo
         json: true
         post: true
+    freshping:
+      trigger_key: 39873014da49af42458bc850d442f52096b0cbf1d6aa19d8
+      notify: false
+      call_url:
+        url: http://localhost:8080/skill/mybotwebhook/echo
+        json: true
+        post: true
 
 flask_webapp:
   app_key: 175cc847f608840815d741070d114f3aac35243b4f7e501c
