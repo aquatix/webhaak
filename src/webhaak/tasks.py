@@ -231,11 +231,11 @@ def make_freshping_message(config, hook_info):
     if hook_info.get('response_summary') == 'Available':
         state = '✅'
     else:
-        state = '<span style="color: #F00">⚠️</span>'
+        state = '🚨'
     title = f'{state} [{hook_info["check_name"]}] {hook_info["response_state"]}'
 
     message = hook_info.get('text', '[unknown check]')
-    message = f'{message}\nℹ️ {hook_info["response_summary"]}\n\n🔗 {hook_info["check_url"]}'
+    message = f'{message}\n→ {hook_info["response_summary"]}\n\n🔗 {hook_info["check_url"]}'
 
     return f'{title}\n\n{message}'
 
