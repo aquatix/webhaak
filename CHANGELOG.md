@@ -27,9 +27,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Only update repository and run command when the push was on the configured branch (use `branch: <name>`)
 
 ### Removed
+- Dependency on `requests`
 
 ### Fixed
-- Actually use named `webhaak` queue for RQ worker (instead of `default`)
+- Actually use named `webhaak` queue for RQ worker (instead of `default`, which might also conflict with other RQ instances)
 - Guard against remote not returning a JSON response
 - Properly await async functions that handle incoming webhook calls
 
