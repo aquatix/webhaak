@@ -45,7 +45,7 @@ docutils==0.20.1
     #   sphinx-rtd-theme
 email-validator==2.1.1
     # via fastapi
-fastapi==0.111.0
+fastapi[all]==0.111.0
     # via -r requirements.in
 fastapi-cli==0.0.4
     # via fastapi
@@ -224,11 +224,11 @@ typing-extensions==4.12.0
     #   typer
 ujson==5.10.0
     # via fastapi
-urllib3==2.2.1
+urllib3==2.2.2
     # via
     #   requests
     #   twine
-uvicorn==0.30.0
+uvicorn[standard]==0.30.0
     # via fastapi
 uvloop==0.19.0
     # via uvicorn
