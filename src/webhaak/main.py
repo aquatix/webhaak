@@ -1,4 +1,5 @@
 """Main Webhaak application (runtime)."""
+
 import binascii
 import json
 import logging
@@ -24,6 +25,7 @@ async def lifespan(the_app: FastAPI):
     yield
     await the_app.requests_client.aclose()
 
+
 app = FastAPI(lifespan=lifespan)
 
 logger = logging.getLogger('webhaak')
@@ -33,10 +35,10 @@ if settings.debug:
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow requests from everywhere
+    allow_origins=['*'],  # Allow requests from everywhere
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=['*'],
+    allow_headers=['*'],
 )
 
 # Default job runtime
@@ -48,13 +50,14 @@ async def verify_key(secret_key: str):
     try:
         if secret_key != settings.secretkey:
             logger.warning('Secret key incorrect trying to list triggers')
-            raise HTTPException(status_code=404, detail="Secret key not found")
+            raise HTTPException(status_code=404, detail='Secret key not found')
     except AttributeError as exc:
         logger.warning('Secret key not found trying to list triggers')
-        raise HTTPException(status_code=404, detail="Secret key not found") from exc
+        raise HTTPException(status_code=404, detail='Secret key not found') from exc
 
 
 # == Web app endpoints ======
+
 
 @app.get('/')
 async def indexpage():
@@ -90,8 +93,7 @@ async def list_triggers(request: Request):
                 {
                     'title': trigger,
                     'trigger_key': project_info['triggers'][trigger]['trigger_key'],
-                    'url':
-                        f"{server_url}app/{project_info['app_key']}/{project_info['triggers'][trigger]['trigger_key']}"
+                    'url': f"{server_url}app/{project_info['app_key']}/{project_info['triggers'][trigger]['trigger_key']}",
                 }
             )
     return {'projects': result}
@@ -114,7 +116,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
     if config is None:
         logger.error('app_key/trigger_key combo not found')
         # return Response(json.dumps({'status': 'Error'}), status=404, mimetype='application/json')
-        raise HTTPException(status_code=404, detail="Error")
+        raise HTTPException(status_code=404, detail='Error')
 
     event_info = ''
     hook_info = {'event_type': 'push'}
@@ -185,19 +187,14 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
                 hook_info['event_type'] = 'freshping_monitor'
                 freshping_monitor = True
         # Likely some ping was sent, check if so
-        if request.headers.get('X-GitHub-Event') == "ping":
-            logger.info(
-                'received %s ping for %s hook: %s ',
-                vcs_source,
-                payload['repository']['full_name'],
-                url
-            )
+        if request.headers.get('X-GitHub-Event') == 'ping':
+            logger.info('received %s ping for %s hook: %s ', vcs_source, payload['repository']['full_name'], url)
             return json.dumps({'msg': 'Hi!'})
         if (
-            request.headers.get('X-GitHub-Event') == "push"
-            or request.headers.get('X-Gitea-Event') == "push"
-            or request.headers.get('X-Gogs-Event') == "push"
-            or request.headers.get('X-Event-Key') == "repo:push"
+            request.headers.get('X-GitHub-Event') == 'push'
+            or request.headers.get('X-Gitea-Event') == 'push'
+            or request.headers.get('X-Gogs-Event') == 'push'
+            or request.headers.get('X-Event-Key') == 'repo:push'
         ):
             event_info = f'received push from {vcs_source} for '
         elif rss_message:
@@ -216,9 +213,9 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
                 'received wrong event type from %s for %s hook: %s',
                 vcs_source,
                 payload.get('repository', {}).get('full_name', 'not available'),
-                url
+                url,
             )
-            return {'error': "wrong event type"}
+            return {'error': 'wrong event type'}
 
         if call_external_url:
             # Event type is 'call another URL'
@@ -233,7 +230,7 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
             logger.error(
                 '%s unknown, as no json was received. Check that %s webhook content type is application/json',
                 str(event_info),
-                vcs_source
+                vcs_source,
             )
 
         if rss_message:
@@ -272,9 +269,21 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
 
     # Delay execution task, so it can run as its own process under RQ, synchronously
     if rss_message:
-        job = q.enqueue(tasks.do_handle_inoreader_rss_message, args=(config, hook_info,))
+        job = q.enqueue(
+            tasks.do_handle_inoreader_rss_message,
+            args=(
+                config,
+                hook_info,
+            ),
+        )
     else:
-        job = q.enqueue(tasks.do_pull_andor_command, args=(config, hook_info,))
+        job = q.enqueue(
+            tasks.do_pull_andor_command,
+            args=(
+                config,
+                hook_info,
+            ),
+        )
     logger.info('Enqueued job with id: %s', job.id)
 
     if not os.path.isdir(settings.jobs_log_dir):

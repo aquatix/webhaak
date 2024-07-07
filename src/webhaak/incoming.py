@@ -1,4 +1,5 @@
 """Make sense of the incoming webhook requests."""
+
 import copy
 import logging
 

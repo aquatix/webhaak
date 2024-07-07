@@ -1,4 +1,5 @@
 """Execute that tasks initiated by the webhooks."""
+
 import logging
 import os
 import subprocess
@@ -48,9 +49,7 @@ print(settings.model_dump())
 logger = logging.getLogger('worker')
 
 logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler(
-    os.path.join(settings.log_dir, 'webhaak.log')
-)
+fh = logging.FileHandler(os.path.join(settings.log_dir, 'webhaak.log'))
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
@@ -62,38 +61,45 @@ schema = MapPattern(
     Map(
         {
             # Key for a group of triggers
-            "app_key": Str(),
-            "triggers": MapPattern(Str(), Map({
-                # Key for a specific trigger
-                "trigger_key": Str(),
-                Optional("notify"): Bool(),
-                Optional("notify_on_error"): Bool(),
-                # Git repository URI
-                Optional("repo"): Str(),
-                # Parent directory for repository to clone to; defaults to REPOS_CACHE_DIR
-                Optional("repo_parent"): Str(),
-                # Only act when incoming call is about this specific branch; if unspecified, trigger will always fire
-                Optional("branch"): Str(),
-                # Execute this command (after Git pull if repo specified)
-                Optional("command"): Str(),
-                # Git author username -> friendly name mapping
-                Optional("authors"): MapPattern(Str(), Str()),
-                # Call a remote endpoint
-                Optional('call_url'): Map({
-                    'url': Str(),
-                    # Contains json payload
-                    Optional('json', default=False): Bool(),
-                    # Should POST instead of GET
-                    Optional('post', default=False): Bool(),
-                }),
-                # Telegram
-                Optional("telegram_chat_id"): Str(),
-                Optional("telegram_token"): Str(),
-                # Sentry
-                Optional("ignore"): Seq(Str()),
-            }))
+            'app_key': Str(),
+            'triggers': MapPattern(
+                Str(),
+                Map(
+                    {
+                        # Key for a specific trigger
+                        'trigger_key': Str(),
+                        Optional('notify'): Bool(),
+                        Optional('notify_on_error'): Bool(),
+                        # Git repository URI
+                        Optional('repo'): Str(),
+                        # Parent directory for repository to clone to; defaults to REPOS_CACHE_DIR
+                        Optional('repo_parent'): Str(),
+                        # Only act when incoming call is about this specific branch; if unspecified, trigger will always fire
+                        Optional('branch'): Str(),
+                        # Execute this command (after Git pull if repo specified)
+                        Optional('command'): Str(),
+                        # Git author username -> friendly name mapping
+                        Optional('authors'): MapPattern(Str(), Str()),
+                        # Call a remote endpoint
+                        Optional('call_url'): Map(
+                            {
+                                'url': Str(),
+                                # Contains json payload
+                                Optional('json', default=False): Bool(),
+                                # Should POST instead of GET
+                                Optional('post', default=False): Bool(),
+                            }
+                        ),
+                        # Telegram
+                        Optional('telegram_chat_id'): Str(),
+                        Optional('telegram_token'): Str(),
+                        # Sentry
+                        Optional('ignore'): Seq(Str()),
+                    }
+                ),
+            ),
         }
-    )
+    ),
 )
 
 # Load the configuration of the various projects/hooks
@@ -144,12 +150,7 @@ def send_outgoing_webhook(config, payload):
     logger.info(f'Calling URL {url}')
     try:
         if config[1]['call_url']['post']:
-            response = httpx.post(
-                url,
-                data=payload,
-                headers={'User-Agent': 'webhaak'},
-                timeout=60
-            )
+            response = httpx.post(url, data=payload, headers={'User-Agent': 'webhaak'}, timeout=60)
         else:
             # This could be more useful with some URL-encoded content for example
             response = httpx.get(url)
@@ -182,24 +183,24 @@ def format_and_send_pushover_message(user_key, app_token, text, **kwargs):
     :param str text: message to send
     """
     message_keywords = [
-        "title",
-        "priority",
-        "sound",
-        "callback",
-        "timestamp",
-        "url",
-        "url_title",
-        "device",
-        "retry",
-        "expire",
-        "html",
-        "attachment",
+        'title',
+        'priority',
+        'sound',
+        'callback',
+        'timestamp',
+        'url',
+        'url_title',
+        'device',
+        'retry',
+        'expire',
+        'html',
+        'attachment',
     ]
-    payload = {"message": text, "user": user_key, "token": app_token}
+    payload = {'message': text, 'user': user_key, 'token': app_token}
     for key, value in kwargs.items():
         if key not in message_keywords:
             raise ValueError(f'{key}: invalid message parameter')
-        if key == "timestamp" and value is True:
+        if key == 'timestamp' and value is True:
             payload[key] = int(time.time())
         else:
             payload[key] = value
@@ -212,10 +213,7 @@ def send_pushover_message(payload):
     :param dict payload: key, token and message to send
     """
     response = httpx.post(
-        'https://api.pushover.net/1/messages.json',
-        data=payload,
-        headers={'User-Agent': 'Python'},
-        timeout=60
+        'https://api.pushover.net/1/messages.json', data=payload, headers={'User-Agent': 'Python'}, timeout=60
     )
     return response
 
@@ -327,9 +325,7 @@ def notify_user(result, config):
             # params = {'chat_id': telegram_chat_id, 'text': make_sentry_message(config)}
             params = {'chat_id': telegram_chat_id, 'text': 'Imagine a Sentry message here. Not implemented, sorry'}
             with httpx.get(
-                f'https://api.telegram.org/bot{telegram_token}/sendMessage',
-                params=params,
-                timeout=30
+                f'https://api.telegram.org/bot{telegram_token}/sendMessage', params=params, timeout=30
             ) as response:
                 logging.info('Telegram notification sent, result was %s', str(response.status_code))
         else:
@@ -384,13 +380,13 @@ def get_repo_version(repo_dir):
     """
     # Make sure the working directory is our project
     try:
-        version = subprocess.check_output(["git", "describe", "--always", "--tags"], stderr=None, cwd=repo_dir).strip()
+        version = subprocess.check_output(['git', 'describe', '--always', '--tags'], stderr=None, cwd=repo_dir).strip()
     except subprocess.CalledProcessError:
         version = ''
 
     try:
         # byte string needs to be converted to a string
-        version = version.decode("utf-8")
+        version = version.decode('utf-8')
     except AttributeError:
         # version already was a str
         pass
@@ -441,17 +437,17 @@ def update_repo(config):
         logger.info('[%s] Repo does not exist yet, clone', projectname)
         app_repo = git.Repo.init(repo_dir)
         origin = app_repo.create_remote('origin', repo_url)
-        origin.fetch()                  # assure we actually have data. fetch() returns useful information
+        origin.fetch()  # assure we actually have data. fetch() returns useful information
         # Set up a local tracking branch of a remote branch
         app_repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
     branch = 'master'
     if 'branch' in trigger_config:
         branch = trigger_config['branch']
-    logger.info('[%s] checkout() branch \'%s\'', projectname, branch)
+    logger.info("[%s] checkout() branch '%s'", projectname, branch)
     result = str(app_repo.git.checkout(branch))
     # pull (so really update) the checked out branch to latest commit
     origin.pull()
-    logger.info('[%s] Done pulling branch \'%s\'', projectname, branch)
+    logger.info("[%s] Done pulling branch '%s'", projectname, branch)
     return result
 
 
@@ -515,7 +511,7 @@ def do_pull_andor_command(config, hook_info):
                 projectname,
                 config[1]['title'],
                 hook_info['branch'],
-                config[1]['branch']
+                config[1]['branch'],
             )
             return
         try:
@@ -573,7 +569,7 @@ def do_pull_andor_command(config, hook_info):
                     '[%s] command_error with returncode %s: %s',
                     projectname,
                     str(cmd_result.returncode),
-                    cmd_result.stderr
+                    cmd_result.stderr,
                 )
                 logger.error('[%s] stdout: %s', projectname, cmd_result.stdout)
                 logger.error('[%s] stderr: %s', projectname, cmd_result.stderr)
@@ -584,9 +580,8 @@ def do_pull_andor_command(config, hook_info):
 
     result['runtime'] = datetime.now() - start_time
 
-    if (
-        ('notify' not in config[1] or config[1]['notify'])
-        or (result['status'] == 'error' and ('notify_on_error' in config[1] and config[1]['notify_on_error']))
+    if ('notify' not in config[1] or config[1]['notify']) or (
+        result['status'] == 'error' and ('notify_on_error' in config[1] and config[1]['notify_on_error'])
     ):
         notify_user(result, config)
 
@@ -655,10 +650,7 @@ def do_handle_statuspage_message(config, hook_info):
         # We can skip this one
         return
     response = format_and_send_pushover_message(
-        settings.pushover_userkey,
-        settings.pushover_apptoken,
-        message,
-        title=title
+        settings.pushover_userkey, settings.pushover_apptoken, message, title=title
     )
     status = 'OK'
     if not response.status_code == 200:
