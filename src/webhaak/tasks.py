@@ -338,7 +338,9 @@ def notify_user(result, config):
                 settings.pushover_userkey,
                 settings.pushover_apptoken,
                 message,
-                title=title
+                title=title,
+                url=result['job_url'],
+                url_title='Job results',
             )
             if not response.status_code == 200:
                 logging.error(response.text)
@@ -499,7 +501,12 @@ def do_pull_andor_command(config, hook_info):
 
     projectname = config[0]
     start_time = datetime.now()
-    result = {'application': projectname, 'result': 'unknown', 'trigger': config[1]}
+    result = {
+        'application': projectname,
+        'result': 'unknown',
+        'trigger': config[1],
+        'job_url': this_job.meta.get('job_url'),
+    }
     if 'repo' in config[1]:
         if config[1].get('branch') and hook_info.get('branch') and config[1]['branch'] != hook_info['branch']:
             # Push was not on the required branch, skipping execution

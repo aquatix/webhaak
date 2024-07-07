@@ -284,11 +284,13 @@ async def app_trigger(app_key: str, trigger_key: str, request: Request):
         outfile.write(event_info)
 
     server_url = request.base_url
+    job.meta['job_url'] = f'{server_url}status/{job.id}'
+    job.save_meta()
     return {
         'status': 'OK',
         'message': 'Command accepted and will be run in the background',
         'job_id': job.id,
-        'url': f'{server_url}status/{job.id}'
+        'url': f'{server_url}status/{job.id}',
     }
 
 
