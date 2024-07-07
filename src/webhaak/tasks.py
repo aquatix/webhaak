@@ -529,13 +529,13 @@ def do_pull_andor_command(config, hook_info):
             return
 
     if 'command' in config[1]:
-        cmd_result = None
         cmd_error = None
         try:
             cmd_result = run_command(config, hook_info)
         except subprocess.CalledProcessError as e:
             logger.error('[%s] Error while executing command: %s', projectname, str(e))
-            cmd_error = str(e)
+            cmd_result = e.stdout
+            cmd_error = f'{e}\n\n{e.stderr}'
 
         with open(os.path.join(settings.jobs_log_dir, f'{this_job.id}.log'), 'a', encoding='utf-8') as outfile:
             # Save output of the command ran by the job to its log
@@ -546,6 +546,8 @@ def do_pull_andor_command(config, hook_info):
                 outfile.write('== Command error, if any ======\n')
                 outfile.write(cmd_result.stderr)
             else:
+                outfile.write('== Command output ======\n')
+                outfile.write(cmd_result)
                 outfile.write('== Command error ======\n')
                 outfile.write(cmd_error)
 
