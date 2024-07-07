@@ -9,7 +9,7 @@ anyio==4.4.0
     #   watchfiles
 async-timeout==4.0.3
     # via -r requirements.in
-certifi==2024.6.2
+certifi==2024.7.4
     # via
     #   httpcore
     #   httpx
