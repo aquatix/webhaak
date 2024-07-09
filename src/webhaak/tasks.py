@@ -74,7 +74,8 @@ schema = MapPattern(
                         Optional('repo'): Str(),
                         # Parent directory for repository to clone to; defaults to REPOS_CACHE_DIR
                         Optional('repo_parent'): Str(),
-                        # Only act when incoming call is about this specific branch; if unspecified, trigger will always fire
+                        # Only act when incoming call is about this specific branch; if unspecified, trigger will
+                        # always fire
                         Optional('branch'): Str(),
                         # Execute this command (after Git pull if repo specified)
                         Optional('command'): Str(),
@@ -163,7 +164,7 @@ def send_outgoing_webhook(config, payload):
     try:
         response_body = response.json()
     except json.decoder.JSONDecodeError:
-        response_body = response.text()
+        response_body = response.text
     return result, response_body
 
 
@@ -218,10 +219,9 @@ def send_pushover_message(payload):
     return response
 
 
-def make_freshping_message(config, hook_info):
+def make_freshping_message(hook_info):
     """Format Freshping message based on incoming hook info.
 
-    :param tuple config: configuration for this webhook
     :param dict hook_info: information about the incoming webhook payload
     :return: Markdown formatted message with the details of the Sentry issue
     :rtype: str
@@ -270,10 +270,9 @@ def make_sentry_message(config, hook_info):
     return message
 
 
-def make_statuspage_message(config, hook_info):
+def make_statuspage_message(hook_info):
     """Format Statuspage message based on incoming hook info.
 
-    :param tuple config: configuration for this webhook
     :param dict hook_info: information about the incoming webhook payload
     :return: Markdown formatted message with the details of the Sentry issue
     :rtype: str
@@ -594,7 +593,7 @@ def do_handle_freshping(config, hook_info):
     :return: result and response of the call
     :rtype: str, dict
     """
-    message = make_freshping_message(config, hook_info)
+    message = make_freshping_message(hook_info)
     if not message:
         # We can skip this one
         return
@@ -645,7 +644,7 @@ def do_handle_statuspage_message(config, hook_info):
     :return: result and response of the call
     :rtype: str, dict
     """
-    title, message = make_statuspage_message(config, hook_info)
+    title, message = make_statuspage_message(hook_info)
     if not message:
         # We can skip this one
         return
