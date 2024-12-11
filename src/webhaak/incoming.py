@@ -156,9 +156,9 @@ async def handle_sentry_message(payload, hook_info, event_info):
             stacktrace.reverse()
         elif 'logentry' in payload['event']:
             if 'message' in payload['event']['logentry']:
-                stacktrace.append(payload['event']['logentry']['message'])
+                stacktrace.append(str(payload['event']['logentry']['message']))
             if 'formatted' in payload['event']['logentry']:
-                stacktrace.append(payload['event']['logentry']['formatted'])
+                stacktrace.append(str(payload['event']['logentry']['formatted']))
         logger.debug(stacktrace)
         hook_info['stacktrace'] = '\n'.join(stacktrace)
 
