@@ -89,7 +89,7 @@ async def list_triggers(request: Request):
             'triggers': [],
         }
         for trigger in project_info['triggers']:
-            url = f"{server_url}app/{project_info['app_key']}/{project_info['triggers'][trigger]['trigger_key']}"
+            url = f'{server_url}app/{project_info["app_key"]}/{project_info["triggers"][trigger]["trigger_key"]}'
             result[project]['triggers'].append(
                 {
                     'title': trigger,
