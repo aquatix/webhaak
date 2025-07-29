@@ -105,7 +105,7 @@ smmap==5.0.2
     # via gitdb
 sniffio==1.3.1
     # via anyio
-starlette==0.46.2
+starlette==0.47.2
     # via fastapi
 strictyaml==1.7.3
     # via -r requirements.in
