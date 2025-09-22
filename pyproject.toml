@@ -25,6 +25,30 @@ dependencies = [
     "gitpython",
     "rq"
 ]
+
+[dependency-groups]
+dev = [
+  {include-group = "lint"},
+  {include-group = "pub"},
+  {include-group = "test"}
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+lint = [
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "bandit>=1.7.10",
+]
+# Publishing on PyPI
+pub = [
+    "build",
+    "twine"
+]
+server = [
+    "gunicorn>=23.0.0",
+]
 # dynamic = ["version"]
 
 [project.scripts]

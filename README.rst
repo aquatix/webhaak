@@ -34,7 +34,10 @@ necessary packages:
     git clone https://github.com/aquatix/webhaak.git
     cd webhaak
     mkvirtualenv webhaak # or whatever project you are working on
-    pip install -r requirements.txt
+    # If you just want to run it, no need for development dependencies
+    uv sync --active --no-dev
+    # Otherwise, install everything in the active virtualenv
+    uv sync --active
 
 
 Usage

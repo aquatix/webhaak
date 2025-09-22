@@ -1,10 +1,12 @@
 -r requirements.in
 
 bandit
-#black
-#flake8
-#pylint
 ruff
+mypy
+
+# Testing
+pytest
+pytest-cov
 
 # Publishing on PyPI
 build

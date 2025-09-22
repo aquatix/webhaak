@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Only update repository and run command when the push was on the configured branch (use `branch: <name>`)
 
 ### Removed
-- Dependency on `requests`
+- Dependency on `requests`, replaced by `httpx`
 
 ### Fixed
 - Actually use named `webhaak` queue for RQ worker (instead of `default`, which might also conflict with other RQ instances)
