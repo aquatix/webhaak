@@ -1,3 +1,4 @@
+"""Example configuration to handle webhook calls in OpsDroid bot."""
 import json
 
 from aiohttp.web import Request
@@ -8,8 +9,10 @@ from opsdroid.skill import Skill
 
 
 class OpsdroidBotHookSkill(Skill):
+    """Skill (plugin) to handle webhooks."""
+
     def format_as_html(self, markdown_message):
-        """Format the (markdown formatted) text to HTML for Matrix"""
+        """Format the (markdown formatted) text to HTML for Matrix."""
         md = MarkdownIt('commonmark', {'breaks': True, 'html': True}).enable('table')
         # Ensure the message is a string, and strip leading and trailing whitespace
         message = str(markdown_message).strip()
@@ -18,6 +21,7 @@ class OpsdroidBotHookSkill(Skill):
 
     @match_webhook('echo')
     async def echowebhook(self, event: Request):
+        """Echo back the content/message of the webhook that was sent."""
         # Capture the post data
         data = await event.text()
 
@@ -27,6 +31,7 @@ class OpsdroidBotHookSkill(Skill):
 
     @match_webhook('notification')
     async def notificationwebhookskill(self, event: Request):
+        """Send a notification to room the with the message of the webhook that was sent."""
         # Capture the post data
         try:
             data = await event.json()
