@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [unreleased]
 
 ### Added
+
+### Changed
+
+### Removed
+
+### Fixed
+
+
+## [0.6.0] - 2025-11-14
+
+### Added
 - Call another (external) URL/endpoint from a hook
 - Native Sentry message support
 - Support for (Inoreader filter) RSS news item notification
