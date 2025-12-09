@@ -146,7 +146,7 @@ typing-inspection==0.4.2
     #   pydantic-settings
 ujson==5.11.0
     # via fastapi
-urllib3==2.5.0
+urllib3==2.6.0
     # via sentry-sdk
 uvicorn==0.38.0
     # via
