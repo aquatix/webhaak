@@ -1,8 +1,6 @@
-⚠️  `Moved to Codeberg <https://codeberg.org/diginaut/webhaak>`_ ⚠️
+⚠️  `Moved to Codeberg <https://codeberg.org/diginaut/webhaak>`_ | `Read here why <https://dammit.nl/jumping-the-github-ship.html>`_ ⚠️
 
 **This repository is not mirrored.**
-
-`Read here why <https://dammit.nl/jumping-the-github-ship.html>`_
 
 webhaak
 =======
