@@ -7,3 +7,5 @@ other maintenance without having to ssh to a node.
 ⚠️  `Moved to Codeberg <https://codeberg.org/diginaut/webhaak>`_ ⚠️
 
 **This repository is not mirrored.**
+
+`Read here why <https://dammit.nl/jumping-the-github-ship.html`_
